@@ -1,5 +1,5 @@
 <hr><div>
-<a href="../.."><img align="right" height="92" src="assets/logo.png" alt="logo"></a>
+<a href="../.."><img align="right" height="92" src="assets/logo.png" alt="logo" vspace="2px"></a>
 <h1>machogen</h1>
 <p>Monterey post installation script.</p>
 </div><hr>
