@@ -1851,7 +1851,7 @@ update_rider() {
 	update_jetbrains_config "Rider" "directory" "$deposit"
 	update_jetbrains_config "Rider" "font_size" "13"
 	update_jetbrains_config "Rider" "line_size" "1.5"
-	update_jetbrains_config "Rider" "line_wrap" "140"
+	update_jetbrains_config "Rider" "line_wrap" "160"
 
 	address="https://media.macosicons.com/parse/files/macOSicons"
 	address="$address/834ebeab4bea4dd16f9c02c5f314952e_JetBrains_Rider.icns"
@@ -2087,7 +2087,7 @@ main() {
 		# "update_flutter"
 		# "update_nodejs"
 		# "update_odoo"
-		"update_powershell"
+		# "update_powershell"
 		# "update_python"
 
 		# "update_dbeaver_ultimate"
