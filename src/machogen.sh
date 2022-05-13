@@ -1578,6 +1578,16 @@ update_mpv() {
 
 }
 
+update_mqtt_explorer() {
+
+	brew install --cask --no-quarantine mqtt-explorer
+
+	address="https://media.macosicons.com/parse/files/macOSicons"
+	address="$address/9ea65d2400ef27120e7dd4dc00e85881_MQTT_Explorer.icns"
+	invoke_newicon "$address" "/Applications/MQTT Explorer.app"
+
+}
+
 update_netnewswire() {
 
 	brew install --cask --no-quarantine netnewswire
@@ -1996,6 +2006,36 @@ update_transmission() {
 
 }
 
+update_vemto() {
+
+	brew install jq
+
+	address="https://api.github.com/repos/TiagoSilvaPereira/vemto-releases/releases"
+	version=$(curl -Ls "$address" | jq -r ".[0].tag_name" | tr -d "v")
+	checkup=$(invoke_pattern "/*pplications/*emto*/*ontents/*nfo.plist")
+	current=$(defaults read "$checkup" CFBundleShortVersionString 2>/dev/null | ggrep -oP "[\d.]+" || echo "0.0.0.0")
+
+	autoload is-at-least
+
+	if ! is-at-least "$version" "$current"; then
+
+		address="https://github.com/TiagoSilvaPereira/vemto-releases/releases"
+		address="$address/download/v${version}/vemto-${version}.dmg"
+		package=$(mktemp -d)/$(basename "$address") && curl -Ls "$address" -o "$package"
+
+		hdiutil attach "$package" -noautoopen -nobrowse
+		cp -fr /Volumes/vemto*/vemto*.app /Applications
+		hdiutil detach /Volumes/vemto*
+		sudo xattr -rd com.apple.quarantine /Applications/vemto*.app
+
+	fi
+
+	address="https://media.macosicons.com/parse/files/macOSicons"
+	address="$address/f651155c09106bf1d5f53db760342fd1_SmartGit.icns"
+	invoke_newicon "$address" "/Applications/vemto.app"
+
+}
+
 update_vscode() {
 
 	brew install homebrew/cask-fonts/font-cascadia-code jq sponge
@@ -2085,12 +2125,13 @@ main() {
 		# "update_docker"
 		# "update_dotnet"
 		# "update_flutter"
+		# "update_mqtt_explorer"
 		# "update_nodejs"
 		# "update_odoo"
 		# "update_powershell"
 		# "update_python"
+		# "update_vemto"
 
-		# "update_dbeaver_ultimate"
 		# "update_figma"
 		# "update_iina"
 		# "update_insomnia"
@@ -2104,8 +2145,8 @@ main() {
 		# "update_the_unarchiver"
 		# "update_transmission"
 
-		"update_appearance"
-		"update_system"
+		# "update_appearance"
+		# "update_system"
 
 	)
 
