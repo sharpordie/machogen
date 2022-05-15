@@ -944,7 +944,7 @@ update_chromium_extension() {
 
 update_docker() {
 
-	brew install --cask --no-quarantine docker
+	brew upgrade --cask --no-quarantine docker || brew install --cask --no-quarantine docker
 
 	address="https://media.macosicons.com/parse/files/macOSicons"
 	address="$address/a74bb7c042e74f6e20dc3a50c631c41f_Docker.icns"
@@ -1759,7 +1759,7 @@ update_pycharm() {
 	present=$(test -d "/Applications/PyCharm.app" && echo true || echo false)
 
 	brew install fileicon xmlstarlet
-	brew install --cask --no-quarantine pycharm
+	brew upgrade --cask --no-quarantine pycharm || brew install --cask --no-quarantine pycharm
 
 	if [[ $present = false ]]; then
 
