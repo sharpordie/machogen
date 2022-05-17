@@ -1744,6 +1744,26 @@ update_permissions() {
 
 }
 
+update_phpstorm() {
+
+	deposit="${1:-$HOME/Projects}"
+
+	present=$(test -d "/Applications/PhpStorm.app" && echo true || echo false)
+
+	brew install fileicon xmlstarlet
+	brew install --cask --no-quarantine rider
+
+	update_jetbrains_config "PhpStorm" "directory" "$deposit"
+	update_jetbrains_config "PhpStorm" "font_size" "13"
+	update_jetbrains_config "PhpStorm" "line_size" "1.5"
+	update_jetbrains_config "PhpStorm" "line_wrap" "160"
+
+	address="https://media.macosicons.com/parse/files/macOSicons"
+	address="$address/47ac6ca6873ff8e9e018ba781d9e1f12_PhpStorm.icns"
+	invoke_newicon "$address" "/Applications/PhpStorm.app"
+
+}
+
 update_powershell() {
 
 	brew install --cask --no-quarantine powershell
@@ -1819,9 +1839,9 @@ update_pycharm() {
 	update_jetbrains_config "PyCharm" "line_size" "1.5"
 	update_jetbrains_config "PyCharm" "line_wrap" "140"
 
-	# https://macosicons.com/#/u/sebastianblari
+	# https://macosicons.com/#/u/twilightwalker
 	address="https://media.macosicons.com/parse/files/macOSicons"
-	address="$address/9aead0251ce75a29a8309f61b3f5d732_JetBrains_PyCharm.icns"
+	address="$address/1745c1fdacf6f97df6807b0306ae0921_PyCharm.icns"
 	invoke_newicon "$address" "/Applications/PyCharm.app"
 
 }
@@ -1864,7 +1884,7 @@ update_rider() {
 	update_jetbrains_config "Rider" "line_wrap" "160"
 
 	address="https://media.macosicons.com/parse/files/macOSicons"
-	address="$address/834ebeab4bea4dd16f9c02c5f314952e_JetBrains_Rider.icns"
+	address="$address/0b1e6756e49f76cbf0d0da4ea02ccec7_Rider.icns"
 	invoke_newicon "$address" "/Applications/Rider.app"
 
 }
@@ -2019,6 +2039,8 @@ update_vemto() {
 
 	if ! is-at-least "$version" "$current"; then
 
+		rm -rf /Applications/vemto*.app
+
 		address="https://github.com/TiagoSilvaPereira/vemto-releases/releases"
 		address="$address/download/v${version}/vemto-${version}.dmg"
 		package=$(mktemp -d)/$(basename "$address") && curl -Ls "$address" -o "$package"
@@ -2116,6 +2138,7 @@ main() {
 		# "update_android_studio"
 		# "update_chromium"
 		# "update_git"
+		# "update_phpstorm"
 		# "update_pycharm"
 		# "update_rider"
 		# "update_vscode"
@@ -2145,8 +2168,8 @@ main() {
 		# "update_the_unarchiver"
 		# "update_transmission"
 
-		# "update_appearance"
-		# "update_system"
+		"update_appearance"
+		"update_system"
 
 	)
 
