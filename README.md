@@ -1,7 +1,7 @@
 <h2></h2><div>
 <a href="../.."><img align="right" height="98" src="assets/logo.png" alt="logo"></a>
 <h1>machogen</h1>
-<p>Monterey post installation script.</p>
+<p>Monterey post installation script</p>
 </div><h2></h2>
 
 ## Usages
