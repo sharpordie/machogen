@@ -20,7 +20,7 @@ Upon first launch, you will probably have to perform some manual operations.
 Those are required to set proper permissions, just follow the alert windows.
 
 ```shell
-/bin/zsh -c "$(curl -fsSL https://notabug.org/foozoor/machogen/raw/master/src/machogen.sh)"
+/bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/master/src/machogen.sh)"
 ```
 
 Attention, the total execution of the script may take **more than 3 hours**.
