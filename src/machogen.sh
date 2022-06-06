@@ -235,6 +235,14 @@ invoke_pattern() {
 
 }
 
+update_package() {
+
+	package=${1}
+
+	brew upgrade --cask --no-quarantine $package || brew install --cask --no-quarantine $package
+
+}
+
 #endregion
 
 #region UPDATERS
@@ -301,7 +309,7 @@ update_android_studio() {
 	present=$(test -d "$checkup" && echo true || echo false)
 
 	brew install fileicon grep xmlstarlet
-	brew install --cask --no-quarantine android-studio
+	update_package android-studio
 
 	if [[ $present = false ]]; then
 
@@ -499,7 +507,9 @@ update_chromium() {
 	present=false
 
 	brew install jq
-	brew install --cask --no-quarantine eloston-chromium
+	update_package eloston-chromium
+
+	sudo xattr -rd com.apple.quarantine /Applications/Chromium.app
 
 	invoke_default "chromium"
 
@@ -944,7 +954,7 @@ update_chromium_extension() {
 
 update_docker() {
 
-	brew upgrade --cask --no-quarantine docker || brew install --cask --no-quarantine docker
+	update_package docker
 
 	address="https://media.macosicons.com/parse/files/macOSicons"
 	address="$address/a74bb7c042e74f6e20dc3a50c631c41f_Docker.icns"
@@ -955,7 +965,7 @@ update_docker() {
 
 update_dotnet() {
 
-	brew install --cask --no-quarantine dotnet-sdk
+	update_package dotnet-sdk
 
 	if ! grep -q "DOTNET_CLI_TELEMETRY_OPTOUT" "$HOME/.zshrc" 2>/dev/null; then
 
@@ -964,16 +974,20 @@ update_dotnet() {
 
 		echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >>"$HOME/.zshrc"
 		echo 'export DOTNET_NOLOGO=1' >>"$HOME/.zshrc"
+		echo 'export PATH="$PATH:/Users/$USER/.dotnet/tools"' >>"$HOME/.zshrc"
 
 		source "$HOME/.zshrc"
 
 	fi
 
+	sudo dotnet workload install maui
+
 }
 
 update_figma() {
 
-	brew install --cask --no-quarantine figma figmadaemon
+	update_package figma
+	update_package figmadaemon
 
 }
 
@@ -1004,6 +1018,7 @@ update_flutter() {
 
 	flutter config --no-analytics
 	yes | flutter doctor --android-licenses
+	flutter upgrade
 
 }
 
@@ -1015,8 +1030,8 @@ update_git() {
 
 	git config --global credential.helper osxkeychain
 	git config --global init.defaultBranch "$default"
-	git config --global user.email "anonymous@example.org"
-	git config --global user.name "anonymous"
+	git config --global user.email "sharpordie@example.org"
+	git config --global user.name "sharpordie"
 
 }
 
@@ -1116,7 +1131,7 @@ update_insomnia() {
 
 	present=$(test -d "/Applications/Insomnia.app" && echo true || echo false)
 
-	brew install --cask --no-quarantine insomnia
+	update_package insomnia
 
 	if [[ $present = false ]]; then
 
@@ -1172,7 +1187,7 @@ update_iterm() {
 
 	present=$(test -d "/Applications/iTerm.app" && echo true || echo false)
 
-	brew install --cask --no-quarantine iterm2
+	update_package iterm2
 
 	defaults write com.googlecode.iterm2 DisableWindowSizeSnap -integer 1
 	defaults write com.googlecode.iterm2 PromptOnQuit -bool false
@@ -1225,7 +1240,7 @@ update_jdownloader() {
 	deposit=${1:-$HOME/Downloads/JD2}
 
 	brew install fileicon jq sponge
-	brew install --cask --no-quarantine jdownloader
+	update_package jdownloader
 
 	mkdir -p "$deposit"
 
@@ -1522,7 +1537,7 @@ update_joal_desktop() {
 
 update_keepassxc() {
 
-	brew install --cask --no-quarantine keepassxc
+	update_package keepassxc
 
 }
 
@@ -1580,7 +1595,7 @@ update_mpv() {
 
 update_mqtt_explorer() {
 
-	brew install --cask --no-quarantine mqtt-explorer
+	update_package mqtt-explorer
 
 	address="https://media.macosicons.com/parse/files/macOSicons"
 	address="$address/9ea65d2400ef27120e7dd4dc00e85881_MQTT_Explorer.icns"
@@ -1590,7 +1605,7 @@ update_mqtt_explorer() {
 
 update_netnewswire() {
 
-	brew install --cask --no-quarantine netnewswire
+	update_package netnewswire
 
 }
 
@@ -1751,7 +1766,7 @@ update_phpstorm() {
 	present=$(test -d "/Applications/PhpStorm.app" && echo true || echo false)
 
 	brew install fileicon xmlstarlet
-	brew install --cask --no-quarantine rider
+	update_package phpstorm
 
 	update_jetbrains_config "PhpStorm" "directory" "$deposit"
 	update_jetbrains_config "PhpStorm" "font_size" "13"
@@ -1766,7 +1781,7 @@ update_phpstorm() {
 
 update_powershell() {
 
-	brew install --cask --no-quarantine powershell
+	update_package powershell
 
 	update_vscode_extension "ms-vscode.powershell-preview"
 
@@ -1779,7 +1794,7 @@ update_pycharm() {
 	present=$(test -d "/Applications/PyCharm.app" && echo true || echo false)
 
 	brew install fileicon xmlstarlet
-	brew upgrade --cask --no-quarantine pycharm || brew install --cask --no-quarantine pycharm
+	update_package pycharm
 
 	if [[ $present = false ]]; then
 
@@ -1876,7 +1891,7 @@ update_rider() {
 	present=$(test -d "/Applications/Rider.app" && echo true || echo false)
 
 	brew install fileicon xmlstarlet
-	brew install --cask --no-quarantine rider
+	update_package rider
 
 	update_jetbrains_config "Rider" "directory" "$deposit"
 	update_jetbrains_config "Rider" "font_size" "13"
@@ -1949,7 +1964,7 @@ update_the_unarchiver() {
 
 	present=$(test -d "/Applications/The Unarchiver.app" && echo true || echo false)
 
-	brew install --cask --no-quarantine the-unarchiver
+	update_package the-unarchiver
 
 	if [[ $present = false ]]; then
 
@@ -2008,7 +2023,7 @@ update_transmission() {
 	deposit=${1:-$HOME/Downloads/P2P}
 	seeding=${2:-0.1}
 
-	brew install --cask --no-quarantine transmission
+	update_package transmission
 
 	mkdir -p "$deposit/Incompleted"
 
@@ -2061,7 +2076,7 @@ update_vemto() {
 update_vscode() {
 
 	brew install homebrew/cask-fonts/font-cascadia-code jq sponge
-	brew install --cask --no-quarantine visual-studio-code
+	update_package visual-studio-code
 
 	update_vscode_extension "foxundermoon.shell-format"
 	update_vscode_extension "github.github-vscode-theme"
@@ -2135,7 +2150,7 @@ main() {
 		"update_permissions"
 		"update_homebrew"
 
-		# "update_android_studio"
+		"update_android_studio"
 		# "update_chromium"
 		# "update_git"
 		# "update_phpstorm"
@@ -2145,9 +2160,9 @@ main() {
 		# "update_xcode"
 
 		# "update_angular"
-		# "update_docker"
+		"update_docker"
 		# "update_dotnet"
-		# "update_flutter"
+		"update_flutter"
 		# "update_mqtt_explorer"
 		# "update_nodejs"
 		# "update_odoo"
@@ -2155,7 +2170,7 @@ main() {
 		# "update_python"
 		# "update_vemto"
 
-		# "update_figma"
+		"update_figma"
 		# "update_iina"
 		# "update_insomnia"
 		# "update_iterm"
