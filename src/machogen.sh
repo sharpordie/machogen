@@ -2105,7 +2105,7 @@ update_vscode_extension() {
 
 update_xcode() {
 
-	ensure_apple_id || return 1
+	assert_appleid || return 1
 
 	brew install cocoapods fileicon robotsandpencils/made/xcodes
 
@@ -2150,19 +2150,19 @@ main() {
 		"update_permissions"
 		"update_homebrew"
 
-		"update_android_studio"
+		# "update_android_studio"
 		# "update_chromium"
 		# "update_git"
 		# "update_phpstorm"
 		# "update_pycharm"
 		# "update_rider"
 		# "update_vscode"
-		# "update_xcode"
+		"update_xcode"
 
 		# "update_angular"
-		"update_docker"
+		# "update_docker"
 		# "update_dotnet"
-		"update_flutter"
+		# "update_flutter"
 		# "update_mqtt_explorer"
 		# "update_nodejs"
 		# "update_odoo"
@@ -2170,7 +2170,7 @@ main() {
 		# "update_python"
 		# "update_vemto"
 
-		"update_figma"
+		# "update_figma"
 		# "update_iina"
 		# "update_insomnia"
 		# "update_iterm"
