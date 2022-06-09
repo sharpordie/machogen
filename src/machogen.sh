@@ -1183,6 +1183,27 @@ update_insomnia() {
 
 }
 
+update_intellij_idea() {
+
+	deposit="${1:-$HOME/Projects}"
+
+	present=$(test -d "/Applications/IntelliJ IDEA.app" && echo true || echo false)
+
+	brew install fileicon xmlstarlet
+	update_package intellij-idea
+
+	update_jetbrains_config "IntelliJ" "directory" "$deposit"
+	update_jetbrains_config "IntelliJ" "font_size" "13"
+	update_jetbrains_config "IntelliJ" "line_size" "1.5"
+	update_jetbrains_config "IntelliJ" "line_wrap" "160"
+
+	# https://macosicons.com/#/u/twilightwalker
+	address="https://media.macosicons.com/parse/files/macOSicons"
+	address="$address/d3e7be84127e95b1e91b90f8f25fed98_IntelliJ_IDEA.icns"
+	invoke_newicon "$address" "/Applications/IntelliJ IDEA.app"
+
+}
+
 update_iterm() {
 
 	present=$(test -d "/Applications/iTerm.app" && echo true || echo false)
@@ -2153,11 +2174,12 @@ main() {
 		# "update_android_studio"
 		# "update_chromium"
 		# "update_git"
+		"update_intellij_idea"
 		# "update_phpstorm"
 		# "update_pycharm"
 		# "update_rider"
 		# "update_vscode"
-		"update_xcode"
+		# "update_xcode"
 
 		# "update_angular"
 		# "update_docker"
