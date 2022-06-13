@@ -496,6 +496,23 @@ update_android_studio() {
 
 }
 
+update_arduino() {
+
+	update_package arduino
+
+	address="https://media.macosicons.com/parse/files/macOSicons"
+	address="$address/2de644a61b325c24be76d1f09e0de7b4_1620812255567.icns"
+	invoke_newicon "$address" "/Applications/Arduino.app"
+
+}
+
+update_balsamiq_wireframes() {
+
+	# https://builds.balsamiq.com/bwd/Balsamiq%20Wireframes%204.5.3.dmg
+	# https://gist.github.com/HoussemNasri/c09e55e0e5f451aa10f8621a6680ba28
+
+}
+
 update_chromium() {
 
 	deposit=${1:-${HOME}/Downloads/DDL}
@@ -509,6 +526,7 @@ update_chromium() {
 	brew install jq
 	update_package eloston-chromium
 
+	killall Chromium
 	sudo xattr -rd com.apple.quarantine /Applications/Chromium.app
 
 	invoke_default "chromium"
@@ -1125,6 +1143,10 @@ update_iina() {
 	expand_archive "$archive" "$HOME"
 	"$HOME/openwith" com.colliderli.iina mkv mov mp4 avi && rm "$HOME/openwith"
 
+	address="https://media.macosicons.com/parse/files/macOSicons"
+	address="$address/b1f4d40b9c0f28ab2c0550066b9204f7_IINA.icns"
+	invoke_newicon "$address" "/Applications/IINA.app"
+
 }
 
 update_insomnia() {
@@ -1251,7 +1273,7 @@ update_iterm() {
 	fi
 
 	address="https://media.macosicons.com/parse/files/macOSicons"
-	address="$address/d2e2d6e9824e19d279df6e7dd18ed24f_iterm2.icns"
+	address="$address/b248857f8f4e271d8d2fbb167c0a8445_iTerm.icns"
 	invoke_newicon "$address" "/Applications/iTerm.app"
 
 }
@@ -2174,7 +2196,7 @@ main() {
 		# "update_android_studio"
 		# "update_chromium"
 		# "update_git"
-		"update_intellij_idea"
+		# "update_intellij_idea"
 		# "update_phpstorm"
 		# "update_pycharm"
 		# "update_rider"
@@ -2182,6 +2204,7 @@ main() {
 		# "update_xcode"
 
 		# "update_angular"
+		"update_arduino"
 		# "update_docker"
 		# "update_dotnet"
 		# "update_flutter"
@@ -2192,10 +2215,11 @@ main() {
 		# "update_python"
 		# "update_vemto"
 
+		# "update_balsamiq_wireframes"
 		# "update_figma"
 		# "update_iina"
 		# "update_insomnia"
-		# "update_iterm"
+		"update_iterm"
 		# "update_jdownloader"
 		# "update_joal_desktop"
 		# "update_keepassxc"
@@ -2205,7 +2229,7 @@ main() {
 		# "update_the_unarchiver"
 		# "update_transmission"
 
-		"update_appearance"
+		# "update_appearance"
 		"update_system"
 
 	)
