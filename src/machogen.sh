@@ -288,6 +288,7 @@ update_appearance() {
 	defaults write com.apple.dock autohide -bool true
 	defaults write com.apple.dock autohide-delay -float 0
 	defaults write com.apple.dock autohide-time-modifier -float 0.25
+	defaults write com.apple.dock minimize-to-application -bool true
 	defaults write com.apple.dock show-recents -bool false
 	defaults write com.apple.Dock size-immutable -bool yes
 	defaults write com.apple.dock tilesize -int 48
@@ -2000,6 +2001,7 @@ update_system() {
 	defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
 
 	killall Finder
+	find ~ -name ".DS_Store" -delete
 
 }
 
@@ -2204,7 +2206,7 @@ main() {
 		# "update_xcode"
 
 		# "update_angular"
-		"update_arduino"
+		# "update_arduino"
 		# "update_docker"
 		# "update_dotnet"
 		# "update_flutter"
@@ -2219,7 +2221,7 @@ main() {
 		# "update_figma"
 		# "update_iina"
 		# "update_insomnia"
-		"update_iterm"
+		# "update_iterm"
 		# "update_jdownloader"
 		# "update_joal_desktop"
 		# "update_keepassxc"
