@@ -275,6 +275,7 @@ update_appearance() {
 		"/Applications/Visual Studio Code.app"
 		"/Applications/PyCharm.app"
 		"/Applications/Android Studio.app"
+		"/Applications/Android Studio Preview.app"
 		"/Applications/Figma.app"
 		"/Applications/IINA.app"
 		"/Applications/JoalDesktop.app"
@@ -492,8 +493,19 @@ update_android_studio() {
 	update_jetbrains_config "Android" "line_wrap" "150"
 
 	address="https://media.macosicons.com/parse/files/macOSicons"
-	address="$address/d3e04839a5dd5c50e5d41dc6e7e50823_Android_Studio_Alt.icns"
+	address="$address/de693c82ac93afd304fbcb3a0fb5ff1f_Android_Studio.icns"
 	invoke_newicon "$address" "/Applications/Android Studio.app"
+
+}
+
+update_android_studio_beta() {
+
+	brew tap homebrew/cask-versions
+	update_package android-studio-preview-beta
+
+	address="https://media.macosicons.com/parse/files/macOSicons"
+	address="$address/c9343b543f9e94b577c0edc768c53358_Android_Studio_Beta.icns"
+	invoke_newicon "$address" "/Applications/Android Studio Preview.app"
 
 }
 
@@ -1908,6 +1920,8 @@ update_pycharm() {
 update_python() {
 
 	brew install python@3.10 poetry
+	brew unlink python@3.9
+	brew link --force python@3.10
 
 	if ! grep -q "PYTHONDONTWRITEBYTECODE" "$HOME/.zshrc" 2>/dev/null; then
 
@@ -2193,14 +2207,15 @@ main() {
 	factors=(
 
 		"update_permissions"
-		"update_homebrew"
+		# "update_homebrew"
 
 		# "update_android_studio"
+		# "update_android_studio_beta"
 		# "update_chromium"
 		# "update_git"
 		# "update_intellij_idea"
 		# "update_phpstorm"
-		# "update_pycharm"
+		"update_pycharm"
 		# "update_rider"
 		# "update_vscode"
 		# "update_xcode"
@@ -2231,8 +2246,8 @@ main() {
 		# "update_the_unarchiver"
 		# "update_transmission"
 
-		# "update_appearance"
-		"update_system"
+		"update_appearance"
+		# "update_system"
 
 	)
 
