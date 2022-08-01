@@ -1060,6 +1060,7 @@ update_git() {
 	brew install gh git
 
 	git config --global credential.helper osxkeychain
+	git config --global http.postBuffer 1048576000
 	git config --global init.defaultBranch "$default"
 	git config --global user.email "sharpordie@example.org"
 	git config --global user.name "sharpordie"
