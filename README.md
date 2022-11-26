@@ -1,5 +1,5 @@
 <h2></h2><div>
-<a href="../.."><img align="right" height="98" src="assets/logo.png" alt="logo"></a>
+<a href="../.."><img align="right" height="98" src="https://user-images.githubusercontent.com/72373746/204102533-cc38d6db-cdd6-471b-ad08-1b6d5f7ea96f.png" alt="logo"></a>
 <h1>machogen</h1>
 <p>Monterey post installation script</p>
 </div><h2></h2>
@@ -24,24 +24,6 @@ Those are required to set proper permissions, just follow the alert windows.
 ```
 
 Attention, the total execution of the script may take **more than 3 hours**.
-
-## `Support`
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://uploads-ssl.webflow.com/5c14e387dab576fe667689cf/61e11ddcc39341db4958c5cc_Supportbutton.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://uploads-ssl.webflow.com/5c14e387dab576fe667689cf/61e11e22d8ff4a5b4a1b3346_Supportbutton-1.png">
-  <a href="https://ko-fi.com/supportkofi" target="_blank">
-    <img width="300px" alt="" src="https://uploads-ssl.webflow.com/5c14e387dab576fe667689cf/61e11e22d8ff4a5b4a1b3346_Supportbutton-1.png">
-  </a>
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://uploads-ssl.webflow.com/5c14e387dab576fe667689cf/61e11e22d8ff4a5b4a1b3346_Supportbutton-1.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://uploads-ssl.webflow.com/5c14e387dab576fe667689cf/61e11ddcc39341db4958c5cc_Supportbutton.png">
-  <a href="https://ko-fi.com/supportkofi" target="_blank">
-    <img width="300px" alt="" src="https://uploads-ssl.webflow.com/5c14e387dab576fe667689cf/61e11ddcc39341db4958c5cc_Supportbutton.png">
-  </a>
-</picture>
 
 ## Gallery
 
