@@ -4,7 +4,11 @@
 <p>Configuration script for macOS</p>
 </div><hr>
 
-## `Samples`
+## `Preface`
+
+An opiniated post-installation script for macOS Montery, don't execute it blindly.
+
+## `Execute`
 
 ### Add the needed passwords in the keychain
 
