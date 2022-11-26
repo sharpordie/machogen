@@ -4,11 +4,11 @@
 <p>Configuration script for macOS</p>
 </div><hr>
 
-<h2><samp>PREFACE</samp></h2>
+<h1><samp>PREFACE</samp></h1>
 
 An opiniated post-installation script for macOS Montery, don't execute it blindly.
 
-<h2><samp>EXECUTE</samp></h2>
+<h1><samp>EXECUTE</samp></h1>
 
 ### Add the needed passwords in the keychain
 
@@ -29,6 +29,6 @@ Those are required to set proper permissions, just follow the alert windows.
 
 Attention, the total execution of the script may take **more than 3 hours**.
 
-<h2><samp>GALLERY</samp></h2>
+<h1><samp>GALLERY</samp></h1>
 
 <a href="assets/img1.png"><img src="assets/img1.png" width="49.5%"/></a><a><img src="assets/none.png" width="1%"/></a><a href="assets/img2.png"><img src="assets/img2.png" width="49.5%"/></a>
