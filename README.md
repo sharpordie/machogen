@@ -4,6 +4,8 @@
 <p>Configuration script for macOS</p>
 </div><hr>
 
+<h2><samp>PREFACE</samp></h2>
+
 ## `Preface`
 
 An opiniated post-installation script for macOS Montery, don't execute it blindly.
