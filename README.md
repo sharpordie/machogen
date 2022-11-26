@@ -1,10 +1,10 @@
 <hr><div>
 <a href="https://ko-fi.com/sharpordie" target="_blank"><img align="right" height="91px" alt="Donate" src="https://user-images.githubusercontent.com/72373746/204102533-cc38d6db-cdd6-471b-ad08-1b6d5f7ea96f.png"></a>
-<h1>MACHOGEN</h1>
+<h1>Machogen</h1>
 <p>Configuration script for macOS</p>
 </div><hr>
 
-## EXECUTE
+## Execute
 
 ### Add needed passwords in the keychain
 
@@ -25,6 +25,6 @@ Those are required to set proper permissions, just follow the alert windows.
 
 Attention, the total execution of the script may take **more than 3 hours**.
 
-## GALLERY
+## Gallery
 
 <a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a><a><img src="assets/none.png" width="2%"/></a><a href="assets/img2.png"><img src="assets/img2.png" width="49%"/></a>
