@@ -1,6 +1,6 @@
 <h2></h2><div>
 <a href="../.."><img align="right" height="98" src="https://user-images.githubusercontent.com/72373746/204102533-cc38d6db-cdd6-471b-ad08-1b6d5f7ea96f.png" alt="logo"></a>
-<h2>MACHOGEN</h2>
+<h1>MACHOGEN</h1>
 <p>Monterey post installation script</p>
 </div><h2></h2>
 
