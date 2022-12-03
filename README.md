@@ -1,30 +1,19 @@
 <hr><div>
-<a href="https://ko-fi.com/sharpordie" target="_blank"><img align="right" height="91px" alt="Donate" src="https://user-images.githubusercontent.com/72373746/204102533-cc38d6db-cdd6-471b-ad08-1b6d5f7ea96f.png"></a>
-<h1>Machogen</h1>
-<p>Configuration script for macOS</p>
+<a href="../.."><img align="right" height="91" src="https://user-images.githubusercontent.com/72373746/205436022-b9e7ffd6-becc-43bc-90f6-81302e01cf55.png"></a>
+<h1>MACHOGEN</h1>
+<p>Configuration Script for macOS</p>
 </div><hr>
 
-## Execute
+## PREFACE
 
-### Add needed passwords in the keychain
+Opiniated post-installation script for macOS 12.
 
-```sh
-security add-generic-password -s "account" -a "$USER" -w "account_password"
-security add-generic-password -s "appleid" -a "$USER" -w "appleid_username"
-security add-generic-password -s "secrets" -a "$USER" -w "appleid_password"
-```
-
-### Get and run the post-installation script
-
-Upon first launch, you will probably have to perform some manual operations.  
-Those are required to set proper permissions, just follow the alert windows.
+## STARTER
 
 ```shell
-/bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/master/src/machogen.sh)"
+/bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/machogen.sh)"
 ```
 
-Attention, the total execution of the script may take **more than 3 hours**.
+## GALLERY
 
-## Gallery
-
-<a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a><a><img src="assets/none.png" width="2%"/></a><a href="assets/img2.png"><img src="assets/img2.png" width="49%"/></a>
+<a href="https://user-images.githubusercontent.com/72373746/205436210-4526475c-dabd-4d8a-a7a8-71b984cc53d5.png"><img src="https://user-images.githubusercontent.com/72373746/205436210-4526475c-dabd-4d8a-a7a8-71b984cc53d5.png" width="49%"/></a><a><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png" width="2%"/></a><a href="https://fakeimg.pl/852x480/273445/fff/?text=‏‏‎ ‎"><img src="https://fakeimg.pl/852x480/273445/fff/?text=‏‏‎ ‎" width="49%"/></a>
