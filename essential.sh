@@ -55,10 +55,7 @@ assert_executor() {
 assert_password() {
 
 	account=$(security find-generic-password -a $USER -s account -w 2>/dev/null)
-	correct=$(
-		sudo -k
-		echo "$account" | sudo -S -v &>/dev/null && echo true || echo false
-	)
+	correct=$(sudo -k ; echo "$account" | sudo -S -v &>/dev/null && echo true || echo false)
 
 	if [[ $correct = false ]]; then
 		security delete-generic-password -s account &>/dev/null
@@ -192,16 +189,16 @@ update_android_studio() {
 	# Change environment
 
 	# Finish installation
-	if [[ $present = false ]]; then
-		return
-	fi
+	# if [[ $present = false ]]; then
+	# 	return
+	# fi
 
 	# Update icon
-	address="https://media.macosicons.com/parse/files/macOSicons"
-	address="$address/de693c82ac93afd304fbcb3a0fb5ff1f_Android_Studio.icns"
-	fetched="$(mktemp -d)/$(basename "$address")"
-	curl -Ls "$address" -A "mozilla/5.0" -o "$fetched"
-	fileicon set "/Applications/Android Studio.app" "$fetched" &>/dev/null || sudo !!
+	# address="https://media.macosicons.com/parse/files/macOSicons"
+	# address="$address/de693c82ac93afd304fbcb3a0fb5ff1f_Android_Studio.icns"
+	# fetched="$(mktemp -d)/$(basename "$address")"
+	# curl -Ls "$address" -A "mozilla/5.0" -o "$fetched"
+	# fileicon set "/Applications/Android Studio.app" "$fetched" &>/dev/null || sudo !!
 
 }
 
@@ -276,7 +273,7 @@ main() {
 	update_homebrew || return 1
 
 	# Verify apple id
-	assert_apple_id || return 1
+	# assert_apple_id || return 1
 
 	# Handle elements
 	factors=(
