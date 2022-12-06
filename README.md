@@ -11,7 +11,7 @@ Personal post-installation script for macOS 12.
 <h2><samp>IGNITION</samp></h2>
 
 ```shell
-/bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/machogen.sh)"
+/bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
 ```
 
 <h2><samp>PICTURES</samp></h2>
