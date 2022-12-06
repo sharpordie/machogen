@@ -181,6 +181,7 @@ update_android_studio() {
 	# Update package
 	starter="/Applications/Android Studio Preview.app"
 	present=$([[ -d "$starter" ]] && echo true || echo false)
+	brew tap homebrew/cask-versions
 	brew install --cask android-studio-preview
 	brew upgrade --cask android-studio-preview
 
