@@ -83,9 +83,9 @@ remove_security() {
 	account=$(security find-generic-password -w -s "account" -a "$USER" 2>/dev/null)
 	program=$(echo "$TERM_PROGRAM" | sed -e "s/.app//" | sed -e "s/Apple_//")
 	heading=$(basename "$ZSH_ARGZERO" | cut -d . -f 1)
-	allowed() { osascript -e 'tell application "System Events" to log ""' &>/dev/null; }
-	capable() { osascript -e 'tell application "System Events" to key code 60' &>/dev/null; }
-	granted() { ls "$HOME"/Library/Messages &>/dev/null; }
+	allowed() { osascript -e 'tell application "System Events" to log ""' &>/dev/null }
+	capable() { osascript -e 'tell application "System Events" to key code 60' &>/dev/null }
+	granted() { plutil -lint /Library/Preferences/com.apple.TimeMachine.plist &>/dev/null }
 
 	while ! allowed; do
 		message="Press the OK button"
