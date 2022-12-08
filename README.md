@@ -1,4 +1,4 @@
-<div><img src="https://fakeimg.pl/800x300/ff0000/fff/?text=TECHDOCS" width="100%" alt="TECHDOCS"></div>
+<div><p><img src="https://fakeimg.pl/800x300/ff0000/fff/?text=TECHDOCS" width="100%" alt="TECHDOCS"></p></div>
 
 <h2><samp>OVERVIEW</samp></h1>
 
