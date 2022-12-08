@@ -1,3 +1,4 @@
+<p></p>
 <h2><samp>OVERVIEW</samp></h2>
 
 Personal post-installation script for macOS 12.
