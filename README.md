@@ -8,7 +8,8 @@ Personal post-installation script for macOS 12.
 ## <samp>GALLERY</samp>
 ## <samp>RESULTS</samp>
 ## <samp>RESULTS</samp>
-## <samp>LIBERTY</samp>
+## <samp>MISSION</samp>
+## <samp>PURPOSE</samp>
 
 - ...
 
