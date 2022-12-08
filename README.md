@@ -8,10 +8,10 @@
 
 Opinionated configuration script for macOS 12.
 
-
 ## <samp>FUNDINGS</samp>
 
 <a href="../.." target="_blank"><img src="https://raw.githubusercontent.com/sharpordie/mybadges/main/src/kofi.svg"></a>
+<a href="../.." target="_blank"><img src="https://raw.githubusercontent.com/sharpordie/mybadges/main/src/patreon.svg"></a>
 
 ## <samp>IGNITION</samp>
 
