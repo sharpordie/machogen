@@ -4,42 +4,26 @@
 <p>Configuration Script for macOS</p>
 <hr></div>
 
-## <samp>GENESIS</samp>
+## <samp>OVERVIEW</samp>
 
 Opinionated configuration script for macOS 12.
 
-<!--
-## PREVIEW
-## INFLAME
-## SPARKLE
-## RESOLVE
-## RELEASE
-## GALLERY
-## RESULTS
-## MISSION
-## GENESIS
-## ACQUIRE
-## PUBLISH
-## RELATED
-## HISTORY
-## VARIETY
--->
 
-## <samp>FUNDING</samp>
+## <samp>FUNDINGS</samp>
 
 <a href="../.." target="_blank"><img src="https://raw.githubusercontent.com/sharpordie/mybadges/main/src/kofi.svg"></a>
 
-## <samp>SPARKLE</samp>
+## <samp>IGNITION</samp>
 
 ```shell
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
 ```
 
-## <samp>GALLERY</samp>
+## <samp>PICTURES</samp>
 
 <a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a><a><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png" width="2%"/></a><a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a>
 
-## <samp>RELATED</samp>
+## <samp>RELATION</samp>
 
 <table>
   <tr align="left">
