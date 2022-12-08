@@ -7,9 +7,9 @@ Personal post-installation script for macOS 12.
 ## <samp>RELEASE</samp>
 ## <samp>GALLERY</samp>
 ## <samp>RESULTS</samp>
-## <samp>RESULTS</samp>
+## <samp>STARTER</samp>
 ## <samp>MISSION</samp>
-## <samp>PURPOSE</samp>
+## <samp></samp>
 
 - ...
 
