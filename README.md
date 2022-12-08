@@ -4,7 +4,7 @@
 <p>Configuration Script for macOS</p>
 <hr>
 
-## HISTORY
+## MISSION
 
 Opinionated configuration script for macOS 12.
 
