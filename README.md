@@ -1,3 +1,5 @@
+<div><hr></div>
+
 <h1>MACHOGEN</h1>
 
 Personal post-installation script for macOS 12.
