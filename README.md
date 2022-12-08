@@ -4,7 +4,7 @@
 <p>Configuration Script for macOS</p>
 <hr>
 
-## GENESIS
+## HISTORY
 
 Opinionated configuration script for macOS 12.
 
