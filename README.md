@@ -7,6 +7,9 @@ Personal post-installation script for macOS 12.
 ## <samp>RELEASE</samp>
 ## <samp>GALLERY</samp>
 ## <samp>RESULTS</samp>
+## <samp>FACTORS</samp>
+## <samp>LICENSE</samp>
+## <samp>AUTHORS</samp>
 
 - ...
 
