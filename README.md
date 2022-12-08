@@ -11,6 +11,7 @@ Personal post-installation script for macOS 12.
 ## <samp>GENESIS</samp>
 ## <samp>ACQUIRE</samp>
 ## <samp>PUBLISH</samp>
+## <samp>ROUTINE</samp>
 
 ```shell
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
