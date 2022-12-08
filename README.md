@@ -19,9 +19,11 @@ Opinionated configuration script for macOS 12.
 ## VARIETY
 -->
 
+<!--
 ## FUNDING
 
 <a href="../.." target="_blank"><img src="https://raw.githubusercontent.com/sharpordie/mybadges/main/src/kofi.svg"></a>
+-->
 
 ## SPARKLE
 
@@ -31,11 +33,20 @@ Opinionated configuration script for macOS 12.
 
 ## RELATED
 
-| Name | Description |
-| :--- | :--- |
-| <samp>[shihogen](https)</samp> | Configuration Script for Shield  |
-| <samp>[ubuhogen](https)</samp> | Configuration Script for Ubuntu  |
-| <samp>[winhogen](https)</samp> | Configuration Script for Windows |
+- <samp>[SHIHOGEN](https)</samp>  
+  Configuration Script for Shield
+- <samp>[UBUHOGEN](https)</samp>  
+  Configuration Script for Ubuntu
+- <samp>[WINHOGEN](https)</samp>  
+  Configuration Script for Windows
+
+<!--
+| Name | Lang | Description |
+| :--- | :--- | :--- |
+| <samp>[shihogen](https)</samp> | Python | Configuration Script for Shield  |
+| <samp>[ubuhogen](https)</samp> | Shell  | Configuration Script for Ubuntu  |
+| <samp>[winhogen](https)</samp> | PowerShell |Configuration Script for Windows |
+-->
 
 ## GALLERY
 
