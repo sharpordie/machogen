@@ -1,9 +1,3 @@
-<div><hr>
-<a href="../.."><img align="right" height="91" src="https://user-images.githubusercontent.com/72373746/205436022-b9e7ffd6-becc-43bc-90f6-81302e01cf55.png"></a>
-<h1>MACHOGEN</h1>
-<p>Configuration Script for macOS</p>
-<hr></div>
-
 <h2><samp>OVERVIEW</samp></h2>
 
 Personal post-installation script for macOS 12.
