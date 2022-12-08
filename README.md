@@ -1,4 +1,3 @@
-
 <h1><samp>MACHOGEN</samp></h1>
 
 Personal post-installation script for macOS 12.
