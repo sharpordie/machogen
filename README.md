@@ -18,6 +18,6 @@ Opinionated configuration script for macOS 12.
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
 ```
 
-## <samp>PICTURES</samp>
+## <samp>SHOWCASE</samp>
 
 <a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png" width="2%"/><a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a>
