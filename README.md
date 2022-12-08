@@ -27,13 +27,10 @@ Opinionated configuration script for macOS 12.
 ## VARIETY
 -->
 
-<!--
 ## FUNDING
 
 <a href="../.." target="_blank"><img src="https://raw.githubusercontent.com/sharpordie/mybadges/main/src/kofi.svg"></a>
--->
 
-## MISSION
 ## SPARKLE
 
 ```shell
