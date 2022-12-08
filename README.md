@@ -6,7 +6,7 @@
         <img src="https://fakeimg.pl/90x90/ff0000/fff/">
       </p>
       <h1>MACHOGEN</h1>
-      <p>Personal post-installation script for macOS 12.</p>
+      <p>Post-installation script for macOS 12.</p>
     </td>
   </tr>
 </table>
