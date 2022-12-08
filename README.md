@@ -31,12 +31,11 @@ Opinionated post-installation script for macOS 12.
 
 ## RELATED
 
-- [shihogen](https)  
-  Configuration Script for Shield
-- [ubuhogen](https)  
-  Configuration Script for Ubuntu
-- [winhogen](https)  
-  Configuration Script for Windows
+| Name | Description |
+| :--- | :--- |
+| <samp>[shihogen](https)</samp> | Configuration Script for Shield  |
+| <samp>[ubuhogen](https)</samp> | Configuration Script for Ubuntu  |
+| <samp>[winhogen](https)</samp> | Configuration Script for Windows |
 
 ## GALLERY
 
