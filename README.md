@@ -33,7 +33,7 @@ Opinionated configuration script for macOS 12.
 <a href="../.." target="_blank"><img src="https://raw.githubusercontent.com/sharpordie/mybadges/main/src/kofi.svg"></a>
 -->
 
-## CONTENT
+## MISSION
 ## SPARKLE
 
 ```shell
