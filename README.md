@@ -6,7 +6,7 @@
 <hr></div>
 -->
 
-# MACHOGEN
+# <samp>OVERVIEW</samp>
 
 Opinionated configuration script for macOS 12.
 
@@ -33,7 +33,7 @@ Opinionated configuration script for macOS 12.
 <a href="../.." target="_blank"><img src="https://raw.githubusercontent.com/sharpordie/mybadges/main/src/kofi.svg"></a>
 -->
 
-# <samp>SPARKLE</samp>
+# <samp>STARTING</samp>
 
 ```shell
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
@@ -47,11 +47,11 @@ Opinionated configuration script for macOS 12.
 | <samp>[winhogen](https)</samp> | PowerShell |Configuration Script for Windows |
 -->
 
-# <samp>GALLERY</samp>
+# <samp>PICTURES</samp>
 
 <a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a><a><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png" width="2%"/></a><a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a>
 
-# <samp>RELATED</samp>
+# <samp>RELATION</samp>
 
 <table>
   <tr align="left">
