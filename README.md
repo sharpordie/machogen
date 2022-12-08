@@ -4,11 +4,11 @@
 <p>Configuration Script for macOS</p>
 <hr></div>
 
-<!--
-## MISSION
+## Synopsis
 
 Opinionated configuration script for macOS 12.
 
+<!--
 ## PREVIEW
 ## INFLAME
 ## SPARKLE
