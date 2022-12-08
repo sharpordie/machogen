@@ -2,6 +2,8 @@
 
 Personal post-installation script for macOS 12.
 
+## <samp>SHOWCASE</samp>
+## <samp>DONATION</samp>
 ## <samp>FEATURES</samp>
 
 - ...
