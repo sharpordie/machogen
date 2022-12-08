@@ -14,7 +14,7 @@ Personal post-installation script for macOS 12.
 ## GENESIS
 ## ACQUIRE
 ## PUBLISH
-## LINEAGE
+## RELATED
 ## HISTORY
 ## VARIETY
 -->
@@ -25,7 +25,7 @@ Personal post-installation script for macOS 12.
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
 ```
 
-## LINEAGE
+## RELATED
 
 - [shihogen](https)  
   Configuration Script for Shield
