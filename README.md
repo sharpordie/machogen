@@ -12,7 +12,7 @@
 
 Opinionated configuration script for macOS 12.
 
-## <samp>IGNITION</samp>
+## <samp>LAUNCHER</samp>
 
 ```shell
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
