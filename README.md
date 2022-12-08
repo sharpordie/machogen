@@ -18,27 +18,6 @@ Opinionated configuration script for macOS 12.
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
 ```
 
-## <samp>RELATION</samp>
-
-<table>
-  <tr align="left">
-    <th>Name</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td width="500"><samp><a href="https">SHIHOGEN</a></samp></td>
-    <td width="9999">Configuration Script for Shield</td>
-  </tr>
-  <tr>
-    <td><samp><a href="https">UBUHOGEN</a></samp></td>
-    <td>Configuration Script for Ubuntu</td>
-  </tr>
-  <tr>
-    <td><samp><a href="https">WINHOGEN</a></samp></td>
-    <td>Configuration Script for Windows</td>
-  </tr>
-</table>
-
 ## <samp>PICTURES</samp>
 
 <a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png" width="2%"/><a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a>
