@@ -1,6 +1,6 @@
 # MACHOGEN
 
-Personal post-installation script for macOS 12.
+Opinionated post-installation script for macOS 12.
 
 <!--
 ## PREVIEW
@@ -22,7 +22,6 @@ Personal post-installation script for macOS 12.
 ## FUNDING
 
 <a href="../.." target="_blank"><img src="https://raw.githubusercontent.com/sharpordie/mybadges/main/src/kofi.svg"></a>
-
 
 ## SPARKLE
 
