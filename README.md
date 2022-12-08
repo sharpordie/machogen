@@ -1,23 +1,13 @@
-<div><hr>
-<a href="../.."><img align="right" height="91" src="assets/logo.png"></a>
-<h1>MACHOGEN</h1>
-<p>Configuration Script for macOS</p>
-<hr></div>
-
-## <samp>FUNDINGS</samp>
-
-<a href="../.." target="_blank"><img src="https://raw.githubusercontent.com/sharpordie/mybadges/main/src/kofi.svg"></a>
-
-## <samp>OVERVIEW</samp>
+# <samp>MACHOGEN</samp>
 
 Opinionated configuration script for macOS 12.
+
+## <samp>SHOWCASE</samp>
+
+<samp><img src="https://fakeimg.pl/852x480/273445/fff/?text=‏‏‎ ‎" width="49.5%"/><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png" width="1%"/><img src="https://fakeimg.pl/852x480/273445/fff/?text=‏‏‎ ‎" width="49.5%"/></samp>
 
 ## <samp>LAUNCHER</samp>
 
 ```shell
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
 ```
-
-## <samp>SHOWCASE</samp>
-
-<a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png" width="2%"/><a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a>
