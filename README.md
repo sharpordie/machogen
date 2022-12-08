@@ -12,6 +12,7 @@ Personal post-installation script for macOS 12.
 ## <samp>ACQUIRE</samp>
 ## <samp>PUBLISH</samp>
 ## <samp>LINEAGE</samp>
+## <samp>HISTORY</samp>
 ## <samp>VARIETY</samp>
 
 ```shell
