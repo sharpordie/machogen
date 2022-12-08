@@ -6,7 +6,7 @@ Personal post-installation script for macOS 12.
 ## <samp>RESOLVE</samp>
 ## <samp>RELEASE</samp>
 ## <samp>GALLERY</samp>
-## <samp>SAMPLES</samp>
+## <samp>EXAMPLE</samp>
 ## <samp>RESULTS</samp>
 ## <samp>MISSION</samp>
 
