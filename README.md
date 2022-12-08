@@ -1,14 +1,12 @@
-<sup><hr></sup>
-
-<h1>MACHOGEN</h1>
+# MACHOGEN
 
 Personal post-installation script for macOS 12.
 
-<h2><samp>FEATURES</samp></h2>
+## <samp>FEATURES</samp>
 
 - ...
 
-<h2><samp>STARTING</samp></h2>
+## <samp>STARTING</samp>
 
 ```shell
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
