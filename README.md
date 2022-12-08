@@ -3,6 +3,7 @@
 Personal post-installation script for macOS 12.
 
 ## PREVIEW
+## SPARKLE
 ## RESOLVE
 ## RELEASE
 ## GALLERY
