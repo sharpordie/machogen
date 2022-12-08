@@ -11,11 +11,9 @@
     </td>
   </tr>
 </table>
-
-<p><sup>‏‏‎ ‎</sup><img src="https://fakeimg.pl/800x500/ff0000/fff/?text=‏‏‎ ‎" width="100%" alt="TECHDOCS"/></p>
 -->
 
-<sup>‏‏‎ ‎</sup>
+<p><sup>‏‏‎ ‎</sup><img src="https://fakeimg.pl/800x500/ff0000/fff/?text=‏‏‎ ‎" width="100%" alt="TECHDOCS"/></p>
 
 <h2><samp>OVERVIEW</samp></h2>
 
