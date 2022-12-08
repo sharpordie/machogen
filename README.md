@@ -1,14 +1,14 @@
-<hr>
+<div><hr>
 <a href="../.."><img align="right" height="91" src="assets/logo.png"></a>
 <h1>MACHOGEN</h1>
 <p>Configuration Script for macOS</p>
-<hr>
+<hr></div>
 
+<!--
 ## MISSION
 
 Opinionated configuration script for macOS 12.
 
-<!--
 ## PREVIEW
 ## INFLAME
 ## SPARKLE
