@@ -9,11 +9,8 @@ Personal post-installation script for macOS 12.
 ## <samp>RESULTS</samp>
 ## <samp>STARTER</samp>
 ## <samp>MISSION</samp>
-## <samp></samp>
-
-- ...
-
-## <samp>STARTER</samp>
+## <samp>FUNDING</samp>
+## <samp>SYSTEMS</samp>
 
 ```shell
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
