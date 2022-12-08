@@ -3,7 +3,7 @@
     <td width="9999px" align="center">
       <p>
         <br>
-        <img src="https://fakeimg.pl/200x200/ff0000/fff/?text=‏‏‎ ">
+        <img src="https://fakeimg.pl/90x90/ff0000/fff/">
       </p>
       <h1>MACHOGEN</h1>
       <p>Personal post-installation script for macOS 12.</p>
