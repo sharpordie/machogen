@@ -1,4 +1,4 @@
-<div><hr></div>
+<sup><hr></sup>
 
 <h1>MACHOGEN</h1>
 
