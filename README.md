@@ -2,18 +2,18 @@
 
 Personal post-installation script for macOS 12.
 
-## <samp>PREVIEW
-## <samp>RESOLVE
-## <samp>RELEASE
-## <samp>GALLERY
-## <samp>RESULTS
-## <samp>MISSION
-## <samp>GENESIS
-## <samp>ACQUIRE</samp>
-## <samp>PUBLISH
-## <samp>LINEAGE
-## <samp>HISTORY
-## <samp>VARIETY
+## PREVIEW
+## RESOLVE
+## RELEASE
+## GALLERY
+## RESULTS
+## MISSION
+## GENESIS
+## ACQUIRE
+## PUBLISH
+## LINEAGE
+## HISTORY
+## VARIETY
 
 ## <samp>PREVIEW</samp>
 ## <samp>RESOLVE</samp>
