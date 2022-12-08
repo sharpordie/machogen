@@ -1,12 +1,10 @@
-<!--
 <div><hr>
 <a href="../.."><img align="right" height="91" src="assets/logo.png"></a>
 <h1>MACHOGEN</h1>
 <p>Configuration Script for macOS</p>
 <hr></div>
--->
 
-# MACHOGEN
+## <samp>GENESIS</samp>
 
 Opinionated configuration script for macOS 12.
 
@@ -27,29 +25,21 @@ Opinionated configuration script for macOS 12.
 ## VARIETY
 -->
 
-## FUNDING
+## <samp>FUNDING</samp>
 
 <a href="../.." target="_blank"><img src="https://raw.githubusercontent.com/sharpordie/mybadges/main/src/kofi.svg"></a>
 
-## SPARKLE
+## <samp>SPARKLE</samp>
 
 ```shell
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
 ```
 
-<!--
-| Name | Lang | Description |
-| :--- | :--- | :--- |
-| <samp>[shihogen](https)</samp> | Python | Configuration Script for Shield  |
-| <samp>[ubuhogen](https)</samp> | Shell  | Configuration Script for Ubuntu  |
-| <samp>[winhogen](https)</samp> | PowerShell |Configuration Script for Windows |
--->
-
-## GALLERY
+## <samp>GALLERY</samp>
 
 <a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a><a><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png" width="2%"/></a><a href="assets/img1.png"><img src="assets/img1.png" width="49%"/></a>
 
-## RELATED
+## <samp>RELATED</samp>
 
 <table>
   <tr align="left">
