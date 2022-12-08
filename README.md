@@ -4,6 +4,7 @@ Personal post-installation script for macOS 12.
 
 <!--
 ## PREVIEW
+## INFLAME
 ## SPARKLE
 ## RESOLVE
 ## RELEASE
