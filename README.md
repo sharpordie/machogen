@@ -37,27 +37,17 @@ Opinionated configuration script for macOS 12.
 <table>
   <tr align="left">
     <th>Name</th>
-    <th>Language</the>
     <th>Description</th>
   </tr>
   <tr>
     <td width="500"><samp><a href="https">SHIHOGEN</a></samp></td>
-    <td width="500">Python</td>
     <td width="9999">Configuration Script for Shield</td>
   </tr>
   <tr>
     <td><samp><a href="https">UBUHOGEN</a></samp></td>
-    <td>Shell</td>
     <td>Configuration Script for Ubuntu</td>
   </tr>
 </table>
-
-- <samp>[SHIHOGEN](https)</samp>  
-  Configuration Script for Shield
-- <samp>[UBUHOGEN](https)</samp>  
-  Configuration Script for Ubuntu
-- <samp>[WINHOGEN](https)</samp>  
-  Configuration Script for Windows
 
 <!--
 | Name | Lang | Description |
