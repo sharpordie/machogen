@@ -1,6 +1,6 @@
 # MACHOGEN
 
-Opinionated post-installation script for macOS 12.
+Opinionated configuration script for macOS 12.
 
 <!--
 ## PREVIEW
