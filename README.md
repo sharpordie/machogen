@@ -1,10 +1,6 @@
----
-
-<h1>machogen</h1>
+<h1>MACHOGEN</h1>
 
 Personal post-installation script for macOS 12.
-
----
 
 <h2><samp>FEATURES</samp></h2>
 
