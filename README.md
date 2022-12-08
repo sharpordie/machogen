@@ -10,7 +10,7 @@ Personal post-installation script for macOS 12.
 ## <samp>MISSION</samp>
 ## <samp>GENESIS</samp>
 ## <samp>ACQUIRE</samp>
-## <samp>PERSIST</samp>
+## <samp>ONGOING</samp>
 
 ```shell
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
