@@ -1,20 +1,3 @@
-<!--
-<table>
-  <tr>
-    <td width="9999px" align="center">
-      <p>
-        <br>
-        <img src="https://fakeimg.pl/90x90/ff0000/fff/">
-      </p>
-      <h1>MACHOGEN</h1>
-      <p>Post-installation script for macOS 12.</p>
-    </td>
-  </tr>
-</table>
--->
-
-<p><sup>‏‏‎ ‎</sup><img src="https://fakeimg.pl/800x500/ff0000/fff/?text=‏‏‎ ‎" width="100%" alt="TECHDOCS"/></p>
-
 <h2><samp>OVERVIEW</samp></h2>
 
 Personal post-installation script for macOS 12.
