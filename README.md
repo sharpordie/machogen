@@ -8,8 +8,6 @@
 
 # MACHOGEN
 
-# <samp>GENESIS</samp>
-
 Opinionated configuration script for macOS 12.
 
 <!--
