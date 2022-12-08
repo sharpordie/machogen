@@ -58,4 +58,8 @@ Opinionated configuration script for macOS 12.
     <td><samp><a href="https">UBUHOGEN</a></samp></td>
     <td>Configuration Script for Ubuntu</td>
   </tr>
+  <tr>
+    <td><samp><a href="https">WINHOGEN</a></samp></td>
+    <td>Configuration Script for Windows</td>
+  </tr>
 </table>
