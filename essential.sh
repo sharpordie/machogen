@@ -182,8 +182,8 @@ update_android_studio() {
 	starter="/Applications/Android Studio Preview.app"
 	present=$([[ -d "$starter" ]] && echo true || echo false)
 	brew tap homebrew/cask-versions
-	brew install --cask android-studio-preview-canary
-	brew upgrade --cask android-studio-preview-canary
+	brew install --cask homebrew/cask-versions/android-studio-preview-canary
+	brew upgrade --cask homebrew/cask-versions/android-studio-preview-canary
 
 	# Update cmdline
 
@@ -193,13 +193,6 @@ update_android_studio() {
 	# if [[ $present = false ]]; then
 	# 	return
 	# fi
-
-	# Update icon
-	# address="https://media.macosicons.com/parse/files/macOSicons"
-	# address="$address/de693c82ac93afd304fbcb3a0fb5ff1f_Android_Studio.icns"
-	# fetched="$(mktemp -d)/$(basename "$address")"
-	# curl -Ls "$address" -A "mozilla/5.0" -o "$fetched"
-	# fileicon set "/Applications/Android Studio.app" "$fetched" &>/dev/null || sudo !!
 
 }
 
@@ -220,7 +213,68 @@ update_homebrew() {
 
 update_iina() {}
 update_iterm() {}
-update_jdownloader() {}
+
+update_jdownloader() {
+
+	# Handle parameters
+	deposit=${1:-$HOME/Downloads/JD2}
+
+	# Update dependencies
+	brew install coreutils fileicon jq
+	brew upgrade coreutils fileicon jq
+	brew install --cask homebrew/cask-versions/temurin8
+	brew upgrade --cask homebrew/cask-versions/temurin8
+
+	# Update package
+	brew install --cask jdownloader
+	brew upgrade --cask jdownloader
+
+	# Change settings
+	appdata="/Applications/JDownloader 2.0/cfg"
+	config1="$appdata/org.jdownloader.settings.GeneralSettings.json"
+	config2="$appdata/org.jdownloader.settings.GraphicalUserInterfaceSettings.json"
+	config3="$appdata/org.jdownloader.gui.jdtrayicon.TrayExtension.json"
+	osascript <<-EOD
+		set checkup to "/Applications/JDownloader 2.0/JDownloader2.app"
+		tell application checkup
+			activate
+			reopen
+			tell application "System Events"
+				repeat until (exists window 1 of application process "JDownloader2")
+					delay 0.02
+				end repeat
+				tell application process "JDownloader2" to set visible to false
+				repeat until (do shell script "test -f '$config1' && echo true || echo false") as boolean is true
+					delay 1
+				end repeat
+			end tell
+			delay 4
+			quit
+			delay 4
+		end tell
+	EOD
+	jq ".bannerenabled = false" "$config1" | sponge "$config1"
+	jq ".donatebuttonlatestautochange = 4102444800000" "$config1" | sponge "$config1"
+	jq ".donatebuttonstate = \"AUTO_HIDDEN\"" "$config1" | sponge "$config1"
+	jq ".myjdownloaderviewvisible = false" "$config1" | sponge "$config1"
+	jq ".premiumalertetacolumnenabled = false" "$config1" | sponge "$config1"
+	jq ".premiumalertspeedcolumnenabled = false" "$config1" | sponge "$config1"
+	jq ".premiumalerttaskcolumnenabled = false" "$config1" | sponge "$config1"
+	jq ".specialdealoboomdialogvisibleonstartup = false" "$config1" | sponge "$config1"
+	jq ".specialdealsenabled = false" "$config1" | sponge "$config1"
+	jq ".speedmetervisible = false" "$config1" | sponge "$config1"
+	jq ".defaultdownloadfolder = \"$deposit\"" "$config2" | sponge "$config2"
+	jq ".enabled = false" "$config3" | sponge "$config3"
+
+	# Change icons
+	picture="$(dirname $ZSH_ARGZERO)/icons/jdownloader.icns"
+	fileicon set "/Applications/JDownloader 2.0/JDownloader2.app" "$picture" || sudo !!
+	fileicon set "/Applications/JDownloader 2.0/JDownloader Uninstaller.app" "$picture" || sudo !!
+	cp "$picture" "/Applications/JDownloader 2.0/JDownloader2.app/Contents/Resources/app.icns"
+	sips -Z 128 -s format png "$picture" --out "/Applications/JDownloader 2.0/themes/standard/org/jdownloader/images/logo/jd_logo_128_128.png"
+
+}
+
 update_joal_desktop() {}
 update_keepassxc() {}
 update_macos() {}
@@ -268,7 +322,7 @@ main() {
 	assert_password || return 1
 
 	# Remove security
-	remove_security || return 1
+	# remove_security || return 1
 
 	# Update homebrew
 	update_homebrew || return 1
