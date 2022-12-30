@@ -85,7 +85,8 @@ remove_security() {
 	heading=$(basename "$ZSH_ARGZERO" | cut -d . -f 1)
 	allowed() { osascript -e 'tell application "System Events" to log ""' &>/dev/null }
 	capable() { osascript -e 'tell application "System Events" to key code 60' &>/dev/null }
-	granted() { plutil -lint /Library/Preferences/com.apple.TimeMachine.plist &>/dev/null }
+	granted() { ls "$HOME/Library/Messages" &>/dev/null }
+	# granted() { plutil -lint /Library/Preferences/com.apple.TimeMachine.plist &>/dev/null }
 
 	while ! allowed; do
 		message="Press the OK button"
@@ -683,9 +684,34 @@ update_flutter() {
 
 }
 
-# update_figma() {}
-# update_gh() {}
-# update_git() {}
+update_figma() {
+
+	# Update package
+	brew install --cask figma figmadaemon
+	brew upgrade --cask figma figmadaemon
+
+}
+
+update_git() {
+
+	# Handle parameters
+	default=${1:-main}
+	gitmail=${2:-anonymous@example.com}
+	gituser=${3:-anonymous}
+
+	# Update package
+	brew install gh git
+	brew upgrade gh git
+
+	# Change settings
+	# git config --global credential.helper "osxkeychain"
+	git config --global credential.helper "store"
+	git config --global http.postBuffer 1048576000
+	git config --global init.defaultBranch "$default"
+	git config --global user.email "$gitmail"
+	git config --global user.name "$gituser"
+
+}
 
 update_homebrew() {
 
@@ -825,7 +851,6 @@ main() {
 
 		"update_figma"
 		"update_flutter"
-		"update_gh"
 		"update_git"
 		"update_iina"
 		"update_jdownloader"
