@@ -410,7 +410,6 @@ update_appearance() {
 		"/Applications/Transmission.app"
 		"/Applications/JDownloader 2.0/JDownloader2.app"
 		"/Applications/UTM.app"
-		"/Applications/Utilities/Terminal.app"
 		"/Applications/Visual Studio Code.app"
 		"/Applications/PyCharm.app"
 		"/Applications/Xcode.app"
@@ -843,11 +842,11 @@ update_iina() {
 	fi
 
 	# Change settings
-	# TODO: Remove recent items
 	ln -s /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
+	defaults write com.colliderli.iina recordPlaybackHistory -integer 0
+	defaults write com.colliderli.iina recordRecentFiles -integer 0
 	defaults write com.colliderli.iina SUEnableAutomaticChecks -integer 0
 	defaults write com.colliderli.iina ytdlSearchPath "/usr/local/bin"
-
 
 }
 
@@ -959,6 +958,8 @@ update_macos() {
 	defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 	defaults write com.apple.LaunchServices "LSQuarantine" -bool false
 
+	# TODO: Change terminal
+
 	# Change timemachine
 	# defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
 
@@ -970,7 +971,7 @@ update_macos() {
 	find ~ -name ".DS_Store" -delete
 
 	# Update system
-	# sudo softwareupdate -ia
+	sudo softwareupdate -ia
 
 }
 
@@ -1018,7 +1019,26 @@ update_nodejs() {
 
 update_pycharm() {
 
-	return 1
+	# Handle parameters
+	deposit="${1:-$HOME/Projects}"
+
+	# Update dependencies
+	brew install fileicon
+	brew upgrade fileicon
+
+	# Update package
+	present=$([[ -d "/Applications/PyCharm.app" ]] && echo true || echo false)
+	brew install --cask pycharm
+	brew upgrade --cask pycharm
+
+	# Finish installation
+	# if [[ $present = false ]]; then
+	# 	echo
+	# fi
+
+	# Change icons
+	picture="$(dirname $ZSH_ARGZERO)/icons/pycharm.icns"
+	fileicon set "/Applications/PyCharm.app" "$picture" || sudo !!
 
 }
 
@@ -1062,7 +1082,9 @@ update_spotify() {
 
 update_scrcpy() {
 
-	return 1
+	# Update package
+	brew install scrcpy
+	brew upgrade scrcpy
 
 }
 
@@ -1217,37 +1239,38 @@ main() {
 	assert_password || return 1
 
 	# Remove security
-	# remove_security || return 1
+	remove_security || return 1
 
 	# Update homebrew
 	update_homebrew || return 1
 
 	# Verify apple id
-	# assert_apple_id || return 1
+	assert_apple_id || return 1
 
 	# Handle elements
 	factors=(
-		"update_macos 'Europe/Brussels' 'machogen"
+		"update_macos 'Europe/Brussels' 'machogen'"
 
-		# "update_android_studio"
-		# "update_chromium"
-		# "update_pycharm"
-		# "update_visual_studio_code"
-		# "update_xcode"
+		"update_android_studio"
+		"update_chromium"
+		"update_pycharm"
+		"update_visual_studio_code"
+		"update_xcode"
 
-		# "update_figma"
-		# "update_flutter"
-		# "update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
-		# "update_iina"
-		# "update_jdownloader"
-		# "update_joal_desktop"
-		# "update_nightlight"
-		# "update_nodejs"
-		# "update_python"
-		# "update_spotify"
-		# "update_the_unarchiver"
-		# "update_transmission"
-		# "update_utm"
+		"update_figma"
+		"update_scrcpy"
+		"update_flutter"
+		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
+		"update_iina"
+		"update_jdownloader"
+		"update_joal_desktop"
+		"update_nightlight"
+		"update_nodejs"
+		"update_python"
+		"update_spotify"
+		"update_the_unarchiver"
+		"update_transmission"
+		"update_utm"
 
 		"update_appearance"
 	)
@@ -1260,7 +1283,7 @@ main() {
 	success="\r%-"$((maximum - 20))"s   \033[92mWORKED\033[0m   %-8s\n"
 	printf "$heading" "FUNCTION" "STATUS" "DURATION"
 	for element in "${factors[@]}"; do
-		written=$(basename "$(echo "$element" | cut -d '"' -f 1)" | tr "[:lower:]" "[:upper:]")
+		written=$(basename "$(echo "$element" | cut -d "'" -f 1)" | tr "[:lower:]" "[:upper:]")
 		started=$(date +"%s") && printf "$loading" "$written" "--:--:--"
 		eval "$element" >/dev/null 2>&1 && current="$success" || current="$failure"
 		extinct=$(date +"%s") && elapsed=$((extinct - started))
