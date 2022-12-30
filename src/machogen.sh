@@ -377,6 +377,44 @@ update_android_studio() {
 	brew upgrade fileicon grep xmlstarlet
 
 	# Update package
+	starter="/Applications/Android Studio.app"
+	present=$([[ -d "$starter" ]] && echo true || echo false)
+	brew install --cask android-studio
+	brew upgrade --cask android-studio
+
+	# Update commandlinetools
+	brew install --cask android-commandlinetools temurin
+	brew upgrade --cask android-commandlinetools temurin
+
+	# Finish installation
+	if [[ $present = false ]]; then
+		yes | sdkmanager "build-tools;33.0.1"
+		yes | sdkmanager "emulator"
+		yes | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
+		yes | sdkmanager "platform-tools"
+		yes | sdkmanager "platforms;android-32"
+		yes | sdkmanager "platforms;android-33"
+		yes | sdkmanager "sources;android-33"
+		yes | sdkmanager "system-images;android-33;google_apis;x86_64"
+		avdmanager create avd -n "Pixel_5_API_33" -d "pixel_5" -k "system-images;android-33;google_apis;x86_64"
+		return 0
+	fi
+
+	# Change icons
+	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/android-studio.icns"
+	picture="$(mktemp -d)/$(basename "$address")"
+	curl -Ls "${address}" -A "mozilla/5.0" -o "$picture"
+	fileicon set "/Applications/Android Studio.app" "$picture" || sudo !!
+
+}
+
+update_android_studio_preview() {
+
+	# Update dependencies
+	brew install fileicon grep xmlstarlet
+	brew upgrade fileicon grep xmlstarlet
+
+	# Update package
 	starter="/Applications/Android Studio Preview.app"
 	present=$([[ -d "$starter" ]] && echo true || echo false)
 	brew tap homebrew/cask-versions
@@ -433,7 +471,7 @@ update_appearance() {
 	defaults write com.apple.dock tilesize -int 48
 	killall Dock
 
-	# Change wallpapers
+	# Change wallpaper
 	address="https://github.com/sharpordie/andpaper/raw/main/src/android-bottom-darken.png"
 	picture="$HOME/Pictures/Backgrounds/android-bottom-darken.png"
 	mkdir -p "$(dirname $picture)" && curl -Ls "$address" -o "$picture"
@@ -1323,11 +1361,14 @@ main() {
 	# Verify apple id
 	assert_apple_id || return 1
 
+	update_android_studio ; exit
+
 	# Handle elements
 	factors=(
 		"update_macos 'Europe/Brussels' 'machogen'"
 
 		"update_android_studio"
+		# "update_android_studio_preview"
 		"update_chromium"
 		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
 		"update_pycharm"
