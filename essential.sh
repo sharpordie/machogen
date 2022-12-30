@@ -191,6 +191,23 @@ change_default_browser() {
 
 }
 
+change_dock_items() {
+
+	# Handle parameters
+	factors=("${@}")
+
+	# Remove everything
+	defaults write com.apple.dock persistent-apps -array
+
+	# Append items
+	for element in "${factors[@]}"; do
+		content="<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>$element"
+		content="$content</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"
+		defaults write com.apple.dock persistent-apps -array-add "$content"
+	done
+
+}
+
 expand_archive() {
 
 	# Handle parameters
@@ -351,6 +368,8 @@ update_jetbrains_plugin() {
 
 #endregion
 
+#region updaters
+
 update_android_studio() {
 
 	# Update dependencies
@@ -383,7 +402,45 @@ update_android_studio() {
 
 }
 
-# update_appearance() {}
+update_appearance() {
+
+	# Change dock items
+	factors=(
+		"/Applications/Chromium.app"
+		"/Applications/Transmission.app"
+		"/Applications/JDownloader 2.0/JDownloader2.app"
+		"/Applications/UTM.app"
+		"/Applications/Utilities/Terminal.app"
+		"/Applications/Visual Studio Code.app"
+		"/Applications/PyCharm.app"
+		"/Applications/Xcode.app"
+		"/Applications/Android Studio Preview.app"
+		"/Applications/Spotify.app"
+		"/Applications/IINA.app"
+		"/Applications/Figma.app"
+		"/Applications/KeePassXC.app"
+		"/Applications/JoalDesktop.app"
+		"/System/Applications/Stickies.app"
+	)
+	change_dock_items "${factors[@]}"
+
+	# Change dock settings
+	defaults write com.apple.dock autohide -bool true
+	defaults write com.apple.dock autohide-delay -float 0
+	defaults write com.apple.dock autohide-time-modifier -float 0.25
+	defaults write com.apple.dock minimize-to-application -bool true
+	defaults write com.apple.dock show-recents -bool false
+	defaults write com.apple.Dock size-immutable -bool yes
+	defaults write com.apple.dock tilesize -int 48
+	killall Dock
+
+	# Change wallpapers
+	address="https://github.com/sharpordie/andpaper/raw/main/src/android-bottom-darken.png"
+	picture="$HOME/Pictures/Backgrounds/android-bottom-darken.png"
+	mkdir -p "$(dirname $picture)" && curl -Ls "$address" -o "$picture"
+	osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$picture\""
+
+}
 
 update_chromium() {
 
@@ -548,6 +605,34 @@ update_chromium() {
 					key code 49
 					delay 2
 					key code 125
+					key code 125
+					delay 2
+					key code 49
+				end tell
+				delay 2
+				quit
+				delay 2
+			end tell
+		EOD
+
+		# Change hide-sidepanel-button
+		osascript <<-EOD
+			set checkup to "/Applications/Chromium.app"
+			tell application checkup
+				activate
+				reopen
+				delay 4
+				open location "chrome://flags/"
+				delay 2
+				tell application "System Events"
+					keystroke "hide-sidepanel-button"
+					delay 2
+					repeat 6 times
+						key code 48
+					end repeat
+					delay 2
+					key code 49
+					delay 2
 					key code 125
 					delay 2
 					key code 49
@@ -758,6 +843,7 @@ update_iina() {
 	fi
 
 	# Change settings
+	# TODO: Remove recent items
 	ln -s /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
 	defaults write com.colliderli.iina SUEnableAutomaticChecks -integer 0
 	defaults write com.colliderli.iina ytdlSearchPath "/usr/local/bin"
@@ -826,7 +912,11 @@ update_jdownloader() {
 
 }
 
-# update_joal_desktop() {}
+update_joal_desktop() {
+
+	return 1
+
+}
 
 update_keepassxc() {
 
@@ -838,8 +928,49 @@ update_keepassxc() {
 
 update_macos() {
 
+	# Handle parameters
+	country=${1:-Europe/Brussels}
+	machine=${2:-macintosh}
+
+	# Change hostname
+	sudo scutil --set ComputerName "$machine"
+	sudo scutil --set HostName "$machine"
+	sudo scutil --set LocalHostName "$machine"
+	sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$machine"
+
+	# Change timezone
+	sudo systemsetup -settimezone "$country"
+
+	# Change finder
+	defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+	defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+	defaults write com.apple.finder ShowPathbar -bool true
+
+	# Change globals
+	defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+	defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+
+	# Change preview
+	defaults write com.apple.Preview NSRecentDocumentsLimit 0
+	defaults write com.apple.Preview NSRecentDocumentsLimit 0
+
+	# Change services
+	defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+	defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+	defaults write com.apple.LaunchServices "LSQuarantine" -bool false
+
+	# Change timemachine
+	# defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
+
+	# Enable tap-to-click
+	# defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+	# defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+
 	# Remove remnants
 	find ~ -name ".DS_Store" -delete
+
+	# Update system
+	# sudo softwareupdate -ia
 
 }
 
@@ -885,7 +1016,11 @@ update_nodejs() {
 
 }
 
-# update_pycharm() {}
+update_pycharm() {
+
+	return 1
+
+}
 
 update_python() {
 
@@ -925,7 +1060,11 @@ update_spotify() {
 
 }
 
-# update_scrcpy() {}
+update_scrcpy() {
+
+	return 1
+
+}
 
 update_the_unarchiver() {
 
@@ -1026,7 +1165,25 @@ update_visual_studio_code() {
 	
 }
 
-# update_xcode() {}
+update_xcode() {
+
+	# Verify apple id
+	assert_apple_id || return 1
+
+	# Update dependencies
+	brew install cocoapods fileicon robotsandpencils/made/xcodes
+	brew upgrade cocoapods fileicon robotsandpencils/made/xcodes
+
+	# Update package
+	xcodes install --latest
+	mv -f /Applications/Xcode*.app /Applications/Xcode.app
+	sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+	sudo xcodebuild -runFirstLaunch
+	sudo xcodebuild -license accept
+
+}
+
+#endregion
 
 main() {
 
@@ -1070,7 +1227,7 @@ main() {
 
 	# Handle elements
 	factors=(
-		"update_macos"
+		"update_macos 'Europe/Brussels' 'machogen"
 
 		# "update_android_studio"
 		# "update_chromium"
@@ -1080,7 +1237,7 @@ main() {
 
 		# "update_figma"
 		# "update_flutter"
-		# "update_git"
+		# "update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
 		# "update_iina"
 		# "update_jdownloader"
 		# "update_joal_desktop"
@@ -1092,7 +1249,7 @@ main() {
 		# "update_transmission"
 		# "update_utm"
 
-		# "update_appearance"
+		"update_appearance"
 	)
 
 	# Output progress
