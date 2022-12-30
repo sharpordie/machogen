@@ -1006,7 +1006,7 @@ update_macos() {
 update_nightlight() {
 
 	# Handle parameters
-	percent=${1:-70}
+	percent=${1:-75}
 	forever=${2:-true}
 
 	# Update package
@@ -1287,20 +1287,20 @@ main() {
 
 		"update_android_studio"
 		"update_chromium"
+		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
 		"update_pycharm"
 		"update_visual_studio_code"
 		"update_xcode"
 
 		"update_figma"
-		"update_scrcpy"
 		"update_flutter"
-		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
 		"update_iina"
 		"update_jdownloader"
 		"update_joal_desktop"
 		"update_nightlight"
 		"update_nodejs"
 		"update_python"
+		"update_scrcpy"
 		"update_spotify"
 		"update_the_unarchiver"
 		"update_transmission"
