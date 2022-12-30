@@ -1273,7 +1273,7 @@ main() {
 	assert_password || return 1
 
 	# Remove security
-	remove_security || return 1
+	# remove_security || return 1
 
 	# Update homebrew
 	update_homebrew || return 1
@@ -1289,7 +1289,7 @@ main() {
 		"update_chromium"
 		"update_pycharm"
 		"update_visual_studio_code"
-		# "update_xcode"
+		"update_xcode"
 
 		"update_figma"
 		"update_scrcpy"
