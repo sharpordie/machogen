@@ -715,13 +715,55 @@ update_git() {
 
 update_homebrew() {
 
+	# Update package
 	printf "\r\033[93m%s\033[00m" "UPGRADING HOMEBREW PACKAGE, PLEASE BE PATIENT"
 	command=$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
 	CI=1 /bin/bash -c "$command" &>/dev/null
 
 }
 
-# update_iina() {}
+update_iina() {
+
+	# Update dependencies
+	brew install yt-dlp
+	brew upgrade yt-dlp
+
+	# Update package
+	brew install --cask iina
+	brew upgrade --cask iina
+
+	# Finish installation
+	if [[ $present = false ]]; then
+		osascript <<-EOD
+			set checkup to "/Applications/IINA.app"
+			tell application checkup
+				activate
+				reopen
+				tell application "System Events"
+					with timeout of 10 seconds
+						repeat until (exists window 1 of application process "IINA")
+							delay 0.02
+						end repeat
+						tell application process "IINA" to set visible to false
+					end timeout
+				end tell
+				delay 4
+				quit
+				delay 4
+			end tell
+		EOD
+
+		# Update open-in-iina
+		update_chromium_extension "pdnojahnhpgmdhjdhgphgdcecehkbhfo"
+	fi
+
+	# Change settings
+	ln -s /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
+	defaults write com.colliderli.iina SUEnableAutomaticChecks -integer 0
+	defaults write com.colliderli.iina ytdlSearchPath "/usr/local/bin"
+
+
+}
 
 update_jdownloader() {
 
@@ -785,18 +827,205 @@ update_jdownloader() {
 }
 
 # update_joal_desktop() {}
-# update_keepassxc() {}
-# update_macos() {}
-# update_nightlight() {}
-# update_nodejs() {}
+
+update_keepassxc() {
+
+	# Update package
+	brew install --cask keepassxc
+	brew upgrade --cask keepassxc
+
+}
+
+update_macos() {
+
+	# Remove remnants
+	find ~ -name ".DS_Store" -delete
+
+}
+
+update_nightlight() {
+
+	# Handle parameters
+	percent=${1:-70}
+	forever=${2:-true}
+
+	# Update package
+	brew install smudge/smudge/nightlight
+	brew upgrade smudge/smudge/nightlight
+
+	# Change settings
+	[[ $forever = true ]] && nightlight schedule 3:00 2:59
+	nightlight temp "$percent" && nightlight on
+
+}
+
+update_nodejs() {
+
+	# Update dependencies
+	brew install grep
+	brew upgrade grep
+
+	# Update package
+	address="https://nodejs.org/en/download/"
+	pattern="LTS Version: <strong>\K([\d]+)"
+	version=$(curl -s "$address" | ggrep -oP "$pattern" | head -1)
+	brew install node@"$version"
+	brew upgrade node@"$version"
+
+	# Change environment
+	if ! grep -q "/usr/local/opt/node" "$HOME/.zshrc" 2>/dev/null; then
+		[[ -s "$HOME/.zshrc" ]] || echo '#!/bin/zsh' >"$HOME/.zshrc"
+		[[ -z $(tail -1 "$HOME/.zshrc") ]] || echo "" >>"$HOME/.zshrc"
+		echo "export PATH=\"\$PATH:/usr/local/opt/node@$version/bin\"" >>"$HOME/.zshrc"
+		source "$HOME/.zshrc"
+	else
+		sed -i "" -e "s#/usr/local/opt/node.*/bin#/usr/local/opt/node@$version/bin#" "$HOME/.zshrc"
+		source "$HOME/.zshrc"
+	fi
+
+}
+
 # update_pycharm() {}
-# update_python() {}
-# update_spotify() {}
+
+update_python() {
+
+	# Handle parameters
+	version=${1:-3.10}
+
+	# Update package
+	brew install python@"$version" poetry
+	brew upgrade python@"$version" poetry
+	brew unlink python@3.9
+	brew link --force python@"$version"
+
+	# Change environment
+	if ! grep -q "PYTHONDONTWRITEBYTECODE" "$HOME/.zshrc" 2>/dev/null; then
+		[[ -s "$HOME/.zshrc" ]] || echo '#!/bin/zsh' >"$HOME/.zshrc"
+		[[ -z $(tail -1 "$HOME/.zshrc") ]] || echo "" >>"$HOME/.zshrc"
+		echo "export PYTHONDONTWRITEBYTECODE=1" >>"$HOME/.zshrc"
+		source "$HOME/.zshrc"
+	fi
+
+	# Update visual-studio-code
+	code --install-extension "ms-python.python" &>/dev/null
+
+	# Change settings
+	poetry config virtualenvs.in-project true
+
+}
+
+update_spotify() {
+
+	# Update package
+	bash <(curl -sSL https://raw.githubusercontent.com/SpotX-CLI/SpotX-Mac/main/install.sh) -ceu -E leftsidebar
+
+	# Change icons
+	picture="$(dirname $ZSH_ARGZERO)/icons/spotify.icns"
+	fileicon set "/Applications/Spotify.app" "$picture" || sudo !!
+
+}
+
 # update_scrcpy() {}
-# update_the_unarchiver() {}
-# update_transmission() {}
-# update_utm() {}
-# update_vscode() {}
+
+update_the_unarchiver() {
+
+	# Update package
+	present=$([[ -d "/Applications/The Unarchiver.app" ]] && echo true || echo false)
+	brew install --cask the-unarchiver
+	brew upgrade --cask the-unarchiver
+
+	# Finish installation
+	if [[ $present = false ]]; then
+		osascript <<-EOD
+			set checkup to "/Applications/The Unarchiver.app"
+			tell application checkup
+				activate
+				reopen
+				tell application "System Events"
+					with timeout of 10 seconds
+						repeat until (exists window 1 of application process "The Unarchiver")
+							delay 1
+						end repeat
+					end timeout
+					tell process "The Unarchiver"
+						try
+							click button "Accept" of window 1
+							delay 2
+						end try
+						click button "Select All" of tab group 1 of window 1
+					end tell
+				end tell
+				delay 2
+				quit
+				delay 2
+			end tell
+		EOD
+	fi
+
+	# Change settings
+	defaults write com.macpaw.site.theunarchiver extractionDestination -integer 3
+	defaults write com.macpaw.site.theunarchiver isFreshInstall -integer 1
+	defaults write com.macpaw.site.theunarchiver userAgreedToNewTOSAndPrivacy -integer 1
+
+}
+
+update_transmission() {
+
+	# Handle parameters
+	deposit=${1:-$HOME/Downloads/P2P}
+	seeding=${2:-0.1}
+
+	# Update package
+	brew install --cask transmission
+	brew upgrade --cask transmission
+
+	# Change settings
+	mkdir -p "$deposit/Incompleted"
+	defaults write org.m0k.transmission DownloadFolder -string "$deposit"
+	defaults write org.m0k.transmission IncompleteDownloadFolder -string "$deposit/Incompleted"
+	defaults write org.m0k.transmission RatioCheck -bool true
+	defaults write org.m0k.transmission RatioLimit -int "$seeding"
+	defaults write org.m0k.transmission UseIncompleteDownloadFolder -bool true
+	defaults write org.m0k.transmission WarningDonate -bool false
+	defaults write org.m0k.transmission WarningLegal -bool false
+
+	# Change icons
+	picture="$(dirname $ZSH_ARGZERO)/icons/transmission.icns"
+	fileicon set "/Applications/Transmission.app" "$picture" || sudo !!
+
+}
+
+update_utm() {
+
+	# Update package
+	brew install --cask utm
+	brew upgrade --cask utm
+
+}
+
+update_visual_studio_code() {
+
+	# Update dependencies
+	brew install jq sponge
+	brew upgrade jq sponge
+
+	# Update package
+	brew install --cask visual-studio-code
+	brew upgrade --cask visual-studio-code
+
+	# Change settings
+	code --install-extension "github.github-vscode-theme" &>/dev/null
+	configs="$HOME/Library/Application Support/Code/User/settings.json"
+	[[ -s "$configs" ]] || echo "{}" >"$configs"
+	jq '."editor.fontSize" = 12' "$configs" | sponge "$configs"
+	jq '."editor.lineHeight" = 28' "$configs" | sponge "$configs"
+	jq '."security.workspace.trust.enabled" = false' "$configs" | sponge "$configs"
+	jq '."telemetry.telemetryLevel" = "crash"' "$configs" | sponge "$configs"
+	jq '."update.mode" = "none"' "$configs" | sponge "$configs"
+	jq '."workbench.colorTheme" = "GitHub Dark Default"' "$configs" | sponge "$configs"
+	
+}
+
 # update_xcode() {}
 
 main() {
@@ -843,26 +1072,27 @@ main() {
 	factors=(
 		"update_macos"
 
-		"update_android_studio"
-		"update_chromium"
-		"update_pycharm"
-		"update_vscode"
-		"update_xcode"
+		# "update_android_studio"
+		# "update_chromium"
+		# "update_pycharm"
+		# "update_visual_studio_code"
+		# "update_xcode"
 
-		"update_figma"
-		"update_flutter"
-		"update_git"
-		"update_iina"
-		"update_jdownloader"
-		"update_joal_desktop"
-		"update_nightlight"
-		"update_nodejs"
-		"update_python"
-		"update_the_unarchiver"
-		"update_transmission"
-		"update_utm"
+		# "update_figma"
+		# "update_flutter"
+		# "update_git"
+		# "update_iina"
+		# "update_jdownloader"
+		# "update_joal_desktop"
+		# "update_nightlight"
+		# "update_nodejs"
+		# "update_python"
+		# "update_spotify"
+		# "update_the_unarchiver"
+		# "update_transmission"
+		# "update_utm"
 
-		"update_appearance"
+		# "update_appearance"
 	)
 
 	# Output progress
