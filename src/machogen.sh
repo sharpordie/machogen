@@ -1361,14 +1361,12 @@ main() {
 	# Verify apple id
 	assert_apple_id || return 1
 
-	update_android_studio ; exit
-
 	# Handle elements
 	factors=(
 		"update_macos 'Europe/Brussels' 'machogen'"
 
 		"update_android_studio"
-		# "update_android_studio_preview"
+		"update_android_studio_preview"
 		"update_chromium"
 		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
 		"update_pycharm"
