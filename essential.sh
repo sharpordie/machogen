@@ -913,7 +913,29 @@ update_jdownloader() {
 
 update_joal_desktop() {
 
-	return 1
+	# Update dependencies
+	brew install grep jq
+	brew upgrade grep jq
+
+	# Update package
+	address="https://api.github.com/repos/anthonyraymond/joal-desktop/releases"
+	version=$(curl -Ls "$address" | jq -r ".[0].tag_name" | tr -d "v")
+	checkup=$(search_pattern "/*pplications/*oal*esktop*/*ontents/*nfo.plist")
+	current=$(defaults read "$checkup" CFBundleShortVersionString 2>/dev/null | ggrep -oP "[\d.]+" || echo "0.0.0.0")
+	autoload is-at-least
+	if ! is-at-least "$version" "$current"; then
+		address="https://github.com/anthonyraymond/joal-desktop/releases"
+		address="$address/download/v$version/JoalDesktop-$version-mac-x64.dmg"
+		package=$(mktemp -d)/$(basename "$address") && curl -Ls "$address" -o "$package"
+		hdiutil attach "$package" -noautoopen -nobrowse
+		cp -fr /Volumes/Joal*/Joal*.app /Applications
+		hdiutil detach /Volumes/Joal*
+		sudo xattr -rd com.apple.quarantine /Applications/Joal*.app
+	fi
+
+	# Change icons
+	picture="$(dirname $ZSH_ARGZERO)/icons/joal-desktop.icns"
+	fileicon set "/Applications/JoalDesktop.app" "$picture" || sudo !!
 
 }
 
@@ -1239,7 +1261,7 @@ main() {
 	assert_password || return 1
 
 	# Remove security
-	remove_security || return 1
+	# remove_security || return 1
 
 	# Update homebrew
 	update_homebrew || return 1
@@ -1249,30 +1271,30 @@ main() {
 
 	# Handle elements
 	factors=(
-		"update_macos 'Europe/Brussels' 'machogen'"
+		# "update_macos 'Europe/Brussels' 'machogen'"
 
-		"update_android_studio"
-		"update_chromium"
-		"update_pycharm"
-		"update_visual_studio_code"
-		"update_xcode"
+		# "update_android_studio"
+		# "update_chromium"
+		# "update_pycharm"
+		# "update_visual_studio_code"
+		# "update_xcode"
 
-		"update_figma"
-		"update_scrcpy"
-		"update_flutter"
-		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
-		"update_iina"
-		"update_jdownloader"
-		"update_joal_desktop"
-		"update_nightlight"
-		"update_nodejs"
-		"update_python"
-		"update_spotify"
-		"update_the_unarchiver"
-		"update_transmission"
-		"update_utm"
+		# "update_figma"
+		# "update_scrcpy"
+		# "update_flutter"
+		# "update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
+		# "update_iina"
+		# "update_jdownloader"
+		# "update_joal_desktop"
+		# "update_nightlight"
+		# "update_nodejs"
+		# "update_python"
+		# "update_spotify"
+		# "update_the_unarchiver"
+		# "update_transmission"
+		# "update_utm"
 
-		"update_appearance"
+		# "update_appearance"
 	)
 
 	# Output progress
