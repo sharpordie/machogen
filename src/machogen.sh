@@ -1218,6 +1218,7 @@ update_visual_studio_code() {
 	jq '."telemetry.telemetryLevel" = "crash"' "$configs" | sponge "$configs"
 	jq '."update.mode" = "none"' "$configs" | sponge "$configs"
 	jq '."workbench.colorTheme" = "GitHub Dark Default"' "$configs" | sponge "$configs"
+	jq '."workbench.startupEditor" = "none"' "$configs" | sponge "$configs"
 	
 }
 
