@@ -470,6 +470,7 @@ update_chromium() {
 		defaults write org.chromium.Chromium AppleLanguages "(en-US)"
 
 		# Handle notification
+		open -a "/Applications/Chromium.app"
 		osascript <<-EOD
 			if running of application "Chromium" then tell application "Chromium" to quit
 			do shell script "/usr/bin/osascript -e 'tell application \"Chromium\" to do shell script \"\"' &>/dev/null &"
@@ -486,9 +487,10 @@ update_chromium() {
 			if running of application "Chromium" then tell application "Chromium" to quit
 			delay 4
 		EOD
+		killall "Chromium" && sleep 4
 
 		# Change deposit
-		mkdir -p "${deposit}" && osascript <<-EOD
+		mkdir -p "$deposit" && osascript <<-EOD
 			set checkup to "/Applications/Chromium.app"
 			tell application checkup
 				activate
@@ -1261,7 +1263,7 @@ main() {
 	assert_password || return 1
 
 	# Remove security
-	# remove_security || return 1
+	remove_security || return 1
 
 	# Update homebrew
 	update_homebrew || return 1
@@ -1271,30 +1273,30 @@ main() {
 
 	# Handle elements
 	factors=(
-		# "update_macos 'Europe/Brussels' 'machogen'"
+		"update_macos 'Europe/Brussels' 'machogen'"
 
-		# "update_android_studio"
-		# "update_chromium"
-		# "update_pycharm"
-		# "update_visual_studio_code"
+		"update_android_studio"
+		"update_chromium"
+		"update_pycharm"
+		"update_visual_studio_code"
 		# "update_xcode"
 
-		# "update_figma"
-		# "update_scrcpy"
-		# "update_flutter"
-		# "update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
-		# "update_iina"
-		# "update_jdownloader"
-		# "update_joal_desktop"
-		# "update_nightlight"
-		# "update_nodejs"
-		# "update_python"
-		# "update_spotify"
-		# "update_the_unarchiver"
-		# "update_transmission"
-		# "update_utm"
+		"update_figma"
+		"update_scrcpy"
+		"update_flutter"
+		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
+		"update_iina"
+		"update_jdownloader"
+		"update_joal_desktop"
+		"update_nightlight"
+		"update_nodejs"
+		"update_python"
+		"update_spotify"
+		"update_the_unarchiver"
+		"update_transmission"
+		"update_utm"
 
-		# "update_appearance"
+		"update_appearance"
 	)
 
 	# Output progress
