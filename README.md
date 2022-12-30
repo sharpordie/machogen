@@ -20,7 +20,7 @@ Running this blindly is strongly discouraged.
 
 Opinionated configuration script for macOS 12.
 
-## GUIDANCE
+**GUIDANCE**
 
 Running this blindly is strongly discouraged.
 
