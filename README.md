@@ -11,5 +11,5 @@ Opinionated configuration script for macOS 12.
 Running this blindly is strongly discouraged.
 
 ```shell
-/bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/essential.sh)"
+/bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/src/machogen.sh)"
 ```
