@@ -740,6 +740,24 @@ update_chromium() {
 
 }
 
+update_dotnet() {
+
+	# Update package
+	brew install --cask dotnet-sdk
+	brew upgrade --cask dotnet-sdk
+
+	# Change environment
+	if ! grep -q "DOTNET_CLI_TELEMETRY_OPTOUT" "$HOME/.zshrc" 2>/dev/null; then
+		[[ -s "$HOME/.zshrc" ]] || echo '#!/bin/zsh' >"$HOME/.zshrc"
+		[[ -z $(tail -1 "$HOME/.zshrc") ]] || echo "" >>"$HOME/.zshrc"
+		echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >>"$HOME/.zshrc"
+		echo 'export DOTNET_NOLOGO=1' >>"$HOME/.zshrc"
+		echo 'export PATH="$PATH:/Users/$USER/.dotnet/tools"' >>"$HOME/.zshrc"
+		source "$HOME/.zshrc"
+	fi
+
+}
+
 update_flutter() {
 
 	# Update dependencies
@@ -1008,6 +1026,16 @@ update_macos() {
 
 }
 
+update_maui() {
+
+	# Update dependencies
+	update_dotnet || return 1
+
+	# Update package
+	sudo dotnet workload install maui
+
+}
+
 update_nightlight() {
 
 	# Handle parameters
@@ -1203,6 +1231,14 @@ update_utm() {
 
 }
 
+update_visual_studio() {
+
+	# Update package
+	brew install --cask visual-studio
+	brew upgrade --cask visual-studio
+
+}
+
 update_visual_studio_code() {
 
 	# Update dependencies
@@ -1295,14 +1331,17 @@ main() {
 		"update_chromium"
 		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
 		"update_pycharm"
+		"update_visual_studio"
 		"update_visual_studio_code"
 		"update_xcode"
 
+		"update_dotnet"
 		"update_figma"
 		"update_flutter"
 		"update_iina"
 		"update_jdownloader"
 		"update_joal_desktop"
+		"update_maui"
 		"update_nightlight"
 		"update_nodejs"
 		"update_python"
