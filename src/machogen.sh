@@ -742,6 +742,10 @@ update_chromium() {
 
 update_flutter() {
 
+	# Update dependencies
+	brew install dart
+	brew upgrade dart
+
 	# Update package
 	brew install --cask flutter
 	brew upgrade --cask flutter
@@ -757,6 +761,7 @@ update_flutter() {
 	fi
 
 	# Finish installation
+	dart --disable-analytics
 	flutter config --no-analytics
 	flutter precache && flutter upgrade
 	yes | flutter doctor --android-licenses
