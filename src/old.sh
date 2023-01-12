@@ -2206,7 +2206,7 @@ main() {
 	# assert_secrets true && remove_sleeping || return 1
 
 	factors=(
-
+		
 		"update_permissions"
 		# "update_homebrew"
 

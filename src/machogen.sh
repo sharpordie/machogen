@@ -348,19 +348,21 @@ update_jetbrains_plugin() {
 		checkup=$(search_pattern "/*pplications/*${pattern:0:5}*/*ontents/*nfo.plist")
 		version=$(defaults read "$checkup" CFBundleVersion | ggrep -oP "[\d.]+" | cut -d . -f -3)
 		autoload is-at-least
-		for i in {0..19}; do
-			address="https://plugins.jetbrains.com/api/plugins/$element/updates"
-			maximum=$(curl -s "$address" | jq ".[$i].until" | tr -d '"' | sed "s/\.\*/\.9999/")
-			minimum=$(curl -s "$address" | jq ".[$i].since" | tr -d '"' | sed "s/\.\*/\.9999/")
-			if is-at-least "${minimum:-0000}" "$version" && is-at-least "$version" "${maximum:-9999}"; then
-				address=$(curl -s "$address" | jq ".[$i].file" | tr -d '"')
-				address="https://plugins.jetbrains.com/files/$address"
-				plugins="$deposit/plugins" && mkdir -p "$plugins"
-				[[ "$address" == *.zip ]] && expand_archive "$address" "$plugins"
-				[[ "$address" == *.jar ]] && curl -Ls "$address" -o "$plugins"
-				break
-			fi
-			sleep 1
+		for i in {1..3}; do
+			for j in {0..19}; do
+				address="https://plugins.jetbrains.com/api/plugins/$element/updates?page=$i"
+				maximum=$(curl -s "$address" | jq ".[$j].until" | tr -d '"' | sed "s/\.\*/\.9999/")
+				minimum=$(curl -s "$address" | jq ".[$j].since" | tr -d '"' | sed "s/\.\*/\.9999/")
+				if is-at-least "${minimum:-0000}" "$version" && is-at-least "$version" "${maximum:-9999}"; then
+					address=$(curl -s "$address" | jq ".[$j].file" | tr -d '"')
+					address="https://plugins.jetbrains.com/files/$address"
+					plugins="$deposit/plugins" && mkdir -p "$plugins"
+					[[ "$address" == *.zip ]] && expand_archive "$address" "$plugins"
+					[[ "$address" == *.jar ]] && curl -Ls "$address" -o "$plugins"
+					break 2
+				fi
+				sleep 1
+			done
 		done
 	fi
 
@@ -368,13 +370,13 @@ update_jetbrains_plugin() {
 
 #endregion
 
-#region updaters
-
 update_android_studio() {
 
 	# Update dependencies
 	brew install fileicon grep xmlstarlet
 	brew upgrade fileicon grep xmlstarlet
+	brew install --cask android-commandlinetools temurin
+	brew upgrade --cask android-commandlinetools temurin
 
 	# Update package
 	starter="/Applications/Android Studio.app"
@@ -382,10 +384,6 @@ update_android_studio() {
 	brew install --cask android-studio
 	brew upgrade --cask android-studio
 
-	# Update commandlinetools
-	brew install --cask android-commandlinetools temurin
-	brew upgrade --cask android-commandlinetools temurin
-
 	# Finish installation
 	if [[ $present = false ]]; then
 		yes | sdkmanager "build-tools;33.0.1"
@@ -396,8 +394,7 @@ update_android_studio() {
 		yes | sdkmanager "platforms;android-33"
 		yes | sdkmanager "sources;android-33"
 		yes | sdkmanager "system-images;android-33;google_apis;x86_64"
-		avdmanager create avd -n "Pixel_5_API_33" -d "pixel_5" -k "system-images;android-33;google_apis;x86_64"
-		return 0
+		avdmanager create avd -n "Pixel_5_API_33" -d "pixel_5" -k "system-images;android-33;google_apis;x86_64" -f
 	fi
 
 	# Change icons
@@ -405,38 +402,6 @@ update_android_studio() {
 	picture="$(mktemp -d)/$(basename "$address")"
 	curl -Ls "${address}" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/Android Studio.app" "$picture" || sudo !!
-
-}
-
-update_android_studio_preview() {
-
-	# Update dependencies
-	brew install fileicon grep xmlstarlet
-	brew upgrade fileicon grep xmlstarlet
-
-	# Update package
-	starter="/Applications/Android Studio Preview.app"
-	present=$([[ -d "$starter" ]] && echo true || echo false)
-	brew tap homebrew/cask-versions
-	brew install --cask homebrew/cask-versions/android-studio-preview-canary
-	brew upgrade --cask homebrew/cask-versions/android-studio-preview-canary
-
-	# Update commandlinetools
-	brew install --cask android-commandlinetools temurin
-	brew upgrade --cask android-commandlinetools temurin
-
-	# Finish installation
-	if [[ $present = false ]]; then
-		yes | sdkmanager "build-tools;33.0.1"
-		yes | sdkmanager "emulator"
-		yes | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
-		yes | sdkmanager "platform-tools"
-		yes | sdkmanager "platforms;android-32"
-		yes | sdkmanager "platforms;android-33"
-		yes | sdkmanager "sources;android-33"
-		yes | sdkmanager "system-images;android-33;google_apis;x86_64"
-		avdmanager create avd -n "Pixel_5_API_33" -d "pixel_5" -k "system-images;android-33;google_apis;x86_64" &>/dev/null
-	fi
 
 }
 
@@ -449,11 +414,9 @@ update_appearance() {
 		"/Applications/JDownloader 2.0/JDownloader2.app"
 		"/Applications/UTM.app"
 		"/Applications/Visual Studio Code.app"
-		"/Applications/PyCharm.app"
-		"/Applications/Xcode.app"
+		# "/Applications/PyCharm.app"
+		# "/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
-		"/Applications/Android Studio Preview.app"
-		"/Applications/Visual Studio.app"
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
 		"/Applications/Figma.app"
@@ -770,10 +733,13 @@ update_chromium() {
 		address="https://github.com/NeverDecaf/chromium-web-store/releases/download/v$version/Chromium.Web.Store.crx"
 		update_chromium_extension "$address"
 
-		# Update ublock-origin
-		update_chromium_extension "cjpalhdlnbpafiamejdnhcphjbkeiagm"
-
 	fi
+
+	# Update extensions
+	update_chromium_extension "bcjindcccaagfpapjjmafapmmgkkhgoa" # json-formatter
+	update_chromium_extension "ibplnjkanclpjokhdolnendpplpjiace" # simple-translate
+	update_chromium_extension "mnjggcdmjocbbbhaepdhchncahnbgone" # sponsorblock-for-youtube
+	update_chromium_extension "cjpalhdlnbpafiamejdnhcphjbkeiagm" # ublock-origin
 
 	# Update bypass-paywalls-chrome
 	update_chromium_extension "https://github.com/iamadamdev/bypass-paywalls-chrome/archive/master.zip"
@@ -819,17 +785,24 @@ update_flutter() {
 	fi
 
 	# Finish installation
+	flutter precache && flutter upgrade
 	dart --disable-analytics
 	flutter config --no-analytics
-	flutter precache && flutter upgrade
 	yes | flutter doctor --android-licenses
 
 	# Update android-studio
-	update_jetbrains_plugin "AndroidStudio" "6351"  # Dart
-	update_jetbrains_plugin "AndroidStudio" "9212"  # Flutter
+	update_jetbrains_plugin "AndroidStudio" "6351"   # dart
+	update_jetbrains_plugin "AndroidStudio" "9212"   # flutter
+	update_jetbrains_plugin "AndroidStudio" "13666"  # flutter-intl
+	update_jetbrains_plugin "AndroidStudio" "14641"  # flutter-riverpod-snippets
 
-	# Update visual-studio-code
-	code --install-extension "dart-code.flutter" &>/dev/null
+	# Update vscode
+	code --install-extension "alexisvt.flutter-snippets" --force &>/dev/null
+	code --install-extension "dart-code.flutter" --force &>/dev/null
+	code --install-extension "pflannery.vscode-versionlens" --force &>/dev/null
+	code --install-extension "RichardCoutts.mvvm-plus" --force &>/dev/null
+	code --install-extension "robert-brunhage.flutter-riverpod-snippets" --force &>/dev/null
+	code --install-extension "usernamehw.errorlens" --force &>/dev/null
 
 }
 
@@ -845,8 +818,8 @@ update_git() {
 
 	# Handle parameters
 	default=${1:-main}
-	gitmail=${2:-anonymous@example.com}
-	gituser=${3:-anonymous}
+	gitmail=${2}
+	gituser=${3}
 
 	# Update package
 	brew install gh git
@@ -913,6 +886,12 @@ update_iina() {
 	defaults write com.colliderli.iina SUEnableAutomaticChecks -integer 0
 	defaults write com.colliderli.iina ytdlSearchPath "/usr/local/bin"
 
+	# Change icons
+	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/iina.icns"
+	picture="$(mktemp -d)/$(basename "$address")"
+	curl -Ls "${address}" -A "mozilla/5.0" -o "$picture"
+	fileicon set "/Applications/IINA.app" "$picture" || sudo !!
+
 }
 
 update_jdownloader() {
@@ -930,10 +909,13 @@ update_jdownloader() {
 	brew install --cask jdownloader
 	brew upgrade --cask jdownloader
 
+	# Create deposit
+	mkdir -p "$deposit"
+
 	# Change settings
 	appdata="/Applications/JDownloader 2.0/cfg"
-	config1="$appdata/org.jdownloader.settings.GeneralSettings.json"
-	config2="$appdata/org.jdownloader.settings.GraphicalUserInterfaceSettings.json"
+	config1="$appdata/org.jdownloader.settings.GraphicalUserInterfaceSettings.json"
+	config2="$appdata/org.jdownloader.settings.GeneralSettings.json"
 	config3="$appdata/org.jdownloader.gui.jdtrayicon.TrayExtension.json"
 	osascript <<-EOD
 		set checkup to "/Applications/JDownloader 2.0/JDownloader2.app"
@@ -966,6 +948,9 @@ update_jdownloader() {
 	jq ".speedmetervisible = false" "$config1" | sponge "$config1"
 	jq ".defaultdownloadfolder = \"$deposit\"" "$config2" | sponge "$config2"
 	jq ".enabled = false" "$config3" | sponge "$config3"
+
+	# Update chromium extension
+	update_chromium_extension "fbcohnmimjicjdomonkcbcpbpnhggkip"
 
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/jdownloader.icns"
@@ -1016,63 +1001,11 @@ update_keepassxc() {
 
 }
 
-update_macos() {
-
-	# Handle parameters
-	country=${1:-Europe/Brussels}
-	machine=${2:-macintosh}
-
-	# Change hostname
-	sudo scutil --set ComputerName "$machine"
-	sudo scutil --set HostName "$machine"
-	sudo scutil --set LocalHostName "$machine"
-	sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$machine"
-
-	# Change timezone
-	sudo systemsetup -settimezone "$country"
-
-	# Change finder
-	defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
-	defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
-	defaults write com.apple.finder ShowPathbar -bool true
-
-	# Change globals
-	defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
-	defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
-
-	# Change preview
-	defaults write com.apple.Preview NSRecentDocumentsLimit 0
-	defaults write com.apple.Preview NSRecentDocumentsLimit 0
-
-	# Change services
-	defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
-	defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
-	defaults write com.apple.LaunchServices "LSQuarantine" -bool false
-
-	# TODO: Change terminal
-
-	# Change timemachine
-	# defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
-
-	# Enable tap-to-click
-	# defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-	# defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
-
-	# Remove remnants
-	find ~ -name ".DS_Store" -delete
-
-	# Update system
-	sudo softwareupdate -ia
-
-}
-
-update_maui() {
-
-	# Update dependencies
-	update_dotnet || return 1
+update_mambaforge() {
 
 	# Update package
-	sudo dotnet workload install maui
+	brew install mambaforge
+	brew upgrade mambaforge
 
 }
 
@@ -1164,8 +1097,8 @@ update_python() {
 		source "$HOME/.zshrc"
 	fi
 
-	# Update visual-studio-code
-	code --install-extension "ms-python.python" &>/dev/null
+	# Update vscode
+	code --install-extension "ms-python.python" --force &>/dev/null
 
 	# Change settings
 	poetry config virtualenvs.in-project true
@@ -1174,7 +1107,13 @@ update_python() {
 
 update_spotify() {
 
+	# Update dependencies
+	brew install fileicon
+	brew upgrade fileicon
+
 	# Update package
+	brew install --cask spotify
+	brew upgrade --cask spotify
 	bash <(curl -sSL https://raw.githubusercontent.com/SpotX-CLI/SpotX-Mac/main/install.sh) -ceu -E leftsidebar
 
 	# Change icons
@@ -1193,12 +1132,62 @@ update_scrcpy() {
 
 }
 
+update_system() {
+
+	# Handle parameters
+	country=${1:-Europe/Brussels}
+	machine=${2:-macintosh}
+
+	# Change hostname
+	sudo scutil --set ComputerName "$machine"
+	sudo scutil --set HostName "$machine"
+	sudo scutil --set LocalHostName "$machine"
+	sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$machine"
+
+	# Change timezone
+	sudo systemsetup -settimezone "$country"
+
+	# Change finder
+	defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+	defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+	defaults write com.apple.finder ShowPathbar -bool true
+
+	# Change globals
+	defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+	defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+
+	# Change preview
+	defaults write com.apple.Preview NSRecentDocumentsLimit 0
+	defaults write com.apple.Preview NSRecentDocumentsLimit 0
+
+	# Change services
+	defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+	defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+	defaults write com.apple.LaunchServices "LSQuarantine" -bool false
+
+	# TODO: Change terminal
+
+	# Change timemachine
+	# defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
+
+	# Enable tap-to-click
+	defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+	defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+
+	# Remove remnants
+	find ~ -name ".DS_Store" -delete
+
+	# Update system
+	sudo softwareupdate -ia
+
+}
+
 update_the_unarchiver() {
 
 	# Update package
 	present=$([[ -d "/Applications/The Unarchiver.app" ]] && echo true || echo false)
-	brew install --cask the-unarchiver
-	brew upgrade --cask the-unarchiver
+	brew install --cask the-unarchiver --no-quarantine
+	brew upgrade --cask the-unarchiver --no-quarantine
 
 	# Finish installation
 	if [[ $present = false ]]; then
@@ -1271,15 +1260,7 @@ update_utm() {
 
 }
 
-update_visual_studio() {
-
-	# Update package
-	brew install --cask visual-studio
-	brew upgrade --cask visual-studio
-
-}
-
-update_visual_studio_code() {
+update_vscode() {
 
 	# Update dependencies
 	brew install jq sponge
@@ -1288,9 +1269,13 @@ update_visual_studio_code() {
 	# Update package
 	brew install --cask visual-studio-code
 	brew upgrade --cask visual-studio-code
+	
+	# Update extensions
+	code --install-extension "foxundermoon.shell-format" --force &>/dev/null
+	code --install-extension "github.github-vscode-theme" --force &>/dev/null
+	code --install-extension "rogalmic.bash-debug" --force &>/dev/null
 
 	# Change settings
-	code --install-extension "github.github-vscode-theme" &>/dev/null
 	configs="$HOME/Library/Application Support/Code/User/settings.json"
 	[[ -s "$configs" ]] || echo "{}" >"$configs"
 	jq '."editor.fontSize" = 12' "$configs" | sponge "$configs"
@@ -1321,8 +1306,6 @@ update_xcode() {
 
 }
 
-#endregion
-
 main() {
 
 	# Verify executor
@@ -1349,10 +1332,11 @@ main() {
 	echo "Defaults timestamp_timeout=-1" | sudo tee /private/etc/sudoers.d/disable_timeout >/dev/null
 
 	# Remove sleeping
-	sudo pmset -a disablesleep 1 && caffeinate -i -w $$ &
+	# sudo pmset -a disablesleep 1 && caffeinate -i -w $$ &
+	sudo pmset -a disablesleep 1 && (caffeinate -i -w $$ &) &>/dev/null
 
 	# Verify password
-	assert_password || return 1
+	# assert_password || return 1
 
 	# Remove security
 	# remove_security || return 1
@@ -1361,37 +1345,33 @@ main() {
 	update_homebrew || return 1
 
 	# Verify apple id
-	assert_apple_id || return 1
+	# assert_apple_id || return 1
 
 	# Handle elements
 	factors=(
-		"update_macos 'Europe/Brussels' 'machogen'"
-
-		"update_android_studio"
-		"update_android_studio_preview"
-		"update_chromium"
-		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
-		"update_pycharm"
-		"update_visual_studio"
-		"update_visual_studio_code"
-		"update_xcode"
-
-		"update_dotnet"
-		"update_figma"
-		"update_flutter"
+		# "update_system"
+		# "update_android_studio"
+		# "update_chromium"
+		# "update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
+		# "update_pycharm"
+		# "update_vscode"
+		# "update_xcode"
+		# "update_dotnet"
+		# "update_figma"
+		# "update_flutter"
 		"update_iina"
-		"update_jdownloader"
-		"update_joal_desktop"
-		"update_maui"
-		"update_nightlight"
-		"update_nodejs"
-		"update_python"
+		# "update_jdownloader"
+		# "update_joal_desktop"
+		# "update_keepassxc"
+		# "update_mambaforge"
+		# "update_nightlight"
+		# "update_nodejs"
+		# "update_python"
 		"update_scrcpy"
 		"update_spotify"
-		"update_the_unarchiver"
-		"update_transmission"
-		"update_utm"
-
+		# "update_the_unarchiver"
+		# "update_transmission"
+		# "update_utm"
 		"update_appearance"
 	)
 
