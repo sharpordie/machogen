@@ -219,7 +219,7 @@ expand_archive() {
 	if [[ -n $archive && ! -f $deposit && $subtree =~ ^[0-9]+$ ]]; then
 		mkdir -p "$deposit"
 		if [[ $archive = http* ]]; then
-			curl -Ls "$archive" | tar -zxf - -C "$deposit" --strip-components=$((subtree))
+			curl -L "$archive" | tar -zxf - -C "$deposit" --strip-components=$((subtree))
 		else
 			tar -zxf "$archive" -C "$deposit" --strip-components=$((subtree))
 		fi
@@ -255,7 +255,7 @@ update_chromium_extension() {
 			address="${address}&prodversion=${version}&x=id%3D${payload}%26installsource%3Dondemand%26uc"
 			package=$(mktemp -d)/${payload}.crx
 		fi
-		curl -Ls "$address" -o "$package" || return 1
+		curl -L "$address" -o "$package" || return 1
 		defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 		if [[ $package = *.zip ]]; then
 			storage="/Applications/Chromium.app/Unpacked/$(echo "$payload" | cut -d / -f5)"
@@ -358,7 +358,7 @@ update_jetbrains_plugin() {
 					address="https://plugins.jetbrains.com/files/$address"
 					plugins="$deposit/plugins" && mkdir -p "$plugins"
 					[[ "$address" == *.zip ]] && expand_archive "$address" "$plugins"
-					[[ "$address" == *.jar ]] && curl -Ls "$address" -o "$plugins"
+					[[ "$address" == *.jar ]] && curl -L "$address" -o "$plugins"
 					break 2
 				fi
 				sleep 1
@@ -370,37 +370,99 @@ update_jetbrains_plugin() {
 
 #endregion
 
+update_android_cmdline() {
+
+	# Update dependencies
+	brew install fileicon grep
+	brew upgrade fileicon grep
+	brew install --cask --no-quarantine temurin
+	brew upgrade --cask --no-quarantine temurin
+
+	# Update package
+	sdkroot="$HOME/Library/Android/sdk"
+	deposit="$sdkroot/cmdline-tools"
+	if [[ ! -d $deposit ]]; then
+		mkdir -p "$deposit"
+		website="https://developer.android.com/studio#command-tools"
+		version="$(curl -s "$website" | ggrep -oP "commandlinetools-mac-\K(\d+)" | head -1)"
+		address="https://dl.google.com/android/repository/commandlinetools-mac-${version}_latest.zip"
+		archive="$(mktemp -d)/$(basename "$address")"
+		curl -L "$address" -o "$archive"
+		expand_archive "$archive" "$deposit"
+		yes | "$deposit/cmdline-tools/bin/sdkmanager" --sdk_root="$sdkroot" "cmdline-tools;latest"
+		rm -rf "$deposit/cmdline-tools"
+	fi
+
+	# Change environment
+	configs="$HOME/.zshrc"
+	if ! grep -q "ANDROID_HOME" "$configs" 2>/dev/null; then
+		[[ -s "$configs" ]] || touch "$configs"
+		[[ -z $(tail -1 "$configs") ]] || echo "" >>"$configs"
+		echo 'export ANDROID_HOME="$HOME/Library/Android/sdk"' >>"$configs"
+		echo 'export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin"' >>"$configs"
+		echo 'export PATH="$PATH:$ANDROID_HOME/emulator"' >>"$configs"
+		echo 'export PATH="$PATH:$ANDROID_HOME/platform-tools"' >>"$configs"
+		export ANDROID_HOME="$HOME/.android/sdk"
+		export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin"
+		export PATH="$PATH:$ANDROID_HOME/emulator"
+		export PATH="$PATH:$ANDROID_HOME/platform-tools"
+	fi
+
+}
+
 update_android_studio() {
 
 	# Update dependencies
 	brew install fileicon grep xmlstarlet
 	brew upgrade fileicon grep xmlstarlet
-	brew install --cask android-commandlinetools temurin
-	brew upgrade --cask android-commandlinetools temurin
 
 	# Update package
 	starter="/Applications/Android Studio.app"
 	present=$([[ -d "$starter" ]] && echo true || echo false)
-	brew install --cask android-studio
-	brew upgrade --cask android-studio
+	brew install --cask --no-quarantine android-studio
+	brew upgrade --cask --no-quarantine android-studio
+
+	# Launch package once
+	if [[ $present = false ]]; then
+		osascript <<-EOD
+			set checkup to "/Applications/Android Studio.app"
+			tell application checkup
+				activate
+				reopen
+				tell application "System Events"
+					tell process "Android Studio"
+						with timeout of 30 seconds
+							repeat until (exists window 1)
+								delay 1
+							end repeat
+						end timeout
+					end tell
+				end tell
+				delay 4
+				quit app "Android Studio"
+				delay 4
+			end tell
+		EOD
+	fi
 
 	# Finish installation
-	if [[ $present = false ]]; then
-		yes | sdkmanager "build-tools;33.0.1"
-		yes | sdkmanager "emulator"
-		yes | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
-		yes | sdkmanager "platform-tools"
-		yes | sdkmanager "platforms;android-32"
-		yes | sdkmanager "platforms;android-33"
-		yes | sdkmanager "sources;android-33"
-		yes | sdkmanager "system-images;android-33;google_apis;x86_64"
+	if [[ $present == false ]]; then
+		update_android_cmdline
+		yes | sdkmanager --channel=0 "build-tools;33.0.1"
+		yes | sdkmanager --channel=0 "emulator"
+		yes | sdkmanager --channel=0 "extras;intel;Hardware_Accelerated_Execution_Manager"
+		yes | sdkmanager --channel=0 "platform-tools"
+		yes | sdkmanager --channel=0 "platforms;android-33"
+		yes | sdkmanager --channel=0 "platforms;android-33-ext4"
+		yes | sdkmanager --channel=0 "sources;android-33"
+		yes | sdkmanager --channel=0 "system-images;android-33;google_apis;x86_64"
 		avdmanager create avd -n "Pixel_5_API_33" -d "pixel_5" -k "system-images;android-33;google_apis;x86_64" -f
 	fi
 
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/android-studio.icns"
 	picture="$(mktemp -d)/$(basename "$address")"
-	curl -Ls "${address}" -A "mozilla/5.0" -o "$picture"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/Android Studio.app" "$picture" || sudo !!
 
 }
@@ -414,7 +476,7 @@ update_appearance() {
 		"/Applications/JDownloader 2.0/JDownloader2.app"
 		"/Applications/UTM.app"
 		"/Applications/Visual Studio Code.app"
-		# "/Applications/PyCharm.app"
+		"/Applications/PyCharm.app"
 		# "/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
 		"/Applications/Spotify.app"
@@ -439,7 +501,7 @@ update_appearance() {
 	# Change wallpaper
 	address="https://github.com/sharpordie/andpaper/raw/main/src/android-bottom-darken.png"
 	picture="$HOME/Pictures/Backgrounds/android-bottom-darken.png"
-	mkdir -p "$(dirname $picture)" && curl -Ls "$address" -o "$picture"
+	mkdir -p "$(dirname $picture)" && curl -L "$address" -o "$picture"
 	osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$picture\""
 
 }
@@ -458,10 +520,9 @@ update_chromium() {
 	# Update package
 	checkup="/Applications/Chromium.app"
 	present=$([[ -d "$checkup" ]] && echo true || echo false)
-	brew install --cask eloston-chromium
-	brew upgrade --cask eloston-chromium
+	brew install --cask --no-quarantine eloston-chromium
+	brew upgrade --cask --no-quarantine eloston-chromium
 	killall Chromium
-	sudo xattr -rd com.apple.quarantine /Applications/Chromium.app
 
 	# Change default browser
 	change_default_browser "chromium"
@@ -733,13 +794,13 @@ update_chromium() {
 		address="https://github.com/NeverDecaf/chromium-web-store/releases/download/v$version/Chromium.Web.Store.crx"
 		update_chromium_extension "$address"
 
-	fi
+		# Update extensions
+		update_chromium_extension "bcjindcccaagfpapjjmafapmmgkkhgoa" # json-formatter
+		update_chromium_extension "ibplnjkanclpjokhdolnendpplpjiace" # simple-translate
+		update_chromium_extension "mnjggcdmjocbbbhaepdhchncahnbgone" # sponsorblock-for-youtube
+		update_chromium_extension "cjpalhdlnbpafiamejdnhcphjbkeiagm" # ublock-origin
 
-	# Update extensions
-	update_chromium_extension "bcjindcccaagfpapjjmafapmmgkkhgoa" # json-formatter
-	update_chromium_extension "ibplnjkanclpjokhdolnendpplpjiace" # simple-translate
-	update_chromium_extension "mnjggcdmjocbbbhaepdhchncahnbgone" # sponsorblock-for-youtube
-	update_chromium_extension "cjpalhdlnbpafiamejdnhcphjbkeiagm" # ublock-origin
+	fi
 
 	# Update bypass-paywalls-chrome
 	update_chromium_extension "https://github.com/iamadamdev/bypass-paywalls-chrome/archive/master.zip"
@@ -749,8 +810,8 @@ update_chromium() {
 update_dotnet() {
 
 	# Update package
-	brew install --cask dotnet-sdk
-	brew upgrade --cask dotnet-sdk
+	brew install --cask --no-quarantine dotnet-sdk
+	brew upgrade --cask --no-quarantine dotnet-sdk
 
 	# Change environment
 	if ! grep -q "DOTNET_CLI_TELEMETRY_OPTOUT" "$HOME/.zshrc" 2>/dev/null; then
@@ -771,8 +832,8 @@ update_flutter() {
 	brew upgrade dart
 
 	# Update package
-	brew install --cask flutter
-	brew upgrade --cask flutter
+	brew install --cask --no-quarantine flutter
+	brew upgrade --cask --no-quarantine flutter
 
 	# Change environment
 	altered="$(grep -q "CHROME_EXECUTABLE" "$HOME/.zshrc" >/dev/null 2>&1 && echo true || echo false)"
@@ -790,13 +851,13 @@ update_flutter() {
 	flutter config --no-analytics
 	yes | flutter doctor --android-licenses
 
-	# Update android-studio
+	# Update android-studio plugins
 	update_jetbrains_plugin "AndroidStudio" "6351"   # dart
 	update_jetbrains_plugin "AndroidStudio" "9212"   # flutter
 	update_jetbrains_plugin "AndroidStudio" "13666"  # flutter-intl
 	update_jetbrains_plugin "AndroidStudio" "14641"  # flutter-riverpod-snippets
 
-	# Update vscode
+	# Update vscode extensions
 	code --install-extension "alexisvt.flutter-snippets" --force &>/dev/null
 	code --install-extension "dart-code.flutter" --force &>/dev/null
 	code --install-extension "pflannery.vscode-versionlens" --force &>/dev/null
@@ -809,8 +870,8 @@ update_flutter() {
 update_figma() {
 
 	# Update package
-	brew install --cask figma figmadaemon
-	brew upgrade --cask figma figmadaemon
+	brew install --cask --no-quarantine figma
+	brew upgrade --cask --no-quarantine figma
 
 }
 
@@ -851,8 +912,8 @@ update_iina() {
 	brew upgrade yt-dlp
 
 	# Update package
-	brew install --cask iina
-	brew upgrade --cask iina
+	brew install --cask --no-quarantine iina
+	brew upgrade --cask --no-quarantine iina
 
 	# Finish installation
 	if [[ $present = false ]]; then
@@ -889,7 +950,7 @@ update_iina() {
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/iina.icns"
 	picture="$(mktemp -d)/$(basename "$address")"
-	curl -Ls "${address}" -A "mozilla/5.0" -o "$picture"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/IINA.app" "$picture" || sudo !!
 
 }
@@ -902,60 +963,64 @@ update_jdownloader() {
 	# Update dependencies
 	brew install coreutils fileicon jq
 	brew upgrade coreutils fileicon jq
-	brew install --cask homebrew/cask-versions/temurin8
-	brew upgrade --cask homebrew/cask-versions/temurin8
+	brew install --cask --no-quarantine homebrew/cask-versions/temurin8
+	brew upgrade --cask --no-quarantine homebrew/cask-versions/temurin8
 
 	# Update package
-	brew install --cask jdownloader
-	brew upgrade --cask jdownloader
+	starter="/Applications/JDownloader 2.0/JDownloader2.app"
+	present=$([[ -d "$starter" ]] && echo true || echo false)
+	brew install --cask --no-quarantine jdownloader
+	brew upgrade --cask --no-quarantine jdownloader
 
 	# Create deposit
 	mkdir -p "$deposit"
 
 	# Change settings
-	appdata="/Applications/JDownloader 2.0/cfg"
-	config1="$appdata/org.jdownloader.settings.GraphicalUserInterfaceSettings.json"
-	config2="$appdata/org.jdownloader.settings.GeneralSettings.json"
-	config3="$appdata/org.jdownloader.gui.jdtrayicon.TrayExtension.json"
-	osascript <<-EOD
-		set checkup to "/Applications/JDownloader 2.0/JDownloader2.app"
-		tell application checkup
-			activate
-			reopen
-			tell application "System Events"
-				repeat until (exists window 1 of application process "JDownloader2")
-					delay 0.02
-				end repeat
-				tell application process "JDownloader2" to set visible to false
-				repeat until (do shell script "test -f '$config1' && echo true || echo false") as boolean is true
-					delay 1
-				end repeat
+	if [[ $present = false ]]; then
+		appdata="/Applications/JDownloader 2.0/cfg"
+		config1="$appdata/org.jdownloader.settings.GraphicalUserInterfaceSettings.json"
+		config2="$appdata/org.jdownloader.settings.GeneralSettings.json"
+		config3="$appdata/org.jdownloader.gui.jdtrayicon.TrayExtension.json"
+		osascript <<-EOD
+			set checkup to "/Applications/JDownloader 2.0/JDownloader2.app"
+			tell application checkup
+				activate
+				reopen
+				tell application "System Events"
+					repeat until (exists window 1 of application process "JDownloader2")
+						delay 0.02
+					end repeat
+					tell application process "JDownloader2" to set visible to false
+					repeat until (do shell script "test -f '$config1' && echo true || echo false") as boolean is true
+						delay 1
+					end repeat
+				end tell
+				delay 8
+				quit
+				delay 4
 			end tell
-			delay 8
-			quit
-			delay 4
-		end tell
-	EOD
-	jq ".bannerenabled = false" "$config1" | sponge "$config1"
-	jq ".donatebuttonlatestautochange = 4102444800000" "$config1" | sponge "$config1"
-	jq ".donatebuttonstate = \"AUTO_HIDDEN\"" "$config1" | sponge "$config1"
-	jq ".myjdownloaderviewvisible = false" "$config1" | sponge "$config1"
-	jq ".premiumalertetacolumnenabled = false" "$config1" | sponge "$config1"
-	jq ".premiumalertspeedcolumnenabled = false" "$config1" | sponge "$config1"
-	jq ".premiumalerttaskcolumnenabled = false" "$config1" | sponge "$config1"
-	jq ".specialdealoboomdialogvisibleonstartup = false" "$config1" | sponge "$config1"
-	jq ".specialdealsenabled = false" "$config1" | sponge "$config1"
-	jq ".speedmetervisible = false" "$config1" | sponge "$config1"
-	jq ".defaultdownloadfolder = \"$deposit\"" "$config2" | sponge "$config2"
-	jq ".enabled = false" "$config3" | sponge "$config3"
+		EOD
+		jq ".bannerenabled = false" "$config1" | sponge "$config1"
+		jq ".donatebuttonlatestautochange = 4102444800000" "$config1" | sponge "$config1"
+		jq ".donatebuttonstate = \"AUTO_HIDDEN\"" "$config1" | sponge "$config1"
+		jq ".myjdownloaderviewvisible = false" "$config1" | sponge "$config1"
+		jq ".premiumalertetacolumnenabled = false" "$config1" | sponge "$config1"
+		jq ".premiumalertspeedcolumnenabled = false" "$config1" | sponge "$config1"
+		jq ".premiumalerttaskcolumnenabled = false" "$config1" | sponge "$config1"
+		jq ".specialdealoboomdialogvisibleonstartup = false" "$config1" | sponge "$config1"
+		jq ".specialdealsenabled = false" "$config1" | sponge "$config1"
+		jq ".speedmetervisible = false" "$config1" | sponge "$config1"
+		jq ".defaultdownloadfolder = \"$deposit\"" "$config2" | sponge "$config2"
+		jq ".enabled = false" "$config3" | sponge "$config3"
+	fi
 
 	# Update chromium extension
-	update_chromium_extension "fbcohnmimjicjdomonkcbcpbpnhggkip"
+	[[ $present = false ]] && update_chromium_extension "fbcohnmimjicjdomonkcbcpbpnhggkip"
 
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/jdownloader.icns"
 	picture="$(mktemp -d)/$(basename "$address")"
-	curl -Ls "${address}" -A "mozilla/5.0" -o "$picture"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/JDownloader 2.0/JDownloader2.app" "$picture" || sudo !!
 	fileicon set "/Applications/JDownloader 2.0/JDownloader Uninstaller.app" "$picture" || sudo !!
 	cp "$picture" "/Applications/JDownloader 2.0/JDownloader2.app/Contents/Resources/app.icns"
@@ -971,14 +1036,14 @@ update_joal_desktop() {
 
 	# Update package
 	address="https://api.github.com/repos/anthonyraymond/joal-desktop/releases"
-	version=$(curl -Ls "$address" | jq -r ".[0].tag_name" | tr -d "v")
+	version=$(curl -L "$address" | jq -r ".[0].tag_name" | tr -d "v")
 	checkup=$(search_pattern "/*pplications/*oal*esktop*/*ontents/*nfo.plist")
 	current=$(defaults read "$checkup" CFBundleShortVersionString 2>/dev/null | ggrep -oP "[\d.]+" || echo "0.0.0.0")
 	autoload is-at-least
 	if ! is-at-least "$version" "$current"; then
 		address="https://github.com/anthonyraymond/joal-desktop/releases"
 		address="$address/download/v$version/JoalDesktop-$version-mac-x64.dmg"
-		package=$(mktemp -d)/$(basename "$address") && curl -Ls "$address" -o "$package"
+		package=$(mktemp -d)/$(basename "$address") && curl -L "$address" -o "$package"
 		hdiutil attach "$package" -noautoopen -nobrowse
 		cp -fr /Volumes/Joal*/Joal*.app /Applications
 		hdiutil detach /Volumes/Joal*
@@ -988,7 +1053,7 @@ update_joal_desktop() {
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/joal-desktop.icns"
 	picture="$(mktemp -d)/$(basename "$address")"
-	curl -Ls "${address}" -A "mozilla/5.0" -o "$picture"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/JoalDesktop.app" "$picture" || sudo !!
 
 }
@@ -996,8 +1061,8 @@ update_joal_desktop() {
 update_keepassxc() {
 
 	# Update package
-	brew install --cask keepassxc
-	brew upgrade --cask keepassxc
+	brew install --cask --no-quarantine keepassxc
+	brew upgrade --cask --no-quarantine keepassxc
 
 }
 
@@ -1051,6 +1116,18 @@ update_nodejs() {
 
 }
 
+update_odoo() {
+
+	# Update pycharm plugins
+	update_jetbrains_plugin "PyCharm" "10037" # csv-editor
+	update_jetbrains_plugin "PyCharm" "12478" # xpathview-xslt
+	update_jetbrains_plugin "PyCharm" "13499" # odoo
+
+	# Update vscode extensions
+	code --install-extension "jigar-patel.odoosnippets" --force &>/dev/null
+
+}
+
 update_pycharm() {
 
 	# Handle parameters
@@ -1062,18 +1139,36 @@ update_pycharm() {
 
 	# Update package
 	present=$([[ -d "/Applications/PyCharm.app" ]] && echo true || echo false)
-	brew install --cask pycharm
-	brew upgrade --cask pycharm
+	brew install --cask --no-quarantine pycharm
+	brew upgrade --cask --no-quarantine pycharm
 
-	# Finish installation
-	# if [[ $present = false ]]; then
-	# 	echo
-	# fi
+	# Launch package once
+	if [[ $present = false ]]; then
+		osascript <<-EOD
+			set checkup to "/Applications/PyCharm.app"
+			tell application checkup
+				activate
+				reopen
+				tell application "System Events"
+					tell process "PyCharm"
+						with timeout of 30 seconds
+							repeat until (exists window 1)
+								delay 1
+							end repeat
+						end timeout
+					end tell
+				end tell
+				delay 4
+				quit app "PyCharm"
+				delay 4
+			end tell
+		EOD
+	fi
 
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/pycharm.icns"
 	picture="$(mktemp -d)/$(basename "$address")"
-	curl -Ls "${address}" -A "mozilla/5.0" -o "$picture"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/PyCharm.app" "$picture" || sudo !!
 
 }
@@ -1097,7 +1192,7 @@ update_python() {
 		source "$HOME/.zshrc"
 	fi
 
-	# Update vscode
+	# Update vscode extensions
 	code --install-extension "ms-python.python" --force &>/dev/null
 
 	# Change settings
@@ -1112,14 +1207,14 @@ update_spotify() {
 	brew upgrade fileicon
 
 	# Update package
-	brew install --cask spotify
-	brew upgrade --cask spotify
+	brew install --cask --no-quarantine spotify
+	brew upgrade --cask --no-quarantine spotify
 	bash <(curl -sSL https://raw.githubusercontent.com/SpotX-CLI/SpotX-Mac/main/install.sh) -ceu -E leftsidebar
 
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/spotify.icns"
 	picture="$(mktemp -d)/$(basename "$address")"
-	curl -Ls "${address}" -A "mozilla/5.0" -o "$picture"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/Spotify.app" "$picture" || sudo !!
 
 }
@@ -1186,8 +1281,8 @@ update_the_unarchiver() {
 
 	# Update package
 	present=$([[ -d "/Applications/The Unarchiver.app" ]] && echo true || echo false)
-	brew install --cask the-unarchiver --no-quarantine
-	brew upgrade --cask the-unarchiver --no-quarantine
+	brew install --cask --no-quarantine the-unarchiver
+	brew upgrade --cask --no-quarantine the-unarchiver
 
 	# Finish installation
 	if [[ $present = false ]]; then
@@ -1231,8 +1326,8 @@ update_transmission() {
 	seeding=${2:-0.1}
 
 	# Update package
-	brew install --cask transmission
-	brew upgrade --cask transmission
+	brew install --cask --no-quarantine transmission
+	brew upgrade --cask --no-quarantine transmission
 
 	# Change settings
 	mkdir -p "$deposit/Incompleted"
@@ -1247,7 +1342,7 @@ update_transmission() {
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/transmission.icns"
 	picture="$(mktemp -d)/$(basename "$address")"
-	curl -Ls "${address}" -A "mozilla/5.0" -o "$picture"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/Transmission.app" "$picture" || sudo !!
 
 }
@@ -1255,8 +1350,8 @@ update_transmission() {
 update_utm() {
 
 	# Update package
-	brew install --cask utm
-	brew upgrade --cask utm
+	brew install --cask --no-quarantine utm
+	brew upgrade --cask --no-quarantine utm
 
 }
 
@@ -1267,13 +1362,12 @@ update_vscode() {
 	brew upgrade jq sponge
 
 	# Update package
-	brew install --cask visual-studio-code
-	brew upgrade --cask visual-studio-code
+	brew install --cask --no-quarantine visual-studio-code
+	brew upgrade --cask --no-quarantine visual-studio-code
 	
 	# Update extensions
 	code --install-extension "foxundermoon.shell-format" --force &>/dev/null
 	code --install-extension "github.github-vscode-theme" --force &>/dev/null
-	code --install-extension "rogalmic.bash-debug" --force &>/dev/null
 
 	# Change settings
 	configs="$HOME/Library/Application Support/Code/User/settings.json"
@@ -1332,7 +1426,6 @@ main() {
 	echo "Defaults timestamp_timeout=-1" | sudo tee /private/etc/sudoers.d/disable_timeout >/dev/null
 
 	# Remove sleeping
-	# sudo pmset -a disablesleep 1 && caffeinate -i -w $$ &
 	sudo pmset -a disablesleep 1 && (caffeinate -i -w $$ &) &>/dev/null
 
 	# Verify password
@@ -1349,29 +1442,32 @@ main() {
 
 	# Handle elements
 	factors=(
-		# "update_system"
-		# "update_android_studio"
-		# "update_chromium"
-		# "update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
-		# "update_pycharm"
-		# "update_vscode"
+		"update_system"
+
+		"update_android_studio"
+		"update_chromium"
+		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
+		"update_pycharm"
+		"update_vscode"
 		# "update_xcode"
+
 		# "update_dotnet"
-		# "update_figma"
-		# "update_flutter"
+		"update_figma"
+		"update_flutter"
 		"update_iina"
-		# "update_jdownloader"
-		# "update_joal_desktop"
-		# "update_keepassxc"
-		# "update_mambaforge"
-		# "update_nightlight"
-		# "update_nodejs"
-		# "update_python"
+		"update_jdownloader"
+		"update_joal_desktop"
+		"update_keepassxc"
+		"update_mambaforge"
+		"update_nightlight"
+		"update_nodejs"
+		"update_python"
 		"update_scrcpy"
 		"update_spotify"
-		# "update_the_unarchiver"
-		# "update_transmission"
-		# "update_utm"
+		"update_the_unarchiver"
+		"update_transmission"
+		"update_utm"
+
 		"update_appearance"
 	)
 
