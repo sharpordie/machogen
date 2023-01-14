@@ -424,7 +424,7 @@ update_appearance() {
 		"/Applications/UTM.app"
 		"/Applications/Visual Studio Code.app"
 		"/Applications/PyCharm.app"
-		# "/Applications/Xcode.app"
+		"/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
@@ -1367,6 +1367,12 @@ update_xcode() {
 	sudo xcodebuild -runFirstLaunch
 	sudo xcodebuild -license accept
 
+	# Change icons
+	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/xcode.icns"
+	picture="$(mktemp -d)/$(basename "$address")"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	fileicon set "/Applications/Xcode.app" "$picture" || sudo !!
+
 }
 
 main() {
@@ -1407,7 +1413,7 @@ main() {
 	update_homebrew || return 1
 
 	# Verify apple id
-	# assert_apple_id || return 1
+	assert_apple_id || return 1
 
 	# Handle elements
 	factors=(
@@ -1418,7 +1424,7 @@ main() {
 		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
 		"update_pycharm"
 		"update_vscode"
-		# "update_xcode"
+		"update_xcode"
 
 		"update_appcleaner"
 		# "update_dotnet"
