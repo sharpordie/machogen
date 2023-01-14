@@ -448,7 +448,7 @@ update_appearance() {
 
 	# Change wallpaper
 	address="https://github.com/sharpordie/andpaper/raw/main/src/android-bottom-darken.png"
-	picture="$HOME/Pictures/Backgrounds/android-bottom-darken.png"
+	picture="$HOME/Pictures/Backgrounds/$(basename "$address")"
 	mkdir -p "$(dirname $picture)" && curl -L "$address" -o "$picture"
 	osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$picture\""
 
