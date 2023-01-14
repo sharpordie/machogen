@@ -877,6 +877,7 @@ update_iina() {
 	brew upgrade yt-dlp
 
 	# Update package
+	present=$([[ -d "/Applications/IINA.app" ]] && echo true || echo false)
 	brew install --cask --no-quarantine iina
 	brew upgrade --cask --no-quarantine iina
 
@@ -900,10 +901,10 @@ update_iina() {
 				delay 4
 			end tell
 		EOD
-
-		# Update open-in-iina
-		update_chromium_extension "pdnojahnhpgmdhjdhgphgdcecehkbhfo"
 	fi
+
+	# Update chromium extension
+	[[ $present = false ]] && update_chromium_extension "pdnojahnhpgmdhjdhgphgdcecehkbhfo"
 
 	# Change settings
 	ln -s /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
@@ -932,8 +933,7 @@ update_jdownloader() {
 	brew upgrade --cask --no-quarantine homebrew/cask-versions/temurin8
 
 	# Update package
-	starter="/Applications/JDownloader 2.0/JDownloader2.app"
-	present=$([[ -d "$starter" ]] && echo true || echo false)
+	present=$([[ -d "/Applications/JDownloader 2.0/JDownloader2.app" ]] && echo true || echo false)
 	brew install --cask --no-quarantine jdownloader
 	brew upgrade --cask --no-quarantine jdownloader
 
@@ -1181,6 +1181,8 @@ update_spotify() {
 	brew uninstall --cask spotify
 	brew install --cask --no-quarantine spotify
 	bash <(curl -sSL https://raw.githubusercontent.com/SpotX-CLI/SpotX-Mac/main/install.sh) -ceu -E leftsidebar
+
+	# TODO: Remove autorun
 
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/spotify.icns"
