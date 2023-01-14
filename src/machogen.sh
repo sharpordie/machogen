@@ -913,6 +913,15 @@ update_iina() {
 	defaults write com.colliderli.iina SUEnableAutomaticChecks -integer 0
 	defaults write com.colliderli.iina ytdlSearchPath "/usr/local/bin"
 
+	# Change association
+	website="https://api.github.com/repos/jdek/openwith/releases"
+	version=$(curl -L "$website" -A "mozilla/5.0" | jq -r ".[0].tag_name" | tr -d "v")
+	address="https://github.com/jdek/openwith/releases/download/v$version/openwith-v$version.tar.xz"
+	archive=$(mktemp -d)/$(basename "$address") && curl -Ls "$address" -A "mozilla/5.0" -o "$archive"
+	expand_archive "$archive" "$HOME"
+	"$HOME/openwith" com.colliderli.iina mkv mov mp4 avi
+	rm "$HOME/openwith"
+
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/iina.icns"
 	picture="$(mktemp -d)/$(basename "$address")"
@@ -946,6 +955,7 @@ update_jdownloader() {
 		config1="$appdata/org.jdownloader.settings.GraphicalUserInterfaceSettings.json"
 		config2="$appdata/org.jdownloader.settings.GeneralSettings.json"
 		config3="$appdata/org.jdownloader.gui.jdtrayicon.TrayExtension.json"
+		config4="$appdata/org.jdownloader.extensions.extraction.ExtractionExtension.json"
 		osascript <<-EOD
 			set checkup to "/Applications/JDownloader 2.0/JDownloader2.app"
 			tell application checkup
@@ -966,6 +976,7 @@ update_jdownloader() {
 			end tell
 		EOD
 		jq ".bannerenabled = false" "$config1" | sponge "$config1"
+		jq ".clipboardmonitored = false" "$config1" | sponge "$config1"
 		jq ".donatebuttonlatestautochange = 4102444800000" "$config1" | sponge "$config1"
 		jq ".donatebuttonstate = \"AUTO_HIDDEN\"" "$config1" | sponge "$config1"
 		jq ".myjdownloaderviewvisible = false" "$config1" | sponge "$config1"
@@ -977,6 +988,7 @@ update_jdownloader() {
 		jq ".speedmetervisible = false" "$config1" | sponge "$config1"
 		jq ".defaultdownloadfolder = \"$deposit\"" "$config2" | sponge "$config2"
 		jq ".enabled = false" "$config3" | sponge "$config3"
+		jq ".enabled = false" "$config4" | sponge "$config4"
 	fi
 
 	# Update chromium extension
@@ -1284,6 +1296,7 @@ update_the_unarchiver() {
 	fi
 
 	# Change settings
+	# INFO: defaults read com.macpaw.site.theunarchiver
 	defaults write com.macpaw.site.theunarchiver extractionDestination -integer 3
 	defaults write com.macpaw.site.theunarchiver isFreshInstall -integer 1
 	defaults write com.macpaw.site.theunarchiver userAgreedToNewTOSAndPrivacy -integer 1
