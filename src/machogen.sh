@@ -60,7 +60,7 @@ assert_password() {
 	if [[ $correct = false ]]; then
 		security delete-generic-password -s account &>/dev/null
 		printf "\r\033[91m%s\033[00m\n\n" "ACCOUNT PASSWORD NOT IN KEYCHAIN OR INCORRECT"
-		printf "\r\033[92m%s\033[00m\n\n" "security add-generic-password -a $USER -s account -w password"
+		printf "\r\033[92m%s\033[00m\n\n" "security add-generic-password -a \$USER -s account -w password"
 		return 1
 	fi
 
@@ -68,97 +68,44 @@ assert_password() {
 
 }
 
-remove_security() {
+handle_security() {
 
-	version=$(sw_vers -productVersion)
-	correct=$([[ "${version:0:2}" = "12" ]] && echo true || echo false)
-
-	if [[ $correct = false ]]; then
+	# Verify version
+	if [[ ${"$(sw_vers -productVersion)":0:2} != "13" ]]; then
 		printf "\r\033[91m%s\033[00m\n\n" "CURRENT MACOS VERSION (${version:0:4}) IS NOT SUPPORTED"
 		return 1
 	fi
 
+	# Output message
 	printf "\r\033[93m%s\033[00m" "CHANGING SECURITY, PLEASE FOLLOW THE MESSAGES"
 
-	account=$(security find-generic-password -w -s "account" -a "$USER" 2>/dev/null)
-	program=$(echo "$TERM_PROGRAM" | sed -e "s/.app//" | sed -e "s/Apple_//")
-	heading=$(basename "$ZSH_ARGZERO" | cut -d . -f 1)
+	# Handle functions
 	allowed() { osascript -e 'tell application "System Events" to log ""' &>/dev/null }
 	capable() { osascript -e 'tell application "System Events" to key code 60' &>/dev/null }
 	granted() { ls "$HOME/Library/Messages" &>/dev/null }
-	# granted() { plutil -lint /Library/Preferences/com.apple.TimeMachine.plist &>/dev/null }
-
-	while ! allowed; do
-		message="Press the OK button"
+	display() {
+		heading=$(basename "$ZSH_ARGZERO" | cut -d . -f 1)
 		osascript <<-EOD &>/dev/null
 			tell application "${TERM_PROGRAM//Apple_/}"
-				display alert "$heading" message "$message" as informational giving up after 10
+				display alert "$heading" message "$1" as informational giving up after 10
 			end tell
 		EOD
+	}
+
+	while ! allowed; do
+		display "You have to tap the OK button to continue."
 		tccutil reset AppleEvents &>/dev/null
 	done
 
 	while ! capable; do
-		osascript -e 'tell application "universalAccessAuthWarn" to quit' &>/dev/null
-		message="Press the lock icon, enter your password, ensure $program is present, checked it and close the window"
-		osascript <<-EOD &>/dev/null
-			tell application "${TERM_PROGRAM//Apple_/}"
-				display alert "$heading" message "$message" as informational giving up after 10
-			end tell
-		EOD
-		open -W "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility" &>/dev/null
+		display "You have to add your current terminal application to accessibility. When it's done, close the System Settings application to continue."
+		open -W "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
 	done
 
-	if ! granted; then
-		message="The script is going to add $program in full disk access automatically, don't touch anything"
-		osascript <<-EOD &>/dev/null
-			tell application "${TERM_PROGRAM//Apple_/}"
-				display alert "$heading" message "$message" as informational giving up after 10
-			end tell
-		EOD
-		osascript <<-EOD &>/dev/null
-			-- Ensure the system preferences application is not running
-			if running of application "System Preferences" then
-				tell application "System Preferences" to quit
-				delay 2
-			end if
-			-- Reveal the security pane of the system preferences application
-			tell application "System Preferences"
-				activate
-				reveal anchor "Privacy" of pane "com.apple.preference.security"
-				delay 4
-			end tell
-			-- Handle the full disk access permission
-			tell application "System Events" to tell application process "System Preferences"
-				-- Press the lock icon
-				click button 1 of window 1
-				delay 4
-				-- Enter the account password
-				set value of text field 2 of sheet 1 of window 1 to "$account"
-				delay 2
-				click button 2 of sheet 1 of window 1
-				-- Press the full disk access row
-				delay 2
-				select row 11 of table 1 of scroll area 1 of tab group 1 of window 1
-				-- Fecth the table row element by its name
-				set fullAccessTable to table 1 of scroll area 1 of group 1 of tab group 1 of window 1
-				set terminalItemRow to (row 1 where name of UI element 1 is "$program" or name of UI element 1 is "${program}.app") of fullAccessTable
-				-- Check the checkbox only if it is not already checked
-				set terminalCheckbox to checkbox 1 of UI element 1 of terminalItemRow
-				set checkboxStatus to value of terminalCheckbox as boolean
-				if checkboxStatus is false then
-					click terminalCheckbox
-					delay 2
-					click button 1 of sheet 1 of window 1
-				end if
-			end tell
-			-- Ensure the system preferences application is not running
-			if running of application "System Preferences" then
-				delay 2
-				tell application "System Preferences" to quit
-			end if
-		EOD
-	fi
+	while ! granted; do
+		display "You have to add your current terminal application to full disk access. When it's done, close the System Settings application to continue."
+		open -W "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"
+	done
 
 }
 
@@ -456,7 +403,7 @@ update_android_studio() {
 		yes | sdkmanager --channel=0 "platforms;android-33-ext4"
 		yes | sdkmanager --channel=0 "sources;android-33"
 		yes | sdkmanager --channel=0 "system-images;android-33;google_apis;x86_64"
-		avdmanager create avd -n "Pixel_5_API_33" -d "pixel_5" -k "system-images;android-33;google_apis;x86_64" -f
+		avdmanager create avd -n "Pixel_3_API_33" -d "pixel_3" -k "system-images;android-33;google_apis;x86_64" -f
 	fi
 
 	# Change icons
@@ -484,6 +431,7 @@ update_appearance() {
 		"/Applications/Figma.app"
 		"/Applications/KeePassXC.app"
 		"/Applications/JoalDesktop.app"
+		"System/Applications/Utilities/Terminal.app"
 		"/System/Applications/Stickies.app"
 	)
 	change_dock_items "${factors[@]}"
@@ -503,6 +451,20 @@ update_appearance() {
 	picture="$HOME/Pictures/Backgrounds/android-bottom-darken.png"
 	mkdir -p "$(dirname $picture)" && curl -L "$address" -o "$picture"
 	osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$picture\""
+
+}
+
+update_appcleaner() {
+
+	# Update package
+	brew install --cask --no-quarantine appcleaner
+	brew upgrade --cask --no-quarantine appcleaner
+
+	# Change icons
+	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/appcleaner.icns"
+	picture="$(mktemp -d)/$(basename "$address")"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	fileicon set "/Applications/AppCleaner.app" "$picture" || sudo !!
 
 }
 
@@ -1072,6 +1034,12 @@ update_mambaforge() {
 	brew install mambaforge
 	brew upgrade mambaforge
 
+	# Change environment
+	conda init zsh
+
+	# Change settings
+	conda config --set auto_activate_base false
+
 }
 
 update_nightlight() {
@@ -1207,8 +1175,8 @@ update_spotify() {
 	brew upgrade fileicon
 
 	# Update package
+	brew uninstall --cask spotify
 	brew install --cask --no-quarantine spotify
-	brew upgrade --cask --no-quarantine spotify
 	bash <(curl -sSL https://raw.githubusercontent.com/SpotX-CLI/SpotX-Mac/main/install.sh) -ceu -E leftsidebar
 
 	# Change icons
@@ -1431,8 +1399,8 @@ main() {
 	# Verify password
 	# assert_password || return 1
 
-	# Remove security
-	# remove_security || return 1
+	# Handle security
+	handle_security || return 1
 
 	# Update homebrew
 	update_homebrew || return 1
@@ -1451,6 +1419,7 @@ main() {
 		"update_vscode"
 		# "update_xcode"
 
+		"update_appcleaner"
 		# "update_dotnet"
 		"update_figma"
 		"update_flutter"
@@ -1462,8 +1431,9 @@ main() {
 		"update_nightlight"
 		"update_nodejs"
 		"update_python"
+		"update_odoo"
 		"update_scrcpy"
-		"update_spotify"
+		# "update_spotify"
 		"update_the_unarchiver"
 		"update_transmission"
 		"update_utm"
