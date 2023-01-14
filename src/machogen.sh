@@ -827,6 +827,9 @@ update_flutter() {
 	code --install-extension "robert-brunhage.flutter-riverpod-snippets" --force &>/dev/null
 	code --install-extension "usernamehw.errorlens" --force &>/dev/null
 
+	# TODO: Add `readlink -f $(which flutter)` to android-studio
+	# /usr/local/Caskroom/flutter/*/flutter
+
 }
 
 update_figma() {
@@ -990,7 +993,7 @@ update_jdownloader() {
 
 }
 
-update_joal_desktop() {
+update_joal() {
 
 	# Update dependencies
 	brew install grep jq
@@ -1228,10 +1231,8 @@ update_system() {
 	defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 	defaults write com.apple.LaunchServices "LSQuarantine" -bool false
 
-	# TODO: Change terminal
-
-	# Change timemachine
-	# defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
+	# Enable subpixel rendering
+	defaults write NSGlobalDomain AppleFontSmoothing -int 2
 
 	# Enable tap-to-click
 	defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
@@ -1425,7 +1426,7 @@ main() {
 		"update_flutter"
 		"update_iina"
 		"update_jdownloader"
-		"update_joal_desktop"
+		"update_joal"
 		"update_keepassxc"
 		"update_mambaforge"
 		"update_nightlight"
