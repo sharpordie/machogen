@@ -425,9 +425,8 @@ update_appearance() {
 		"/Applications/Visual Studio Code.app"
 		"/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
-		"/Applications/DataGrip.app"
 		"/Applications/PyCharm.app"
-		"/Applications/Postgres.app"
+		"/Applications/pgAdmin 4.app"
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
 		"/Applications/Figma.app"
@@ -1117,6 +1116,21 @@ update_nodejs() {
 
 update_odoo() {
 
+	# Update dependencies
+	update_python
+
+	# Update postgresql
+	update_postgresql
+	su - postgres createuser -sdP odoo
+
+	# Update nodejs
+	update_nodejs
+	npm install -g rtlcss
+
+	# Update wkhtmltopdf
+	brew install --cask --no-quarantine wkhtmltopdf
+	brew upgrade --cask --no-quarantine wkhtmltopdf
+
 	# Update pycharm plugins
 	update_jetbrains_plugin "PyCharm" "10037" # csv-editor
 	update_jetbrains_plugin "PyCharm" "12478" # xpathview-xslt
@@ -1127,11 +1141,20 @@ update_odoo() {
 
 }
 
-update_postgres() {
+update_pgadmin() {
 
 	# Update package
-	brew install --cask --no-quarantine postgres-unofficial
-	brew upgrade --cask --no-quarantine postgres-unofficial
+	brew install --cask --no-quarantine pgadmin4
+	brew upgrade --cask --no-quarantine pgadmin4
+
+}
+
+update_postgresql() {
+
+	# Update package
+	brew install postgresql@14
+	brew upgrade postgresql@14
+	brew services restart postgresql@14
 
 }
 
@@ -1454,6 +1477,8 @@ main() {
 	# Verify apple id
 	assert_apple_id || return 1
 
+	update_postgres ; exit
+
 	# Handle elements
 	factors=(
 		"update_system"
@@ -1477,9 +1502,10 @@ main() {
 		"update_mambaforge"
 		"update_nightlight"
 		"update_nodejs"
-		"update_postgres"
+		"update_pgadmin"
+		"update_postgresql"
 		"update_python"
-		"update_odoo"
+		# "update_odoo"
 		"update_scrcpy"
 		# "update_spotify"
 		"update_the_unarchiver"
