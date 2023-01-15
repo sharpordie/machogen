@@ -425,6 +425,8 @@ update_appearance() {
 		"/Applications/Visual Studio Code.app"
 		"/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
+		"/Applications/DataGrip.app"
+		"/Applications/Postgres.app"
 		"/Applications/PyCharm.app"
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
@@ -766,6 +768,20 @@ update_chromium() {
 
 	# Update bypass-paywalls-chrome
 	update_chromium_extension "https://github.com/iamadamdev/bypass-paywalls-chrome/archive/master.zip"
+
+}
+
+update_datagrip() {
+
+	# Update package
+	brew install --cask --no-quarantine datagrip
+	brew upgrade --cask --no-quarantine datagrip
+
+	# Change icons
+	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/datagrip.icns"
+	picture="$(mktemp -d)/$(basename "$address")"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	fileicon set "/Applications/DataGrip.app" "$picture" || sudo !!
 
 }
 
@@ -1111,6 +1127,14 @@ update_odoo() {
 
 }
 
+update_postgres() {
+
+	# Update package
+	brew install --cask --no-quarantine postgres-unofficial
+	brew upgrade --cask --no-quarantine postgres-unofficial
+
+}
+
 update_pycharm() {
 
 	# Handle parameters
@@ -1442,6 +1466,7 @@ main() {
 		"update_xcode"
 
 		"update_appcleaner"
+		"update_datagrip"
 		# "update_dotnet"
 		"update_figma"
 		"update_flutter"
@@ -1452,6 +1477,7 @@ main() {
 		"update_mambaforge"
 		"update_nightlight"
 		"update_nodejs"
+		"update_postgres"
 		"update_python"
 		"update_odoo"
 		"update_scrcpy"
