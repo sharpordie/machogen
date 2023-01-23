@@ -804,7 +804,7 @@ update_chromium() {
 
 }
 
-update_dbeaver_ultimate() {
+update_dbeaver() {
 
 	# Update dependencies
     brew install curl jq
@@ -1558,7 +1558,7 @@ main() {
 		"update_xcode"
 
 		"update_appcleaner"
-		"update_dbeaver_ultimate"
+		"update_dbeaver"
 		"update_docker"
 		# "update_dotnet"
 		"update_figma"
