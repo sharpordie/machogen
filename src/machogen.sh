@@ -208,7 +208,7 @@ update_chromium_extension() {
 
 	# Update extension
 	if [[ -d "/Applications/Chromium.app" ]]; then
-		if [[ "${payload:0:4}" == "http" ]]; then
+		if [[ ${payload:0:4} == "http" ]]; then
 			local address="$payload"
 			local package=$(mktemp -d)/$(basename "$address")
 		else
@@ -222,7 +222,7 @@ update_chromium_extension() {
 		if [[ $package = *.zip ]]; then
 			local storage="/Applications/Chromium.app/Unpacked/$(echo "$payload" | cut -d / -f5)"
 			local present=$([[ -d "$storage" ]] && echo "true" || echo "false")
-			local expand_archive "$package" "$storage" 1
+			expand_archive "$package" "$storage" 1
 			if [[ "$present" == "false" ]]; then
 				osascript <<-EOD
 					set checkup to "/Applications/Chromium.app"
@@ -336,7 +336,7 @@ update_vscode_extension() {
 	local payload=${1}
 
 	# Update extension
-	code --install-extension "$payload" --force &>/dev/null
+	code --install-extension "$payload" --force &>/dev/null || true
 
 }
 
@@ -436,7 +436,7 @@ update_android_studio() {
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/android-studio.icns"
 	picture="$(mktemp -d)/$(basename "$address")"
-	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/Android Studio.app" "$picture" || sudo !!
 
 }
@@ -448,18 +448,21 @@ update_appearance() {
 		"/Applications/Chromium.app"
 		"/Applications/Transmission.app"
 		"/Applications/JDownloader 2.0/JDownloader2.app"
+
 		"/Applications/UTM.app"
 		"/Applications/Visual Studio Code.app"
 		"/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
 		"/Applications/PyCharm.app"
-		"/Applications/pgAdmin 4.app"
+		"/Applications/DBeaverUltimate.app"
+		# "/Applications/pgAdmin 4.app"
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
 		"/Applications/Figma.app"
 		"/Applications/KeePassXC.app"
 		"/Applications/JoalDesktop.app"
 		"System/Applications/Utilities/Terminal.app"
+		"/Applications/Docker.app/Contents/MacOS/Docker Desktop.app/"
 		"/System/Applications/Stickies.app"
 	)
 	change_dock_items "${factors[@]}"
@@ -516,7 +519,7 @@ update_chromium() {
 	local present=$([[ -d "$starter" ]] && echo "true" || echo "false")
 	brew install --cask --no-quarantine eloston-chromium
 	brew upgrade --cask --no-quarantine eloston-chromium
-	killall Chromium
+	killall Chromium || true
 
 	# Change default browser
 	change_default_browser "chromium"
@@ -940,12 +943,11 @@ update_git() {
 	brew upgrade gh git
 
 	# Change settings
-	# git config --global credential.helper "osxkeychain"
 	git config --global credential.helper "store"
 	git config --global http.postBuffer 1048576000
 	git config --global init.defaultBranch "$default"
-	[[ -n "$gitmail" ]] && git config --global user.email "$gitmail"
-	[[ -n "$gituser" ]] git config --global user.name "$gituser"
+	[[ -n "$gitmail" ]] && git config --global user.email "$gitmail" || true
+	[[ -n "$gituser" ]] && git config --global user.name "$gituser" || true
 
 }
 
@@ -1264,7 +1266,7 @@ update_pycharm() {
 	# Change icons
 	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/pycharm.icns"
 	local picture="$(mktemp -d)/$(basename "$address")"
-	curl -LA "mozilla/5.0""$address" -o "$picture"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/PyCharm.app" "$picture" || sudo !!
 
 }
