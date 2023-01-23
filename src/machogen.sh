@@ -1544,7 +1544,7 @@ main() {
 	update_homebrew || return 1
 
 	# Verify apple id
-	assert_apple_id || return 1
+	# assert_apple_id || return 1
 
 	# Handle elements
 	local factors=(
@@ -1555,7 +1555,7 @@ main() {
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		"update_pycharm"
 		"update_vscode"
-		"update_xcode"
+		# "update_xcode"
 
 		"update_appcleaner"
 		"update_dbeaver"
