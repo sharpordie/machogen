@@ -4,8 +4,8 @@
 
 assert_apple_id() {
 
-	appmail=$(security find-generic-password -a $USER -s appmail -w 2>/dev/null)
-	apppass=$(security find-generic-password -a $USER -s apppass -w 2>/dev/null)
+	local appmail=$(security find-generic-password -a $USER -s appmail -w 2>/dev/null)
+	local apppass=$(security find-generic-password -a $USER -s apppass -w 2>/dev/null)
 
 	printf "\r\033[93m%s\033[00m" "CHECKING APPLE CREDENTIALS, PLEASE BE PATIENT"
 	brew install robotsandpencils/made/xcodes &>/dev/null
@@ -41,9 +41,9 @@ assert_apple_id() {
 
 assert_executor() {
 
-	is_root=$([[ $EUID = 0 ]] && echo true || echo false)
+	local is_root=$([[ $EUID = 0 ]] && echo "true" || echo "false")
 
-	if [[ $is_root = true ]]; then
+	if [[ "$is_root" == "true" ]]; then
 		printf "\r\033[91m%s\033[00m\n\n" "EXECUTING THIS SCRIPT AS ROOT IS NOT ADMITTED"
 		return 1
 	fi
@@ -54,10 +54,10 @@ assert_executor() {
 
 assert_password() {
 
-	account=$(security find-generic-password -a $USER -s account -w 2>/dev/null)
-	correct=$(sudo -k ; echo "$account" | sudo -S -v &>/dev/null && echo true || echo false)
+	local account=$(security find-generic-password -a $USER -s account -w 2>/dev/null)
+	local correct=$(sudo -k ; echo "$account" | sudo -S -v &>/dev/null && echo "true" || echo "false")
 
-	if [[ $correct = false ]]; then
+	if [[ "$correct" == "false" ]]; then
 		security delete-generic-password -s account &>/dev/null
 		printf "\r\033[91m%s\033[00m\n\n" "ACCOUNT PASSWORD NOT IN KEYCHAIN OR INCORRECT"
 		printf "\r\033[92m%s\033[00m\n\n" "security add-generic-password -a \$USER -s account -w password"
@@ -116,13 +116,13 @@ handle_security() {
 change_default_browser() {
 
 	# Handle parameters
-	browser=${1:-safari}
+	local browser=${1:-safari}
 
 	# Update dependencies
 	brew install defaultbrowser
 
 	# Change browser
-	factors=(brave chrome chromium firefox safari vivaldi)
+	local factors=(brave chrome chromium firefox safari vivaldi)
 	[[ ${factors[*]} =~ $browser ]] || return 1
 	defaultbrowser "$browser" && osascript <<-EOD
 		tell application "System Events"
@@ -141,15 +141,15 @@ change_default_browser() {
 change_dock_items() {
 
 	# Handle parameters
-	factors=("${@}")
+	local factors=("${@}")
 
 	# Remove everything
 	defaults write com.apple.dock persistent-apps -array
 
 	# Append items
 	for element in "${factors[@]}"; do
-		content="<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>$element"
-		content="$content</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"
+		local content="<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>$element"
+		local content="$content</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"
 		defaults write com.apple.dock persistent-apps -array-add "$content"
 	done
 
@@ -158,9 +158,9 @@ change_dock_items() {
 expand_archive() {
 
 	# Handle parameters
-	archive=${1}
-	deposit=${2:-.}
-	subtree=${3:-0}
+	local archive=${1}
+	local deposit=${2:-.}
+	local subtree=${3:-0}
 
 	# Expand archive
 	if [[ -n $archive && ! -f $deposit && $subtree =~ ^[0-9]+$ ]]; then
@@ -175,40 +175,55 @@ expand_archive() {
 
 }
 
-search_pattern() {
+expand_pattern() {
 
-	# Handle parameters
-	pattern=${1}
-	expanse=${2:-0}
+	local pattern=${1}
+	local expanse=${2:-0}
 
-	# Output results
-	printf "%s" "$(/bin/zsh -c "find $pattern -maxdepth $expanse" 2>/dev/null | sort -r | head -1)"
+	# Expand pattern
+	printf "%s" $(/bin/zsh -c "find $pattern -maxdepth $expanse" 2>/dev/null | sort -r | head -1)
+
+}
+
+expand_version() {
+
+    local payload=${1}
+    local default=${2:-0.0.0.0}
+
+	# Update dependencies
+    brew install grep
+    brew upgrade grep
+
+	# Expand version
+    local starter=$(expand_pattern "$payload/*ontents/*nfo.plist")
+    local version=$(defaults read "$starter" CFBundleShortVersionString 2>/dev/null)
+    echo "$version" | ggrep -oP "[\d.]+" || echo "$default"
 
 }
 
 update_chromium_extension() {
 
 	# Handle parameters
-	payload=${1}
+	local payload=${1}
 
 	# Update extension
 	if [[ -d "/Applications/Chromium.app" ]]; then
-		if [[ ${payload:0:4} = "http" ]]; then
-			address="$payload"
-			package=$(mktemp -d)/$(basename "$address")
+		if [[ "${payload:0:4}" == "http" ]]; then
+			local address="$payload"
+			local package=$(mktemp -d)/$(basename "$address")
 		else
-			version=$(defaults read "/Applications/Chromium.app/Contents/Info" CFBundleShortVersionString)
-			address="https://clients2.google.com/service/update2/crx?response=redirect&acceptformat=crx2,crx3"
-			address="${address}&prodversion=${version}&x=id%3D${payload}%26installsource%3Dondemand%26uc"
-			package=$(mktemp -d)/${payload}.crx
+			local version=$(defaults read "/Applications/Chromium.app/Contents/Info" CFBundleShortVersionString)
+			local address="https://clients2.google.com/service/update2/crx?response=redirect&acceptformat=crx2,crx3"
+			local address="${address}&prodversion=${version}&x=id%3D${payload}%26installsource%3Dondemand%26uc"
+			local package=$(mktemp -d)/${payload}.crx
 		fi
-		curl -L "$address" -o "$package" || return 1
+		curl -LA "mozilla/5.0" "$address" -o "$package" || return 1
 		defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 		if [[ $package = *.zip ]]; then
-			storage="/Applications/Chromium.app/Unpacked/$(echo "$payload" | cut -d / -f5)"
-			present=$([[ -d "$storage" ]] && echo true || echo false)
-			expand_archive "$package" "$storage" 1
-			if [[ $present = false ]]; then
+			local storage="/Applications/Chromium.app/Unpacked/$(echo "$payload" | cut -d / -f5)"
+			local present=$([[ -d "$storage" ]] && echo "true" || echo "false")
+			local expand_archive "$package" "$storage" 1
+			if [[ "$present" == "false" ]]; then
 				osascript <<-EOD
 					set checkup to "/Applications/Chromium.app"
 					tell application checkup
@@ -282,30 +297,30 @@ update_chromium_extension() {
 update_jetbrains_plugin() {
 
 	# Handle parameters
-	pattern=${1}
-	element=${2}
+	local pattern=${1}
+	local element=${2}
 
 	# Update dependencies
 	brew install grep jq
 	brew upgrade grep jq
 
 	# Update plugin
-	deposit=$(search_pattern "$HOME/*ibrary/*pplication*upport/*/*$pattern*")
+	local deposit=$(expand_pattern "$HOME/*ibrary/*pplication*upport/*/*$pattern*")
 	if [[ -d $deposit ]]; then
-		checkup=$(search_pattern "/*pplications/*${pattern:0:5}*/*ontents/*nfo.plist")
-		version=$(defaults read "$checkup" CFBundleVersion | ggrep -oP "[\d.]+" | cut -d . -f -3)
+		local checkup=$(expand_pattern "/*pplications/*${pattern:0:5}*/*ontents/*nfo.plist")
+		local version=$(defaults read "$checkup" CFBundleVersion | ggrep -oP "[\d.]+" | cut -d . -f -3)
 		autoload is-at-least
 		for i in {1..3}; do
 			for j in {0..19}; do
-				address="https://plugins.jetbrains.com/api/plugins/$element/updates?page=$i"
-				maximum=$(curl -s "$address" | jq ".[$j].until" | tr -d '"' | sed "s/\.\*/\.9999/")
-				minimum=$(curl -s "$address" | jq ".[$j].since" | tr -d '"' | sed "s/\.\*/\.9999/")
+				local address="https://plugins.jetbrains.com/api/plugins/$element/updates?page=$i"
+				local maximum=$(curl -LA "mozilla/5.0" "$address" | jq ".[$j].until" | tr -d '"' | sed "s/\.\*/\.9999/")
+				local minimum=$(curl -LA "mozilla/5.0" "$address" | jq ".[$j].since" | tr -d '"' | sed "s/\.\*/\.9999/")
 				if is-at-least "${minimum:-0000}" "$version" && is-at-least "$version" "${maximum:-9999}"; then
-					address=$(curl -s "$address" | jq ".[$j].file" | tr -d '"')
-					address="https://plugins.jetbrains.com/files/$address"
-					plugins="$deposit/plugins" && mkdir -p "$plugins"
+					local address=$(curl -LA "mozilla/5.0" "$address" | jq ".[$j].file" | tr -d '"')
+					local address="https://plugins.jetbrains.com/files/$address"
+					local plugins="$deposit/plugins" && mkdir -p "$plugins"
 					[[ "$address" == *.zip ]] && expand_archive "$address" "$plugins"
-					[[ "$address" == *.jar ]] && curl -L "$address" -o "$plugins"
+					[[ "$address" == *.jar ]] && curl -LA "mozilla/5.0" "$address" -o "$plugins"
 					break 2
 				fi
 				sleep 1
@@ -315,7 +330,19 @@ update_jetbrains_plugin() {
 
 }
 
+update_vscode_extension() {
+
+	# Handle parameters
+	local payload=${1}
+
+	# Update extension
+	code --install-extension "$payload" --force &>/dev/null
+
+}
+
 #endregion
+
+#region updaters
 
 update_android_cmdline() {
 
@@ -417,7 +444,7 @@ update_android_studio() {
 update_appearance() {
 
 	# Change dock items
-	factors=(
+	local factors=(
 		"/Applications/Chromium.app"
 		"/Applications/Transmission.app"
 		"/Applications/JDownloader 2.0/JDownloader2.app"
@@ -445,11 +472,15 @@ update_appearance() {
 	defaults write com.apple.dock show-recents -bool false
 	defaults write com.apple.Dock size-immutable -bool yes
 	defaults write com.apple.dock tilesize -int 48
+	defaults write com.apple.dock wvous-bl-corner -int 0
+	defaults write com.apple.dock wvous-br-corner -int 0
+	defaults write com.apple.dock wvous-tl-corner -int 0
+	defaults write com.apple.dock wvous-tr-corner -int 0
 	killall Dock
 
 	# Change wallpaper
-	address="https://github.com/sharpordie/andpaper/raw/main/src/android-bottom-darken.png"
-	picture="$HOME/Pictures/Backgrounds/$(basename "$address")"
+	local address="https://github.com/sharpordie/andpaper/raw/main/src/android-bottom-darken.png"
+	local picture="$HOME/Pictures/Backgrounds/$(basename "$address")"
 	mkdir -p "$(dirname $picture)" && curl -L "$address" -o "$picture"
 	osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$picture\""
 
@@ -462,8 +493,8 @@ update_appcleaner() {
 	brew upgrade --cask --no-quarantine appcleaner
 
 	# Change icons
-	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/appcleaner.icns"
-	picture="$(mktemp -d)/$(basename "$address")"
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/appcleaner.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/AppCleaner.app" "$picture" || sudo !!
 
@@ -472,17 +503,17 @@ update_appcleaner() {
 update_chromium() {
 
 	# Handle parameters
-	deposit=${1:-$HOME/Downloads/DDL}
-	pattern=${2:-duckduckgo}
-	tabpage=${3:-about:blank}
+	local deposit=${1:-$HOME/Downloads/DDL}
+	local pattern=${2:-duckduckgo}
+	local tabpage=${3:-about:blank}
 
 	# Update dependencies
 	brew install jq
 	brew upgrade jq
 
 	# Update package
-	checkup="/Applications/Chromium.app"
-	present=$([[ -d "$checkup" ]] && echo true || echo false)
+	local starter="/Applications/Chromium.app"
+	local present=$([[ -d "$starter" ]] && echo "true" || echo "false")
 	brew install --cask --no-quarantine eloston-chromium
 	brew upgrade --cask --no-quarantine eloston-chromium
 	killall Chromium
@@ -491,7 +522,7 @@ update_chromium() {
 	change_default_browser "chromium"
 
 	# Finish installation
-	if [[ $present = false ]]; then
+	if [[ "$present" == "false" ]]; then
 
 		# Change language
 		defaults write org.chromium.Chromium AppleLanguages "(en-US)"
@@ -770,17 +801,59 @@ update_chromium() {
 
 }
 
-update_datagrip() {
+update_dbeaver_ultimate() {
+
+	# Update dependencies
+    brew install curl jq
+    brew upgrade curl jq
 
 	# Update package
-	brew install --cask --no-quarantine datagrip
-	brew upgrade --cask --no-quarantine datagrip
+    local address="https://dbeaver.com/download/ultimate/"
+    local pattern="DBeaver Ultimate Edition \K([\d.]+)"
+    local version=$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)
+    local current=$(expand_version "/*ppl*/*eav*lti*")
+    autoload is-at-least
+    local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
+    if [[ "$updated" == "false" ]]; then
+	    local cpuname=$(sysctl -n machdep.cpu.brand_string)
+	    local silicon=$([[ $cpuname =~ "pple" ]] && echo "true" || echo "false")
+	    local adjunct=$([[ $silicon == "true" ]] && echo "aarch64" || echo "x86_64")
+        local address="https://download.dbeaver.com/ultimate/$version.0/dbeaver-ue-$version.0-macos-$adjunct.dmg"
+	    local fetched="$(mktemp -d)/$(basename "$address")"
+		curl -LA "mozilla/5.0" "$address" -o "$fetched"
+        hdiutil convert "$fetched" -format UDTO -o "$fetched.cdr"
+		hdiutil attach "$fetched.cdr" -noautoopen -nobrowse
+		cp -fr /Volumes/DB*/DB*.app /Applications
+		hdiutil detach /Volumes/DB*
+		sudo xattr -rd com.apple.quarantine /*ppl*/*eav*lti*
+    fi
 
-	# Change icons
-	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/datagrip.icns"
-	picture="$(mktemp -d)/$(basename "$address")"
-	curl -L "$address" -A "mozilla/5.0" -o "$picture"
-	fileicon set "/Applications/DataGrip.app" "$picture" || sudo !!
+}
+
+update_docker() {
+
+	# Update dependencies
+    brew install curl jq
+    brew upgrade curl jq
+    
+	# Update package
+    local address="https://docs.docker.com/desktop/release-notes/"
+    local pattern="<h2 id=\"[\d]+\">\K([\d.]+)"
+    local version=$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)
+    local current=$(expand_version "/*ppl*/*ocke*")
+    autoload is-at-least
+    local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
+    if [[ "$updated" == "false" ]]; then
+	    local cpuname=$(sysctl -n machdep.cpu.brand_string)
+	    local silicon=$([[ $cpuname =~ "pple" ]] && echo "true" || echo "false")
+	    local adjunct=$([[ $silicon == "true" ]] && echo "arm64" || echo "amd64")
+        local address="https://desktop.docker.com/mac/main/$adjunct/Docker.dmg"
+	    local fetched="$(mktemp -d)/$(basename "$address")"
+        curl -LA "mozilla/5.0" "$address" -o "$fetched"
+		sudo hdiutil attach "$fetched"
+        sudo /Volumes/Docker/Docker.app/Contents/MacOS/install --accept-license --user=$USER
+        sudo hdiutil detach /Volumes/Docker
+    fi
 
 }
 
@@ -813,9 +886,9 @@ update_flutter() {
 	brew upgrade --cask --no-quarantine flutter
 
 	# Change environment
-	altered="$(grep -q "CHROME_EXECUTABLE" "$HOME/.zshrc" >/dev/null 2>&1 && echo true || echo false)"
-	present="$([[ -d "/Applications/Chromium.app" ]] && echo true || echo false)"
-	if [[ $altered = false && $present = true ]]; then
+	local altered="$(grep -q "CHROME_EXECUTABLE" "$HOME/.zshrc" >/dev/null 2>&1 && echo "true" || echo "false")"
+	local present="$([[ -d "/Applications/Chromium.app" ]] && echo "true" || echo "false")"
+	if [[ "$altered" == "false" && "$present" == "true" ]]; then
 		[[ -s "$HOME/.zshrc" ]] || echo '#!/bin/zsh' >"$HOME/.zshrc"
 		[[ -z $(tail -1 "$HOME/.zshrc") ]] || echo "" >>"$HOME/.zshrc"
 		echo 'export CHROME_EXECUTABLE="/Applications/Chromium.app/Contents/MacOS/Chromium"' >>"$HOME/.zshrc"
@@ -835,12 +908,12 @@ update_flutter() {
 	update_jetbrains_plugin "AndroidStudio" "14641"  # flutter-riverpod-snippets
 
 	# Update vscode extensions
-	code --install-extension "alexisvt.flutter-snippets" --force &>/dev/null
-	code --install-extension "dart-code.flutter" --force &>/dev/null
-	code --install-extension "pflannery.vscode-versionlens" --force &>/dev/null
-	code --install-extension "RichardCoutts.mvvm-plus" --force &>/dev/null
-	code --install-extension "robert-brunhage.flutter-riverpod-snippets" --force &>/dev/null
-	code --install-extension "usernamehw.errorlens" --force &>/dev/null
+	update_vscode_extension "alexisvt.flutter-snippets"
+	update_vscode_extension "dart-code.flutter"
+	update_vscode_extension "pflannery.vscode-versionlens"
+	update_vscode_extension "RichardCoutts.mvvm-plus"
+	update_vscode_extension "robert-brunhage.flutter-riverpod-snippets"
+	update_vscode_extension "usernamehw.errorlens"
 
 	# TODO: Add `readlink -f $(which flutter)` to android-studio
 	# /usr/local/Caskroom/flutter/*/flutter
@@ -858,9 +931,9 @@ update_figma() {
 update_git() {
 
 	# Handle parameters
-	default=${1:-main}
-	gitmail=${2}
-	gituser=${3}
+	local default=${1:-main}
+	local gituser=${2}
+	local gitmail=${3}
 
 	# Update package
 	brew install gh git
@@ -871,8 +944,8 @@ update_git() {
 	git config --global credential.helper "store"
 	git config --global http.postBuffer 1048576000
 	git config --global init.defaultBranch "$default"
-	git config --global user.email "$gitmail"
-	git config --global user.name "$gituser"
+	[[ -n "$gitmail" ]] && git config --global user.email "$gitmail"
+	[[ -n "$gituser" ]] git config --global user.name "$gituser"
 
 }
 
@@ -880,7 +953,7 @@ update_homebrew() {
 
 	# Update package
 	printf "\r\033[93m%s\033[00m" "UPGRADING HOMEBREW PACKAGE, PLEASE BE PATIENT"
-	command=$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
+	local command=$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
 	CI=1 /bin/bash -c "$command" &>/dev/null
 
 }
@@ -892,12 +965,12 @@ update_iina() {
 	brew upgrade yt-dlp
 
 	# Update package
-	present=$([[ -d "/Applications/IINA.app" ]] && echo true || echo false)
+	local present=$([[ -d "/Applications/IINA.app" ]] && echo "true" || echo "false")
 	brew install --cask --no-quarantine iina
 	brew upgrade --cask --no-quarantine iina
 
 	# Finish installation
-	if [[ $present = false ]]; then
+	if [[ "$present" == "false" ]]; then
 		osascript <<-EOD
 			set checkup to "/Applications/IINA.app"
 			tell application checkup
@@ -916,10 +989,8 @@ update_iina() {
 				delay 4
 			end tell
 		EOD
+		update_chromium_extension "pdnojahnhpgmdhjdhgphgdcecehkbhfo"
 	fi
-
-	# Update chromium extension
-	[[ $present = false ]] && update_chromium_extension "pdnojahnhpgmdhjdhgphgdcecehkbhfo"
 
 	# Change settings
 	ln -s /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
@@ -929,18 +1000,18 @@ update_iina() {
 	defaults write com.colliderli.iina ytdlSearchPath "/usr/local/bin"
 
 	# Change association
-	website="https://api.github.com/repos/jdek/openwith/releases"
-	version=$(curl -L "$website" -A "mozilla/5.0" | jq -r ".[0].tag_name" | tr -d "v")
-	address="https://github.com/jdek/openwith/releases/download/v$version/openwith-v$version.tar.xz"
-	archive=$(mktemp -d)/$(basename "$address") && curl -Ls "$address" -A "mozilla/5.0" -o "$archive"
-	expand_archive "$archive" "$HOME"
-	"$HOME/openwith" com.colliderli.iina mkv mov mp4 avi
-	rm "$HOME/openwith"
+	local address="https://api.github.com/repos/jdek/openwith/releases/latest"
+	local version=$(curl -LA "mozilla/5.0" "$address" | jq -r ".tag_name" | tr -d "v")
+	local address="https://github.com/jdek/openwith/releases/download/v$version/openwith-v$version.tar.xz"
+	local archive=$(mktemp -d)/$(basename "$address") && curl -LA "mozilla/5.0" "$address" -o "$archive"
+	local deposit=$(mktemp -d)
+	expand_archive "$archive" "$deposit"
+	"$deposit/openwith" com.colliderli.iina mkv mov mp4 avi
 
 	# Change icons
-	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/iina.icns"
-	picture="$(mktemp -d)/$(basename "$address")"
-	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/iina.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/IINA.app" "$picture" || sudo !!
 
 }
@@ -948,7 +1019,7 @@ update_iina() {
 update_jdownloader() {
 
 	# Handle parameters
-	deposit=${1:-$HOME/Downloads/JD2}
+	local deposit=${1:-$HOME/Downloads/JD2}
 
 	# Update dependencies
 	brew install coreutils fileicon jq
@@ -957,20 +1028,17 @@ update_jdownloader() {
 	brew upgrade --cask --no-quarantine homebrew/cask-versions/temurin8
 
 	# Update package
-	present=$([[ -d "/Applications/JDownloader 2.0/JDownloader2.app" ]] && echo true || echo false)
+	local present=$([[ -d "/Applications/JDownloader 2.0/JDownloader2.app" ]] && echo "true" || echo "false")
 	brew install --cask --no-quarantine jdownloader
 	brew upgrade --cask --no-quarantine jdownloader
 
-	# Create deposit
-	mkdir -p "$deposit"
-
-	# Change settings
-	if [[ $present = false ]]; then
-		appdata="/Applications/JDownloader 2.0/cfg"
-		config1="$appdata/org.jdownloader.settings.GraphicalUserInterfaceSettings.json"
-		config2="$appdata/org.jdownloader.settings.GeneralSettings.json"
-		config3="$appdata/org.jdownloader.gui.jdtrayicon.TrayExtension.json"
-		config4="$appdata/org.jdownloader.extensions.extraction.ExtractionExtension.json"
+	# Finish installation
+	if [[ "$present" == "false" ]]; then
+		local appdata="/Applications/JDownloader 2.0/cfg"
+		local config1="$appdata/org.jdownloader.settings.GraphicalUserInterfaceSettings.json"
+		local config2="$appdata/org.jdownloader.settings.GeneralSettings.json"
+		local config3="$appdata/org.jdownloader.gui.jdtrayicon.TrayExtension.json"
+		local config4="$appdata/org.jdownloader.extensions.extraction.ExtractionExtension.json"
 		osascript <<-EOD
 			set checkup to "/Applications/JDownloader 2.0/JDownloader2.app"
 			tell application checkup
@@ -1001,18 +1069,16 @@ update_jdownloader() {
 		jq ".specialdealoboomdialogvisibleonstartup = false" "$config1" | sponge "$config1"
 		jq ".specialdealsenabled = false" "$config1" | sponge "$config1"
 		jq ".speedmetervisible = false" "$config1" | sponge "$config1"
-		jq ".defaultdownloadfolder = \"$deposit\"" "$config2" | sponge "$config2"
+		mkdir -p "$deposit" && jq ".defaultdownloadfolder = \"$deposit\"" "$config2" | sponge "$config2"
 		jq ".enabled = false" "$config3" | sponge "$config3"
 		jq ".enabled = false" "$config4" | sponge "$config4"
+		update_chromium_extension "fbcohnmimjicjdomonkcbcpbpnhggkip"
 	fi
 
-	# Update chromium extension
-	[[ $present = false ]] && update_chromium_extension "fbcohnmimjicjdomonkcbcpbpnhggkip"
-
 	# Change icons
-	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/jdownloader.icns"
-	picture="$(mktemp -d)/$(basename "$address")"
-	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/jdownloader.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/JDownloader 2.0/JDownloader2.app" "$picture" || sudo !!
 	fileicon set "/Applications/JDownloader 2.0/JDownloader Uninstaller.app" "$picture" || sudo !!
 	cp "$picture" "/Applications/JDownloader 2.0/JDownloader2.app/Contents/Resources/app.icns"
@@ -1027,15 +1093,15 @@ update_joal() {
 	brew upgrade grep jq
 
 	# Update package
-	address="https://api.github.com/repos/anthonyraymond/joal-desktop/releases"
-	version=$(curl -L "$address" | jq -r ".[0].tag_name" | tr -d "v")
-	checkup=$(search_pattern "/*pplications/*oal*esktop*/*ontents/*nfo.plist")
-	current=$(defaults read "$checkup" CFBundleShortVersionString 2>/dev/null | ggrep -oP "[\d.]+" || echo "0.0.0.0")
+	local address="https://api.github.com/repos/anthonyraymond/joal-desktop/releases/latest"
+	local version=$(curl -LA "mozilla/5.0" "$address" | jq -r ".tag_name" | tr -d "v")
+	local current=$(expand_version "/*ppl*/*oal*esk*")
 	autoload is-at-least
-	if ! is-at-least "$version" "$current"; then
-		address="https://github.com/anthonyraymond/joal-desktop/releases"
-		address="$address/download/v$version/JoalDesktop-$version-mac-x64.dmg"
-		package=$(mktemp -d)/$(basename "$address") && curl -L "$address" -o "$package"
+    local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
+    if [[ "$updated" == "false" ]]; then
+		local address="https://github.com/anthonyraymond/joal-desktop/releases"
+		local address="$address/download/v$version/JoalDesktop-$version-mac-x64.dmg"
+		local package=$(mktemp -d)/$(basename "$address") && curl -LA "mozilla/5.0" "$address" -o "$package"
 		hdiutil attach "$package" -noautoopen -nobrowse
 		cp -fr /Volumes/Joal*/Joal*.app /Applications
 		hdiutil detach /Volumes/Joal*
@@ -1043,9 +1109,9 @@ update_joal() {
 	fi
 
 	# Change icons
-	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/joal-desktop.icns"
-	picture="$(mktemp -d)/$(basename "$address")"
-	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/joal-desktop.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/JoalDesktop.app" "$picture" || sudo !!
 
 }
@@ -1075,15 +1141,15 @@ update_mambaforge() {
 update_nightlight() {
 
 	# Handle parameters
-	percent=${1:-75}
-	forever=${2:-true}
+	local percent=${1:-75}
+	local forever=${2:-true}
 
 	# Update package
 	brew install smudge/smudge/nightlight
 	brew upgrade smudge/smudge/nightlight
 
 	# Change settings
-	[[ $forever = true ]] && nightlight schedule 3:00 2:59
+	[[ "$forever" == "true" ]] && nightlight schedule 3:00 2:59
 	nightlight temp "$percent" && nightlight on
 
 }
@@ -1095,9 +1161,9 @@ update_nodejs() {
 	brew upgrade grep
 
 	# Update package
-	address="https://nodejs.org/en/download/"
-	pattern="LTS Version: <strong>\K([\d]+)"
-	version=$(curl -s "$address" | ggrep -oP "$pattern" | head -1)
+	local address="https://nodejs.org/en/download/"
+	local pattern="LTS Version: <strong>\K([\d]+)"
+	version=$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)
 	brew install node@"$version"
 	brew upgrade node@"$version"
 
@@ -1137,7 +1203,7 @@ update_odoo() {
 	update_jetbrains_plugin "PyCharm" "13499" # odoo
 
 	# Update vscode extensions
-	code --install-extension "jigar-patel.odoosnippets" --force &>/dev/null
+	update_vscode_extension "jigar-patel.odoosnippets"
 
 }
 
@@ -1161,19 +1227,19 @@ update_postgresql() {
 update_pycharm() {
 
 	# Handle parameters
-	deposit="${1:-$HOME/Projects}"
+	local deposit="${1:-$HOME/Projects}"
 
 	# Update dependencies
 	brew install fileicon
 	brew upgrade fileicon
 
 	# Update package
-	present=$([[ -d "/Applications/PyCharm.app" ]] && echo true || echo false)
+	local present=$([[ -d "/Applications/PyCharm.app" ]] && echo "true" || echo "false")
 	brew install --cask --no-quarantine pycharm
 	brew upgrade --cask --no-quarantine pycharm
 
-	# Launch package once
-	if [[ $present = false ]]; then
+	# Finish installation
+	if [[ "$present" == "false" ]]; then
 		osascript <<-EOD
 			set checkup to "/Applications/PyCharm.app"
 			tell application checkup
@@ -1196,9 +1262,9 @@ update_pycharm() {
 	fi
 
 	# Change icons
-	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/pycharm.icns"
-	picture="$(mktemp -d)/$(basename "$address")"
-	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/pycharm.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0""$address" -o "$picture"
 	fileicon set "/Applications/PyCharm.app" "$picture" || sudo !!
 
 }
@@ -1206,7 +1272,7 @@ update_pycharm() {
 update_python() {
 
 	# Handle parameters
-	version=${1:-3.10}
+	local version=${1:-3.10}
 
 	# Update package
 	brew install python@"$version" poetry
@@ -1223,7 +1289,7 @@ update_python() {
 	fi
 
 	# Update vscode extensions
-	code --install-extension "ms-python.python" --force &>/dev/null
+	update_vscode_extension "ms-python.python"
 
 	# Change settings
 	poetry config virtualenvs.in-project true
@@ -1244,9 +1310,9 @@ update_spotify() {
 	# TODO: Remove autorun
 
 	# Change icons
-	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/spotify.icns"
-	picture="$(mktemp -d)/$(basename "$address")"
-	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/spotify.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/Spotify.app" "$picture" || sudo !!
 
 }
@@ -1262,8 +1328,8 @@ update_scrcpy() {
 update_system() {
 
 	# Handle parameters
-	country=${1:-Europe/Brussels}
-	machine=${2:-macintosh}
+	local country=${1:-Europe/Brussels}
+	local machine=${2:-macintosh}
 
 	# Change hostname
 	sudo scutil --set ComputerName "$machine"
@@ -1310,12 +1376,12 @@ update_system() {
 update_the_unarchiver() {
 
 	# Update package
-	present=$([[ -d "/Applications/The Unarchiver.app" ]] && echo true || echo false)
+	local present=$([[ -d "/Applications/The Unarchiver.app" ]] && echo "true" || echo "false")
 	brew install --cask --no-quarantine the-unarchiver
 	brew upgrade --cask --no-quarantine the-unarchiver
 
 	# Finish installation
-	if [[ $present = false ]]; then
+	if [[ "$present" == "false" ]]; then
 		osascript <<-EOD
 			set checkup to "/Applications/The Unarchiver.app"
 			tell application checkup
@@ -1343,7 +1409,6 @@ update_the_unarchiver() {
 	fi
 
 	# Change settings
-	# INFO: defaults read com.macpaw.site.theunarchiver
 	defaults write com.macpaw.site.theunarchiver extractionDestination -integer 3
 	defaults write com.macpaw.site.theunarchiver isFreshInstall -integer 1
 	defaults write com.macpaw.site.theunarchiver userAgreedToNewTOSAndPrivacy -integer 1
@@ -1353,8 +1418,8 @@ update_the_unarchiver() {
 update_transmission() {
 
 	# Handle parameters
-	deposit=${1:-$HOME/Downloads/P2P}
-	seeding=${2:-0.1}
+	local deposit=${1:-$HOME/Downloads/P2P}
+	local seeding=${2:-0.1}
 
 	# Update package
 	brew install --cask --no-quarantine transmission
@@ -1371,9 +1436,9 @@ update_transmission() {
 	defaults write org.m0k.transmission WarningLegal -bool false
 
 	# Change icons
-	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/transmission.icns"
-	picture="$(mktemp -d)/$(basename "$address")"
-	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/transmission.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/Transmission.app" "$picture" || sudo !!
 
 }
@@ -1397,11 +1462,11 @@ update_vscode() {
 	brew upgrade --cask --no-quarantine visual-studio-code
 	
 	# Update extensions
-	code --install-extension "foxundermoon.shell-format" --force &>/dev/null
-	code --install-extension "github.github-vscode-theme" --force &>/dev/null
+	update_vscode_extension "foxundermoon.shell-format"
+	update_vscode_extension "github.github-vscode-theme"
 
 	# Change settings
-	configs="$HOME/Library/Application Support/Code/User/settings.json"
+	local configs="$HOME/Library/Application Support/Code/User/settings.json"
 	[[ -s "$configs" ]] || echo "{}" >"$configs"
 	jq '."editor.fontSize" = 12' "$configs" | sponge "$configs"
 	jq '."editor.lineHeight" = 28' "$configs" | sponge "$configs"
@@ -1430,12 +1495,14 @@ update_xcode() {
 	sudo xcodebuild -license accept
 
 	# Change icons
-	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/xcode.icns"
-	picture="$(mktemp -d)/$(basename "$address")"
-	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/xcode.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/Xcode.app" "$picture" || sudo !!
 
 }
+
+#endregion
 
 main() {
 
@@ -1477,21 +1544,20 @@ main() {
 	# Verify apple id
 	assert_apple_id || return 1
 
-	update_postgres ; exit
-
 	# Handle elements
-	factors=(
+	local factors=(
 		"update_system"
 
 		"update_android_studio"
 		"update_chromium"
-		"update_git 'main' 'sharpordie@outlook.com' 'sharpordie'"
+		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		"update_pycharm"
 		"update_vscode"
 		"update_xcode"
 
 		"update_appcleaner"
-		"update_datagrip"
+		"update_dbeaver_ultimate"
+		"update_docker"
 		# "update_dotnet"
 		"update_figma"
 		"update_flutter"
@@ -1502,8 +1568,8 @@ main() {
 		"update_mambaforge"
 		"update_nightlight"
 		"update_nodejs"
-		"update_pgadmin"
-		"update_postgresql"
+		# "update_pgadmin"
+		# "update_postgresql"
 		"update_python"
 		# "update_odoo"
 		"update_scrcpy"
@@ -1516,18 +1582,18 @@ main() {
 	)
 
 	# Output progress
-	maximum=$((${#welcome} / $(echo "$welcome" | wc -l)))
-	heading="\r%-"$((maximum - 20))"s   %-6s   %-8s\n\n"
-	loading="\r%-"$((maximum - 20))"s   \033[93mACTIVE\033[0m   %-8s\b"
-	failure="\r%-"$((maximum - 20))"s   \033[91mFAILED\033[0m   %-8s\n"
-	success="\r%-"$((maximum - 20))"s   \033[92mWORKED\033[0m   %-8s\n"
+	local maximum=$((${#welcome} / $(echo "$welcome" | wc -l)))
+	local heading="\r%-"$((maximum - 20))"s   %-6s   %-8s\n\n"
+	local loading="\r%-"$((maximum - 20))"s   \033[93mACTIVE\033[0m   %-8s\b"
+	local failure="\r%-"$((maximum - 20))"s   \033[91mFAILED\033[0m   %-8s\n"
+	local success="\r%-"$((maximum - 20))"s   \033[92mWORKED\033[0m   %-8s\n"
 	printf "$heading" "FUNCTION" "STATUS" "DURATION"
 	for element in "${factors[@]}"; do
-		written=$(basename "$(echo "$element" | cut -d "'" -f 1)" | tr "[:lower:]" "[:upper:]")
-		started=$(date +"%s") && printf "$loading" "$written" "--:--:--"
-		eval "$element" >/dev/null 2>&1 && current="$success" || current="$failure"
-		extinct=$(date +"%s") && elapsed=$((extinct - started))
-		elapsed=$(printf "%02d:%02d:%02d\n" $((elapsed / 3600)) $(((elapsed % 3600) / 60)) $((elapsed % 60)))
+		local written=$(basename "$(echo "$element" | cut -d "'" -f 1)" | tr "[:lower:]" "[:upper:]")
+		local started=$(date +"%s") && printf "$loading" "$written" "--:--:--"
+		eval "$element" >/dev/null 2>&1 && local current="$success" || local current="$failure"
+		local extinct=$(date +"%s") && elapsed=$((extinct - started))
+		local elapsed=$(printf "%02d:%02d:%02d\n" $((elapsed / 3600)) $(((elapsed % 3600) / 60)) $((elapsed % 60)))
 		printf "$current" "$written" "$elapsed"
 	done
 
