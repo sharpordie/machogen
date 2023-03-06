@@ -6,7 +6,7 @@ Opinionated post-installation script for macOS 13.
 
 # <samp>GUIDANCE</samp>
 
-## One-command execution
+### One-command execution
 
 Running this blindly is strongly discouraged.
 
