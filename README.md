@@ -6,7 +6,7 @@ Opinionated post-installation script for macOS 13.
 
 # <samp>GUIDANCE</samp>
 
-### Single command execution
+Blindly executing this is strongly discouraged.
 
 ```shell
 /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/sharpordie/machogen/HEAD/src/machogen.sh)"
