@@ -1084,7 +1084,8 @@ update_jdownloader() {
 	fileicon set "/Applications/JDownloader 2.0/JDownloader2.app" "$picture" || sudo !!
 	fileicon set "/Applications/JDownloader 2.0/JDownloader Uninstaller.app" "$picture" || sudo !!
 	cp "$picture" "/Applications/JDownloader 2.0/JDownloader2.app/Contents/Resources/app.icns"
-	sips -Z 128 -s format png "$picture" --out "/Applications/JDownloader 2.0/themes/standard/org/jdownloader/images/logo/jd_logo_128_128.png"
+	local sitting="/Applications/JDownloader 2.0/themes/standard/org/jdownloader/images/logo/jd_logo_128_128.png"
+	sips -Z 128 -s format png "$picture" --out "$sitting"
 
 }
 
@@ -1601,11 +1602,11 @@ main() {
 		printf "$current" "$written" "$elapsed"
 	done
 
-	# Revert timeouts
-	sudo rm /private/etc/sudoers.d/disable_timeout 2>/dev/null
-
 	# Revert sleeping
 	sudo pmset restoredefaults
+
+	# Revert timeouts
+	sudo rm /private/etc/sudoers.d/disable_timeout 2>/dev/null
 
 	# Output new line
 	printf "\n"
