@@ -1371,7 +1371,7 @@ update_system() {
 	find ~ -name ".DS_Store" -delete
 
 	# Update system
-	sudo softwareupdate -ia
+	# sudo softwareupdate -ia
 
 }
 
@@ -1532,7 +1532,9 @@ main() {
 	echo "Defaults timestamp_timeout=-1" | sudo tee /private/etc/sudoers.d/disable_timeout >/dev/null
 
 	# Remove sleeping
-	sudo pmset -a displaysleep 0 && (caffeinate -i -w $$ &) &>/dev/null
+	sudo pmset -a displaysleep 0
+	sudo pmset -a sleep 0
+	(caffeinate -i -w $$ &) &>/dev/null
 
 	# Verify password
 	# assert_password || return 1
