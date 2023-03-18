@@ -1603,7 +1603,7 @@ main() {
 	sudo rm /private/etc/sudoers.d/disable_timeout 2>/dev/null
 
 	# Revert sleeping
-	sudo pmset -a disablesleep 0
+	sudo pmset restoredefaults
 
 	# Output new line
 	printf "\n"
