@@ -71,7 +71,7 @@ assert_password() {
 handle_security() {
 
 	# Verify version
-	if [[ ${"$(sw_vers -productVersion)":0:2} != "13" ]]; then
+	if [[ ${"$(sw_vers -productVersion)":0:2} != "12" ]]; then
 		printf "\r\033[91m%s\033[00m\n\n" "CURRENT MACOS VERSION (${version:0:4}) IS NOT SUPPORTED"
 		return 1
 	fi
@@ -1532,7 +1532,7 @@ main() {
 	echo "Defaults timestamp_timeout=-1" | sudo tee /private/etc/sudoers.d/disable_timeout >/dev/null
 
 	# Remove sleeping
-	sudo pmset -a disablesleep 1 && (caffeinate -i -w $$ &) &>/dev/null
+	sudo pmset -a displaysleep 0 && (caffeinate -i -w $$ &) &>/dev/null
 
 	# Verify password
 	# assert_password || return 1
@@ -1553,32 +1553,32 @@ main() {
 		"update_android_studio"
 		"update_chromium"
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		"update_pycharm"
+		# "update_pycharm"
 		"update_vscode"
 		# "update_xcode"
 
-		"update_appcleaner"
-		"update_dbeaver"
-		"update_docker"
+		# "update_appcleaner"
+		# "update_dbeaver"
+		# "update_docker"
 		# "update_dotnet"
-		"update_figma"
+		# "update_figma"
 		"update_flutter"
-		"update_iina"
-		"update_jdownloader"
-		"update_joal"
-		"update_keepassxc"
-		"update_mambaforge"
-		"update_nightlight"
-		"update_nodejs"
+		# "update_iina"
+		# "update_jdownloader"
+		# "update_joal"
+		# "update_keepassxc"
+		# "update_mambaforge"
+		# "update_nightlight"
+		# "update_nodejs"
 		# "update_pgadmin"
 		# "update_postgresql"
-		"update_python"
+		# "update_python"
 		# "update_odoo"
-		"update_scrcpy"
+		# "update_scrcpy"
 		# "update_spotify"
 		"update_the_unarchiver"
 		"update_transmission"
-		"update_utm"
+		# "update_utm"
 
 		"update_appearance"
 	)
