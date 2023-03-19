@@ -181,7 +181,7 @@ expand_pattern() {
 	local expanse=${2:-0}
 
 	# Expand pattern
-	printf "%s" $(/bin/zsh -c "find $pattern -maxdepth $expanse" 2>/dev/null | sort -r | head -1)
+	echo "$(/bin/zsh -c "find $pattern -maxdepth $expanse" 2>/dev/null | sort -r | head -1)" || sudo !!
 
 }
 
@@ -305,7 +305,7 @@ update_jetbrains_plugin() {
 	brew upgrade grep jq
 
 	# Update plugin
-	local deposit=$(expand_pattern "$HOME/*ibrary/*pplication*upport/*/*$pattern*")
+	local deposit=$(expand_pattern "$HOME/*ibrary/*upport/*/*$pattern*")
 	if [[ -d $deposit ]]; then
 		local checkup=$(expand_pattern "/*pplications/*${pattern:0:5}*/*ontents/*nfo.plist")
 		local version=$(defaults read "$checkup" CFBundleVersion | ggrep -oP "[\d.]+" | cut -d . -f -3)
@@ -422,14 +422,17 @@ update_android_studio() {
 	# Finish installation
 	if [[ $present == false ]]; then
 		update_android_cmdline
-		yes | sdkmanager --channel=0 "build-tools;33.0.1"
-		yes | sdkmanager --channel=0 "emulator"
-		yes | sdkmanager --channel=0 "extras;intel;Hardware_Accelerated_Execution_Manager"
-		yes | sdkmanager --channel=0 "platform-tools"
-		yes | sdkmanager --channel=0 "platforms;android-33"
-		yes | sdkmanager --channel=0 "platforms;android-33-ext4"
-		yes | sdkmanager --channel=0 "sources;android-33"
-		yes | sdkmanager --channel=0 "system-images;android-33;google_apis;x86_64"
+		yes | sdkmanager "build-tools;33.0.2"
+		yes | sdkmanager "emulator"
+		yes | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
+		yes | sdkmanager "patcher;v4"
+		yes | sdkmanager "platform-tools"
+		yes | sdkmanager "platforms;android-33"
+		yes | sdkmanager "platforms;android-33-ext5"
+		yes | sdkmanager "sources;android-33"
+		yes | sdkmanager "system-images;android-33;google_apis;x86_64"
+		yes | sdkmanager --licenses
+		yes | sdkmanager --update
 		avdmanager create avd -n "Pixel_3_API_33" -d "pixel_3" -k "system-images;android-33;google_apis;x86_64" -f
 	fi
 
@@ -937,6 +940,12 @@ update_iina() {
 	# Update dependencies
 	brew install yt-dlp
 	brew upgrade yt-dlp
+	ln -sf /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
+	# local address="https://github.com/ytdl-patched/ytdl-patched/releases/latest/download/ytdl-patched"
+	# local starter="/usr/local/bin/ytdl-patched"
+	# sudo curl -L "$address" -o "$starter"
+	# sudo chmod a+rx "$starter"
+	# ln -sf "$starter" /usr/local/bin/youtube-dl
 
 	# Update package
 	local present=$([[ -d "/Applications/IINA.app" ]] && echo "true" || echo "false")
@@ -967,7 +976,6 @@ update_iina() {
 	fi
 
 	# Change settings
-	ln -s /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
 	defaults write com.colliderli.iina recordPlaybackHistory -integer 0
 	defaults write com.colliderli.iina recordRecentFiles -integer 0
 	defaults write com.colliderli.iina SUEnableAutomaticChecks -integer 0
@@ -1159,10 +1167,10 @@ update_odoo() {
 
 	# Update dependencies
 	update_python
+	xcode-select --install
 
 	# Update postgresql
 	update_postgresql
-	su - postgres createuser -sdP odoo
 
 	# Update nodejs
 	update_nodejs
@@ -1247,12 +1255,12 @@ update_pycharm() {
 update_python() {
 
 	# Handle parameters
-	local version=${1:-3.10}
+	local version=${1:-3.11}
 
 	# Update package
 	brew install python@"$version" poetry
 	brew upgrade python@"$version" poetry
-	brew unlink python@3.9
+	brew unlink python@3.10
 	brew link --force python@"$version"
 
 	# Change environment
@@ -1342,6 +1350,9 @@ update_system() {
 
 	# Remove remnants
 	find ~ -name ".DS_Store" -delete
+
+	# Remove startup chime
+	sudo nvram StartupMute=%01
 
 	# Update system
 	# sudo softwareupdate -ia
@@ -1549,7 +1560,7 @@ main() {
 		"update_python"
 		"update_odoo"
 		"update_scrcpy"
-		"update_spotify"
+		# "update_spotify"
 		"update_the_unarchiver"
 		"update_transmission"
 		# "update_utm"
