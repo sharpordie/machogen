@@ -72,7 +72,7 @@ handle_security() {
 
 	# Verify version
 	if [[ ${"$(sw_vers -productVersion)":0:2} != "12" ]]; then
-		printf "\r\033[91m%s\033[00m\n\n" "CURRENT MACOS VERSION (${version:0:4}) IS NOT SUPPORTED"
+		printf "\r\033[91m%s\033[00m\n\n" "CURRENT MACOS VERSION (${"$(sw_vers -productVersion)":0:4}) IS NOT SUPPORTED"
 		return 1
 	fi
 
@@ -1603,7 +1603,7 @@ main() {
 	done
 
 	# Revert sleeping
-	sudo pmset restoredefaults
+	sudo pmset restoredefaults >/dev/null
 
 	# Revert timeouts
 	sudo rm /private/etc/sudoers.d/disable_timeout 2>/dev/null
