@@ -71,7 +71,7 @@ assert_password() {
 handle_security() {
 
 	# Verify version
-	if [[ ${"$(sw_vers -productVersion)":0:2} != "12" ]]; then
+	if [[ ${"$(sw_vers -productVersion)":0:2} != "13" ]]; then
 		printf "\r\033[91m%s\033[00m\n\n" "CURRENT MACOS VERSION (${"$(sw_vers -productVersion)":0:4}) IS NOT SUPPORTED"
 		return 1
 	fi
@@ -448,21 +448,20 @@ update_appearance() {
 		"/Applications/Chromium.app"
 		"/Applications/Transmission.app"
 		"/Applications/JDownloader 2.0/JDownloader2.app"
-
-		"/Applications/UTM.app"
+		# "/Applications/UTM.app"
 		"/Applications/Visual Studio Code.app"
-		"/Applications/Xcode.app"
+		# "/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
 		"/Applications/PyCharm.app"
-		"/Applications/DBeaverUltimate.app"
+		# "/Applications/DBeaverUltimate.app"
 		# "/Applications/pgAdmin 4.app"
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
 		"/Applications/Figma.app"
 		"/Applications/KeePassXC.app"
-		"/Applications/JoalDesktop.app"
+		# "/Applications/JoalDesktop.app"
 		"System/Applications/Utilities/Terminal.app"
-		"/Applications/Docker.app/Contents/MacOS/Docker Desktop.app/"
+		# "/Applications/Docker.app/Contents/MacOS/Docker Desktop.app/"
 		"/System/Applications/Stickies.app"
 	)
 	change_dock_items "${factors[@]}"
@@ -482,7 +481,7 @@ update_appearance() {
 	killall Dock
 
 	# Change wallpaper
-	local address="https://github.com/sharpordie/andpaper/raw/main/src/android-bottom-darken.png"
+	local address="https://github.com/sharpordie/andpaper/raw/main/src/android-bottom-darker.png"
 	local picture="$HOME/Pictures/Backgrounds/$(basename "$address")"
 	mkdir -p "$(dirname $picture)" && curl -L "$address" -o "$picture"
 	osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$picture\""
@@ -833,33 +832,6 @@ update_dbeaver() {
 
 }
 
-update_docker() {
-
-	# Update dependencies
-    brew install curl jq
-    brew upgrade curl jq
-    
-	# Update package
-    local address="https://docs.docker.com/desktop/release-notes/"
-    local pattern="<h2 id=\"[\d]+\">\K([\d.]+)"
-    local version=$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)
-    local current=$(expand_version "/*ppl*/*ocke*")
-    autoload is-at-least
-    local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
-    if [[ "$updated" == "false" ]]; then
-	    local cpuname=$(sysctl -n machdep.cpu.brand_string)
-	    local silicon=$([[ $cpuname =~ "pple" ]] && echo "true" || echo "false")
-	    local adjunct=$([[ $silicon == "true" ]] && echo "arm64" || echo "amd64")
-        local address="https://desktop.docker.com/mac/main/$adjunct/Docker.dmg"
-	    local fetched="$(mktemp -d)/$(basename "$address")"
-        curl -LA "mozilla/5.0" "$address" -o "$fetched"
-		sudo hdiutil attach "$fetched"
-        sudo /Volumes/Docker/Docker.app/Contents/MacOS/install --accept-license --user=$USER
-        sudo hdiutil detach /Volumes/Docker
-    fi
-
-}
-
 update_dotnet() {
 
 	# Update package
@@ -1165,8 +1137,8 @@ update_nodejs() {
 
 	# Update package
 	local address="https://nodejs.org/en/download/"
-	local pattern="LTS Version: <strong>\K([\d]+)"
-	version=$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)
+	local pattern="https://nodejs.org/dist/v\K([\d]+)"
+	local version=$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)
 	brew install node@"$version"
 	brew upgrade node@"$version"
 
@@ -1556,29 +1528,28 @@ main() {
 		"update_android_studio"
 		"update_chromium"
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		# "update_pycharm"
+		"update_pycharm"
 		"update_vscode"
 		# "update_xcode"
 
-		# "update_appcleaner"
+		"update_appcleaner"
 		# "update_dbeaver"
-		# "update_docker"
 		# "update_dotnet"
-		# "update_figma"
+		"update_figma"
 		"update_flutter"
-		# "update_iina"
-		# "update_jdownloader"
+		"update_iina"
+		"update_jdownloader"
 		# "update_joal"
-		# "update_keepassxc"
-		# "update_mambaforge"
-		# "update_nightlight"
-		# "update_nodejs"
-		# "update_pgadmin"
-		# "update_postgresql"
-		# "update_python"
-		# "update_odoo"
-		# "update_scrcpy"
-		# "update_spotify"
+		"update_keepassxc"
+		"update_mambaforge"
+		"update_nightlight"
+		"update_nodejs"
+		"update_pgadmin"
+		"update_postgresql"
+		"update_python"
+		"update_odoo"
+		"update_scrcpy"
+		"update_spotify"
 		"update_the_unarchiver"
 		"update_transmission"
 		# "update_utm"
