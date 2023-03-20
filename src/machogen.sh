@@ -937,20 +937,16 @@ update_homebrew() {
 
 update_iina() {
 
-	# Update dependencies
-	brew install yt-dlp
-	brew upgrade yt-dlp
-	ln -sf /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
-	# local address="https://github.com/ytdl-patched/ytdl-patched/releases/latest/download/ytdl-patched"
-	# local starter="/usr/local/bin/ytdl-patched"
-	# sudo curl -L "$address" -o "$starter"
-	# sudo chmod a+rx "$starter"
-	# ln -sf "$starter" /usr/local/bin/youtube-dl
-
 	# Update package
 	local present=$([[ -d "/Applications/IINA.app" ]] && echo "true" || echo "false")
-	brew install --cask --no-quarantine iina
-	brew upgrade --cask --no-quarantine iina
+	# brew install --cask --no-quarantine iina
+	# brew upgrade --cask --no-quarantine iina
+	local address="https://nightly.iina.io/"
+	local pattern="href=\"\K(static/IINA-.*.app.tar.xz)(?=\")"
+	local address="$address$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)"
+	local archive=$(mktemp -d)/$(basename "$address") && curl -LA "mozilla/5.0" "$address" -o "$archive"
+	expand_archive "$archive" "/Applications"
+	mv -f /Applications/IINA-*.app /Applications/IINA.app
 
 	# Finish installation
 	if [[ "$present" == "false" ]]; then
@@ -1118,6 +1114,49 @@ update_mambaforge() {
 
 	# Change settings
 	conda config --set auto_activate_base false
+
+}
+
+update_mpv() {
+
+	# Update package
+	address="https://laboratory.stolendata.net/~djinn/mpv_osx/"
+	pattern="mpv-\K([\d.]+)(?=.tar.gz\")"
+	version=$(curl -Ls "$address" | ggrep -oP "$pattern" | head -1)
+	local current=$(expand_version "/*pplications/*pv.app")
+	autoload is-at-least
+    local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
+	if [[ "$updated" == "false" ]]; then
+		address="https://laboratory.stolendata.net/~djinn/mpv_osx/mpv-latest.tar.gz"
+		archive=$(mktemp -d)/$(basename "$address") && curl -Ls "$address" -o "$archive"
+		expand_archive "$archive" "/Applications" && rm -rf "/Applications/documentation"
+		ln -s "/Applications/mpv.app/Contents/MacOS/mpv" "/usr/local/bin/mpv"
+	fi
+
+	# Create configuration
+	configs="$HOME/.config/mpv/mpv.conf"
+	mkdir -p "$(dirname "$configs")" && cat /dev/null >"$configs"
+	echo "profile=gpu-hq" >>"$configs"
+	# echo "vo=gpu-next" >>"$configs"
+	echo "hwdec=auto" >>"$configs"
+	echo "keep-open=yes" >>"$configs"
+	echo "interpolation=yes" >>"$configs"
+	echo "blend-subtitles=yes" >>"$configs"
+	echo "tscale=oversample" >>"$configs"
+	echo "video-sync=display-resample" >>"$configs"
+	echo 'ytdl-format="bestvideo[height<=?2160][vcodec!=vp9]+bestaudio/best"' >>"$configs"
+	echo "[protocol.http]" >>"$configs"
+	echo "force-window=immediate" >>"$configs"
+	echo "[protocol.https]" >>"$configs"
+	echo "profile=protocol.http" >>"$configs"
+	echo "[protocol.ytdl]" >>"$configs"
+	echo "profile=protocol.http" >>"$configs"
+
+	# Change icons
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/mpv.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
+	fileicon set "/Applications/mpv.app" "$picture" || sudo !!
 
 }
 
@@ -1488,6 +1527,21 @@ update_xcode() {
 
 }
 
+update_yt_dlp() {
+
+	# Update package
+	brew install yt-dlp
+	brew upgrade yt-dlp
+	ln -sf /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
+
+	# local address="https://github.com/ytdl-patched/ytdl-patched/releases/latest/download/ytdl-patched"
+	# local starter="/usr/local/bin/ytdl-patched"
+	# sudo curl -L "$address" -o "$starter"
+	# sudo chmod a+rx "$starter"
+	# ln -sf "$starter" /usr/local/bin/youtube-dl
+
+}
+
 #endregion
 
 main() {
@@ -1532,38 +1586,41 @@ main() {
 	# Verify apple id
 	# assert_apple_id || return 1
 
+	update_mpv ; exit
+
 	# Handle elements
 	local factors=(
-		"update_system"
+		# "update_system"
 
-		"update_android_studio"
-		"update_chromium"
-		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		"update_pycharm"
-		"update_vscode"
+		# "update_android_studio"
+		# "update_chromium"
+		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
+		# "update_pycharm"
+		# "update_vscode"
 		# "update_xcode"
 
-		"update_appcleaner"
+		# "update_appcleaner"
 		# "update_dbeaver"
 		# "update_dotnet"
-		"update_figma"
-		"update_flutter"
+		# "update_figma"
+		# "update_flutter"
 		"update_iina"
-		"update_jdownloader"
+		# "update_jdownloader"
 		# "update_joal"
-		"update_keepassxc"
-		"update_mambaforge"
-		"update_nightlight"
-		"update_nodejs"
-		"update_pgadmin"
-		"update_postgresql"
-		"update_python"
-		"update_odoo"
-		"update_scrcpy"
+		# "update_keepassxc"
+		# "update_mambaforge"
+		# "update_nightlight"
+		# "update_nodejs"
+		# "update_pgadmin"
+		# "update_postgresql"
+		# "update_python"
+		# "update_odoo"
+		# "update_scrcpy"
 		# "update_spotify"
-		"update_the_unarchiver"
-		"update_transmission"
+		# "update_the_unarchiver"
+		# "update_transmission"
 		# "update_utm"
+		"update_yt_dlp"
 
 		"update_appearance"
 	)
