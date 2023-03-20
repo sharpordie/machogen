@@ -1008,7 +1008,6 @@ update_jdownloader() {
 	# Update package
 	local present=$([[ -d "/Applications/JDownloader 2.0/JDownloader2.app" ]] && echo "true" || echo "false")
 	brew install --cask --no-quarantine jdownloader
-	brew upgrade --cask --no-quarantine jdownloader
 
 	# Finish installation
 	if [[ "$present" == "false" ]]; then
@@ -1386,6 +1385,11 @@ update_system() {
 	defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 	defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 	defaults write com.apple.LaunchServices "LSQuarantine" -bool false
+
+	# Enable screen sharing
+	sudo systemsetup -setremotelogin on
+	local program="/System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart"
+	sudo "$program" -activate -configure -users localadmin -access -on -privs -all
 
 	# Enable subpixel rendering
 	defaults write NSGlobalDomain AppleFontSmoothing -int 2
