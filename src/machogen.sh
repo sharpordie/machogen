@@ -453,7 +453,7 @@ update_appearance() {
 		"/Applications/JDownloader 2.0/JDownloader2.app"
 		# "/Applications/UTM.app"
 		"/Applications/Visual Studio Code.app"
-		# "/Applications/Xcode.app"
+		"/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
 		"/Applications/PyCharm.app"
 		# "/Applications/DBeaverUltimate.app"
@@ -939,14 +939,14 @@ update_iina() {
 
 	# Update package
 	local present=$([[ -d "/Applications/IINA.app" ]] && echo "true" || echo "false")
-	# brew install --cask --no-quarantine iina
-	# brew upgrade --cask --no-quarantine iina
-	local address="https://nightly.iina.io/"
-	local pattern="href=\"\K(static/IINA-.*.app.tar.xz)(?=\")"
-	local address="$address$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)"
-	local archive=$(mktemp -d)/$(basename "$address") && curl -LA "mozilla/5.0" "$address" -o "$archive"
-	expand_archive "$archive" "/Applications"
-	mv -f /Applications/IINA-*.app /Applications/IINA.app
+	brew install --cask --no-quarantine iina
+	brew upgrade --cask --no-quarantine iina
+	# local address="https://nightly.iina.io/"
+	# local pattern="href=\"\K(static/IINA-.*.app.tar.xz)(?=\")"
+	# local address="$address$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)"
+	# local archive=$(mktemp -d)/$(basename "$address") && curl -LA "mozilla/5.0" "$address" -o "$archive"
+	# expand_archive "$archive" "/Applications"
+	# mv -f /Applications/IINA-*.app /Applications/IINA.app
 
 	# Finish installation
 	if [[ "$present" == "false" ]]; then
@@ -1068,8 +1068,8 @@ update_jdownloader() {
 update_joal() {
 
 	# Update dependencies
-	brew install grep jq
-	brew upgrade grep jq
+	brew install curl grep jq
+	brew upgrade curl grep jq
 
 	# Update package
 	local address="https://api.github.com/repos/anthonyraymond/joal-desktop/releases/latest"
@@ -1119,25 +1119,30 @@ update_mambaforge() {
 
 update_mpv() {
 
+	# Update dependencies
+	brew install curl grep
+	brew upgrade curl grep
+
 	# Update package
-	address="https://laboratory.stolendata.net/~djinn/mpv_osx/"
-	pattern="mpv-\K([\d.]+)(?=.tar.gz\")"
-	version=$(curl -Ls "$address" | ggrep -oP "$pattern" | head -1)
-	local current=$(expand_version "/*pplications/*pv.app")
-	autoload is-at-least
-    local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
-	if [[ "$updated" == "false" ]]; then
-		address="https://laboratory.stolendata.net/~djinn/mpv_osx/mpv-latest.tar.gz"
-		archive=$(mktemp -d)/$(basename "$address") && curl -Ls "$address" -o "$archive"
-		expand_archive "$archive" "/Applications" && rm -rf "/Applications/documentation"
-		ln -s "/Applications/mpv.app/Contents/MacOS/mpv" "/usr/local/bin/mpv"
-	fi
+	brew install --cask --no-quarantine pycharm
+	brew upgrade --cask --no-quarantine pycharm
+	# local address="https://laboratory.stolendata.net/~djinn/mpv_osx/"
+	# local pattern="mpv-\K([\d.]+)(?=.tar.gz\")"
+	# local version=$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)
+	# local current=$(expand_version "/*pplications/*pv.app")
+	# autoload is-at-least
+    # local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
+	# if [[ "$updated" == "false" ]]; then
+	# 	local address="https://laboratory.stolendata.net/~djinn/mpv_osx/mpv-latest.tar.gz"
+	# 	local archive=$(mktemp -d)/$(basename "$address") && curl -LA "mozilla/5.0" "$address" -o "$archive"
+	# 	expand_archive "$archive" "/Applications" && rm -rf "/Applications/documentation"
+	# 	ln -s "/Applications/mpv.app/Contents/MacOS/mpv" "/usr/local/bin/mpv"
+	# fi
 
 	# Create configuration
-	configs="$HOME/.config/mpv/mpv.conf"
+	local configs="$HOME/.config/mpv/mpv.conf"
 	mkdir -p "$(dirname "$configs")" && cat /dev/null >"$configs"
 	echo "profile=gpu-hq" >>"$configs"
-	# echo "vo=gpu-next" >>"$configs"
 	echo "hwdec=auto" >>"$configs"
 	echo "keep-open=yes" >>"$configs"
 	echo "interpolation=yes" >>"$configs"
@@ -1210,6 +1215,7 @@ update_odoo() {
 
 	# Update postgresql
 	update_postgresql
+	createdb $USER 2>/dev/null
 
 	# Update nodejs
 	update_nodejs
@@ -1240,6 +1246,7 @@ update_pgadmin() {
 update_postgresql() {
 
 	# Update package
+	# Default user is $USER without password
 	brew install postgresql@14
 	brew upgrade postgresql@14
 	brew services restart postgresql@14
@@ -1533,7 +1540,6 @@ update_yt_dlp() {
 	brew install yt-dlp
 	brew upgrade yt-dlp
 	ln -sf /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
-
 	# local address="https://github.com/ytdl-patched/ytdl-patched/releases/latest/download/ytdl-patched"
 	# local starter="/usr/local/bin/ytdl-patched"
 	# sudo curl -L "$address" -o "$starter"
@@ -1584,41 +1590,39 @@ main() {
 	update_homebrew || return 1
 
 	# Verify apple id
-	# assert_apple_id || return 1
-
-	update_mpv ; exit
+	assert_apple_id || return 1
 
 	# Handle elements
 	local factors=(
-		# "update_system"
+		"update_system"
 
-		# "update_android_studio"
-		# "update_chromium"
-		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		# "update_pycharm"
-		# "update_vscode"
-		# "update_xcode"
+		"update_android_studio"
+		"update_chromium"
+		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
+		"update_pycharm"
+		"update_vscode"
+		"update_xcode"
 
-		# "update_appcleaner"
+		"update_appcleaner"
 		# "update_dbeaver"
 		# "update_dotnet"
-		# "update_figma"
-		# "update_flutter"
+		"update_figma"
+		"update_flutter"
 		"update_iina"
-		# "update_jdownloader"
-		# "update_joal"
-		# "update_keepassxc"
-		# "update_mambaforge"
-		# "update_nightlight"
-		# "update_nodejs"
+		"update_jdownloader"
+		"update_joal"
+		"update_keepassxc"
+		"update_mambaforge"
+		"update_nightlight"
+		"update_nodejs"
 		# "update_pgadmin"
-		# "update_postgresql"
-		# "update_python"
-		# "update_odoo"
-		# "update_scrcpy"
-		# "update_spotify"
-		# "update_the_unarchiver"
-		# "update_transmission"
+		"update_postgresql"
+		"update_python"
+		"update_odoo"
+		"update_scrcpy"
+		"update_spotify"
+		"update_the_unarchiver"
+		"update_transmission"
 		# "update_utm"
 		"update_yt_dlp"
 
