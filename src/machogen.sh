@@ -311,10 +311,11 @@ update_jetbrains_plugin() {
 		local version=$(defaults read "$checkup" CFBundleVersion | ggrep -oP "[\d.]+" | cut -d . -f -3)
 		autoload is-at-least
 		for i in {1..3}; do
+			local address="https://plugins.jetbrains.com/api/plugins/$element/updates?page=$i"
+			local content=$(curl -LA "mozilla/5.0" "$address")
 			for j in {0..19}; do
-				local address="https://plugins.jetbrains.com/api/plugins/$element/updates?page=$i"
-				local maximum=$(curl -LA "mozilla/5.0" "$address" | jq ".[$j].until" | tr -d '"' | sed "s/\.\*/\.9999/")
-				local minimum=$(curl -LA "mozilla/5.0" "$address" | jq ".[$j].since" | tr -d '"' | sed "s/\.\*/\.9999/")
+				local maximum=$(echo "$content" | jq ".[$j].until" | tr -d '"' | sed "s/\.\*/\.9999/")
+				local minimum=$(echo "$content" | jq ".[$j].since" | tr -d '"' | sed "s/\.\*/\.9999/")
 				if is-at-least "${minimum:-0000}" "$version" && is-at-least "$version" "${maximum:-9999}"; then
 					local address=$(curl -LA "mozilla/5.0" "$address" | jq ".[$j].file" | tr -d '"')
 					local address="https://plugins.jetbrains.com/files/$address"
@@ -323,7 +324,6 @@ update_jetbrains_plugin() {
 					[[ "$address" == *.jar ]] && curl -LA "mozilla/5.0" "$address" -o "$plugins"
 					break 2
 				fi
-				sleep 1
 			done
 		done
 	fi
@@ -436,6 +436,10 @@ update_android_studio() {
 		avdmanager create avd -n "Pixel_3_API_33" -d "pixel_3" -k "system-images;android-33;google_apis;x86_64" -f
 	fi
 
+	# Update android-studio plugins
+	update_jetbrains_plugin "AndroidStudio" "11174"  # androidlocalize
+	update_jetbrains_plugin "AndroidStudio" "19034"  # jetpack-compose-ui-architecture-templates
+
 	# Change icons
 	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/android-studio.icns"
 	picture="$(mktemp -d)/$(basename "$address")"
@@ -451,20 +455,18 @@ update_appearance() {
 		"/Applications/Chromium.app"
 		"/Applications/Transmission.app"
 		"/Applications/JDownloader 2.0/JDownloader2.app"
-		# "/Applications/UTM.app"
+		"/Applications/UTM.app"
 		"/Applications/Visual Studio Code.app"
 		"/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
 		"/Applications/PyCharm.app"
 		# "/Applications/DBeaverUltimate.app"
-		# "/Applications/pgAdmin 4.app"
-		"/Applications/Spotify.app"
+		"/Applications/pgAdmin 4.app"
 		"/Applications/IINA.app"
 		"/Applications/Figma.app"
 		"/Applications/KeePassXC.app"
-		# "/Applications/JoalDesktop.app"
+		"/Applications/JoalDesktop.app"
 		"System/Applications/Utilities/Terminal.app"
-		# "/Applications/Docker.app/Contents/MacOS/Docker Desktop.app/"
 		"/System/Applications/Stickies.app"
 	)
 	change_dock_items "${factors[@]}"
@@ -1300,12 +1302,11 @@ update_pycharm() {
 update_python() {
 
 	# Handle parameters
-	local version=${1:-3.11}
+	local version=${1:-3.10}
 
 	# Update package
 	brew install python@"$version" poetry
 	brew upgrade python@"$version" poetry
-	brew unlink python@3.10
 	brew link --force python@"$version"
 
 	# Change environment
@@ -1324,27 +1325,6 @@ update_python() {
 
 }
 
-update_spotify() {
-
-	# Update dependencies
-	brew install fileicon
-	brew upgrade fileicon
-
-	# Update package
-	brew uninstall --cask spotify
-	brew install --cask --no-quarantine spotify
-	bash <(curl -sSL https://raw.githubusercontent.com/SpotX-CLI/SpotX-Mac/main/install.sh) -ceu -E leftsidebar
-
-	# TODO: Remove autorun
-
-	# Change icons
-	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/spotify.icns"
-	local picture="$(mktemp -d)/$(basename "$address")"
-	curl -LA "mozilla/5.0" "$address" -o "$picture"
-	fileicon set "/Applications/Spotify.app" "$picture" || sudo !!
-
-}
-
 update_scrcpy() {
 
 	# Update package
@@ -1356,17 +1336,13 @@ update_scrcpy() {
 update_system() {
 
 	# Handle parameters
-	local country=${1:-Europe/Brussels}
-	local machine=${2:-macintosh}
+	local machine=${1:-macintosh}
 
 	# Change hostname
 	sudo scutil --set ComputerName "$machine"
 	sudo scutil --set HostName "$machine"
 	sudo scutil --set LocalHostName "$machine"
 	sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$machine"
-
-	# Change timezone
-	sudo systemsetup -settimezone "$country"
 
 	# Change finder
 	defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
@@ -1580,8 +1556,7 @@ main() {
 	echo "Defaults timestamp_timeout=-1" | sudo tee /private/etc/sudoers.d/disable_timeout >/dev/null
 
 	# Remove sleeping
-	sudo pmset -a displaysleep 0
-	sudo pmset -a sleep 0
+	sudo pmset -a displaysleep 0 && sudo pmset -a sleep 0
 	(caffeinate -i -w $$ &) &>/dev/null
 
 	# Verify password
@@ -1594,19 +1569,20 @@ main() {
 	update_homebrew || return 1
 
 	# Verify apple id
-	assert_apple_id || return 1
+	# assert_apple_id || return 1
+
+	# Change timezone
+	sudo systemsetup -settimezone "Europe/Brussels" &>/dev/null
 
 	# Handle elements
-	local factors=(
+	local members=(
 		"update_system"
-
 		"update_android_studio"
 		"update_chromium"
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		"update_pycharm"
 		"update_vscode"
-		"update_xcode"
-
+		# "update_xcode"
 		"update_appcleaner"
 		# "update_dbeaver"
 		# "update_dotnet"
@@ -1619,34 +1595,33 @@ main() {
 		"update_mambaforge"
 		"update_nightlight"
 		"update_nodejs"
-		# "update_pgadmin"
+		"update_pgadmin"
 		"update_postgresql"
 		"update_python"
 		"update_odoo"
 		"update_scrcpy"
-		"update_spotify"
 		"update_the_unarchiver"
 		"update_transmission"
-		# "update_utm"
+		"update_utm"
 		"update_yt_dlp"
-
 		"update_appearance"
 	)
 
 	# Output progress
-	local maximum=$((${#welcome} / $(echo "$welcome" | wc -l)))
-	local heading="\r%-"$((maximum - 20))"s   %-6s   %-8s\n\n"
-	local loading="\r%-"$((maximum - 20))"s   \033[93mACTIVE\033[0m   %-8s\b"
-	local failure="\r%-"$((maximum - 20))"s   \033[91mFAILED\033[0m   %-8s\n"
-	local success="\r%-"$((maximum - 20))"s   \033[92mWORKED\033[0m   %-8s\n"
-	printf "$heading" "FUNCTION" "STATUS" "DURATION"
-	for element in "${factors[@]}"; do
+	local bigness=$((${#welcome} / $(echo "$welcome" | wc -l)))
+	local heading="\r%-"$((bigness - 29))"s   %-5s   %-7s   %-8s\n\n"
+	local loading="\r%-"$((bigness - 29))"s   %02d/%02d   \033[93mLOADING\033[0m   %-8s\b"
+	local failure="\r%-"$((bigness - 29))"s   %02d/%02d   \033[91mFAILURE\033[0m   %-8s\n"
+	local success="\r%-"$((bigness - 29))"s   %02d/%02d   \033[92mSUCCESS\033[0m   %-8s\n"
+	printf "$heading" "FUNCTION" "ITEMS" "SUCCESS" "DURATION"
+	local minimum=1 && local maximum=${#members[@]}
+	for element in "${members[@]}"; do
 		local written=$(basename "$(echo "$element" | cut -d "'" -f 1)" | tr "[:lower:]" "[:upper:]")
-		local started=$(date +"%s") && printf "$loading" "$written" "--:--:--"
+		local started=$(date +"%s") && printf "$loading" "$written" "$minimum" "$maximum" "--:--:--"
 		eval "$element" >/dev/null 2>&1 && local current="$success" || local current="$failure"
 		local extinct=$(date +"%s") && elapsed=$((extinct - started))
 		local elapsed=$(printf "%02d:%02d:%02d\n" $((elapsed / 3600)) $(((elapsed % 3600) / 60)) $((elapsed % 60)))
-		printf "$current" "$written" "$elapsed"
+		printf "$current" "$written" "$minimum" "$maximum" "$elapsed" && ((minimum++))
 	done
 
 	# Revert sleeping
