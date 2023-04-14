@@ -455,7 +455,6 @@ update_appearance() {
 		"/Applications/Chromium.app"
 		"/Applications/Transmission.app"
 		"/Applications/JDownloader 2.0/JDownloader2.app"
-		"/Applications/JoalDesktop.app"
 		"/Applications/UTM.app"
 		"/Applications/Visual Studio Code.app"
 		"/Applications/Xcode.app"
@@ -463,10 +462,11 @@ update_appearance() {
 		"/Applications/PyCharm.app"
 		# "/Applications/DBeaverUltimate.app"
 		"/Applications/pgAdmin 4.app"
-		"/Applications/Figma.app"
-		"/Applications/IINA.app"
 		"/Applications/Spotify.app"
+		"/Applications/IINA.app"
+		"/Applications/Figma.app"
 		"/Applications/KeePassXC.app"
+		"/Applications/JoalDesktop.app"
 		"System/Applications/Utilities/Terminal.app"
 		"/System/Applications/Stickies.app"
 	)
@@ -903,15 +903,17 @@ update_flutter() {
 
 update_figma() {
 
+	# Update dependencies
+	brew install jq sponge
+	brew upgrade jq sponge
+
 	# Update package
 	brew install --cask --no-quarantine figma
 	brew upgrade --cask --no-quarantine figma
 
-	# Change icons
-	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/figma.icns"
-	local picture="$(mktemp -d)/$(basename "$address")"
-	curl -LA "mozilla/5.0" "$address" -o "$picture"
-	fileicon set "/Applications/Figma.app" "$picture" || sudo !!
+	# Change settings
+	local configs="$HOME/Library/Application Support/Figma/settings.json"
+	jq '.showFigmaInMenuBar = false' "$configs" | sponge "$configs"
 
 }
 
@@ -1604,35 +1606,35 @@ main() {
 
 	# Handle elements
 	local members=(
-		# "update_system"
-		# "update_android_studio"
-		# "update_chromium"
-		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		# "update_pycharm"
-		# "update_vscode"
+		"update_system"
+		"update_android_studio"
+		"update_chromium"
+		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
+		"update_pycharm"
+		"update_vscode"
 		# "update_xcode"
-		# "update_appcleaner"
+		"update_appcleaner"
 		# "update_dbeaver"
 		# "update_dotnet"
 		"update_figma"
-		# "update_flutter"
+		"update_flutter"
 		"update_iina"
-		# "update_jdownloader"
-		# "update_joal"
-		# "update_keepassxc"
-		# "update_mambaforge"
-		# "update_nightlight"
-		# "update_nodejs"
-		# "update_pgadmin"
-		# "update_postgresql"
-		# "update_python"
-		# "update_odoo"
-		# "update_scrcpy"
-		# "update_spotify"
-		# "update_the_unarchiver"
-		# "update_transmission"
-		# "update_utm"
-		# "update_yt_dlp"
+		"update_jdownloader"
+		"update_joal"
+		"update_keepassxc"
+		"update_mambaforge"
+		"update_nightlight"
+		"update_nodejs"
+		"update_pgadmin"
+		"update_postgresql"
+		"update_python"
+		"update_odoo"
+		"update_scrcpy"
+		"update_spotify"
+		"update_the_unarchiver"
+		"update_transmission"
+		"update_utm"
+		"update_yt_dlp"
 		"update_appearance"
 	)
 
