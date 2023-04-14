@@ -448,6 +448,48 @@ update_android_studio() {
 
 }
 
+update_android_studio_preview() {
+
+	# Update dependencies
+	brew install fileicon grep xmlstarlet
+	brew upgrade fileicon grep xmlstarlet
+
+	# Update package
+	starter="/Applications/Android Studio Preview.app"
+	present=$([[ -d "$starter" ]] && echo true || echo false)
+	brew tap homebrew/cask-versions
+	brew install --cask android-studio-preview-canary
+	brew upgrade --cask android-studio-preview-canary
+
+	# Launch package once
+	if [[ $present = false ]]; then
+		osascript <<-EOD
+			set checkup to "/Applications/Android Studio Preview.app"
+			tell application checkup
+				activate
+				reopen
+				tell application "System Events"
+					tell process "Android Studio"
+						with timeout of 30 seconds
+							repeat until (exists window 1)
+								delay 1
+							end repeat
+						end timeout
+					end tell
+				end tell
+				delay 4
+				quit app "Android Studio"
+				delay 4
+			end tell
+		EOD
+	fi
+
+	# Update android-studio plugins
+	update_jetbrains_plugin "AndroidStudioPreview" "11174"  # androidlocalize
+	update_jetbrains_plugin "AndroidStudioPreview" "19034"  # jetpack-compose-ui-architecture-templates
+
+}
+
 update_appearance() {
 
 	# Change dock items
@@ -457,14 +499,15 @@ update_appearance() {
 		"/Applications/JDownloader 2.0/JDownloader2.app"
 		"/Applications/UTM.app"
 		"/Applications/Visual Studio Code.app"
-		"/Applications/Xcode.app"
-		"/Applications/Android Studio.app"
 		"/Applications/PyCharm.app"
 		# "/Applications/DBeaverUltimate.app"
 		"/Applications/pgAdmin 4.app"
-		"/Applications/Spotify.app"
-		"/Applications/IINA.app"
+		"/Applications/Xcode.app"
+		"/Applications/Android Studio.app"
+		"/Applications/Android Studio Preview.app"
 		"/Applications/Figma.app"
+		"/Applications/IINA.app"
+		"/Applications/Spotify.app"
 		"/Applications/KeePassXC.app"
 		"/Applications/JoalDesktop.app"
 		"System/Applications/Utilities/Terminal.app"
@@ -914,6 +957,7 @@ update_figma() {
 	# Change settings
 	local configs="$HOME/Library/Application Support/Figma/settings.json"
 	jq '.showFigmaInMenuBar = false' "$configs" | sponge "$configs"
+	osascript -e 'tell application "System Events" to delete login item "FigmaAgent"'
 
 }
 
@@ -1348,11 +1392,11 @@ update_spotify() {
 	killall Spotify || true
 	brew install --cask --no-quarantine spotify
 	brew upgrade --cask --no-quarantine spotify
+	bash <(curl -sSL https://raw.githubusercontent.com/SpotX-CLI/SpotX-Mac/main/install.sh) -cefhou
 
 	# Change settings
 	# /usr/libexec/plistbuddy -c 'print CFBundleIdentifier' '/Applications/Spotify.app/Contents/Info.plist'
-	bash <(curl -sSL https://raw.githubusercontent.com/SpotX-CLI/SpotX-Mac/main/install.sh) -cefhou
-	defaults write com.spotify.client AutoStartSettingIsHidden -integer 0
+	# defaults write com.spotify.client AutoStartSettingIsHidden -integer 0
 
 	# Change icons
 	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/spotify.icns"
@@ -1410,7 +1454,7 @@ update_system() {
 	sudo nvram StartupMute=%01
 
 	# Update system
-	# sudo softwareupdate -ia
+	sudo softwareupdate --download --all --force --agree-to-license --verbose
 
 }
 
@@ -1608,6 +1652,7 @@ main() {
 	local members=(
 		"update_system"
 		"update_android_studio"
+		"update_android_studio_preview"
 		"update_chromium"
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		"update_pycharm"
