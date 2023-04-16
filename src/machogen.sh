@@ -391,8 +391,8 @@ update_android_studio() {
 	brew upgrade fileicon grep xmlstarlet
 
 	# Update package
-	starter="/Applications/Android Studio.app"
-	present=$([[ -d "$starter" ]] && echo true || echo false)
+	local starter="/Applications/Android Studio.app"
+	local present=$([[ -d "$starter" ]] && echo true || echo false)
 	brew install --cask --no-quarantine android-studio
 	brew upgrade --cask --no-quarantine android-studio
 
@@ -441,8 +441,8 @@ update_android_studio() {
 	update_jetbrains_plugin "AndroidStudio" "19034"  # jetpack-compose-ui-architecture-templates
 
 	# Change icons
-	address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/android-studio.icns"
-	picture="$(mktemp -d)/$(basename "$address")"
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/android-studio.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/Android Studio.app" "$picture" || sudo !!
 
@@ -455,8 +455,8 @@ update_android_studio_preview() {
 	brew upgrade fileicon grep xmlstarlet
 
 	# Update package
-	starter="/Applications/Android Studio Preview.app"
-	present=$([[ -d "$starter" ]] && echo true || echo false)
+	local starter="/Applications/Android Studio Preview.app"
+	local present=$([[ -d "$starter" ]] && echo true || echo false)
 	brew tap homebrew/cask-versions
 	brew install --cask android-studio-preview-canary
 	brew upgrade --cask android-studio-preview-canary
@@ -1536,6 +1536,27 @@ update_utm() {
 
 }
 
+update_visual_studio() {
+
+	# Update dependencies
+    brew install curl jq
+    brew upgrade curl jq
+
+	# Update package
+	local starter="/Applications/Install Visual Studio for Mac.app"
+	local present=$([[ -d "$starter" ]] && echo true || echo false)
+	if [[ $present = false ]]; then
+		local address="https://aka.ms/vs/mac/download"
+		local package="$(mktemp -d)/visualstudioformacinstaller.dmg"
+		curl -LA "mozilla/5.0" "$address" -o "$package"
+		hdiutil attach "$package" -noautoopen -nobrowse
+		cp -fr /Volumes/Visual*/Install*.app /Applications
+		hdiutil detach /Volumes/Visual*
+		sudo xattr -rd com.apple.quarantine "$starter"
+	fi
+
+}
+
 update_vscode() {
 
 	# Update dependencies
@@ -1656,6 +1677,7 @@ main() {
 		"update_chromium"
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		"update_pycharm"
+		# "update_visual_studio"
 		"update_vscode"
 		# "update_xcode"
 		"update_appcleaner"
