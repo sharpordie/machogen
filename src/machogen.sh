@@ -957,7 +957,7 @@ update_figma() {
 	# Change settings
 	local configs="$HOME/Library/Application Support/Figma/settings.json"
 	jq '.showFigmaInMenuBar = false' "$configs" | sponge "$configs"
-	osascript -e 'tell application "System Events" to delete login item "FigmaAgent"'
+	# osascript -e 'tell application "System Events" to delete login item "FigmaAgent"'
 
 }
 
