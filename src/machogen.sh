@@ -1,4 +1,5 @@
 #!/bin/zsh
+#shellcheck shell=bash
 
 #region security
 
@@ -881,6 +882,14 @@ update_dbeaver() {
 
 }
 
+update_docker() {
+
+	# Update package
+	brew install --cask --no-quarantine docker
+	brew upgrade --cask --no-quarantine docker
+
+}
+
 update_dotnet() {
 
 	# Update package
@@ -1671,38 +1680,39 @@ main() {
 
 	# Handle elements
 	local members=(
-		"update_system"
-		"update_android_studio"
-		"update_android_studio_preview"
-		"update_chromium"
-		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		"update_pycharm"
+		# "update_system"
+		# "update_android_studio"
+		# "update_android_studio_preview"
+		# "update_chromium"
+		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
+		# "update_pycharm"
 		# "update_visual_studio"
-		"update_vscode"
+		# "update_vscode"
 		# "update_xcode"
-		"update_appcleaner"
+		# "update_appcleaner"
 		# "update_dbeaver"
+		"update_docker"
 		# "update_dotnet"
-		"update_figma"
-		"update_flutter"
-		"update_iina"
-		"update_jdownloader"
-		"update_joal"
-		"update_keepassxc"
-		"update_mambaforge"
-		"update_nightlight"
-		"update_nodejs"
-		"update_pgadmin"
-		"update_postgresql"
-		"update_python"
-		"update_odoo"
-		"update_scrcpy"
-		"update_spotify"
-		"update_the_unarchiver"
-		"update_transmission"
-		"update_utm"
-		"update_yt_dlp"
-		"update_appearance"
+		# "update_figma"
+		# "update_flutter"
+		# "update_iina"
+		# "update_jdownloader"
+		# "update_joal"
+		# "update_keepassxc"
+		# "update_mambaforge"
+		# "update_nightlight"
+		# "update_nodejs"
+		# "update_pgadmin"
+		# "update_postgresql"
+		# "update_python"
+		# "update_odoo"
+		# "update_scrcpy"
+		# "update_spotify"
+		# "update_the_unarchiver"
+		# "update_transmission"
+		# "update_utm"
+		# "update_yt_dlp"
+		# "update_appearance"
 	)
 
 	# Output progress
