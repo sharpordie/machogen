@@ -1734,8 +1734,8 @@ main() {
 	for element in "${members[@]}"; do
 		local written=$(basename "$(echo "$element" | cut -d "'" -f 1)" | tr "[:lower:]" "[:upper:]")
 		local started=$(date +"%s") && printf "$loading" "$written" "$minimum" "$maximum" "--:--:--"
-		# eval "$element" >/dev/null 2>&1 && local current="$success" || local current="$failure"
-		eval "$element" && local current="$success" || local current="$failure"
+		eval "$element" >/dev/null 2>&1 && local current="$success" || local current="$failure"
+		# eval "$element" && local current="$success" || local current="$failure"
 		local extinct=$(date +"%s") && elapsed=$((extinct - started))
 		local elapsed=$(printf "%02d:%02d:%02d\n" $((elapsed / 3600)) $(((elapsed % 3600) / 60)) $((elapsed % 60)))
 		printf "$current" "$written" "$minimum" "$maximum" "$elapsed" && ((minimum++))
