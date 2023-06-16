@@ -1,5 +1,6 @@
 #!/bin/zsh
-#shellcheck shell=bash
+
+# shellcheck shell=bash
 
 #region security
 
@@ -1599,21 +1600,28 @@ update_xcode() {
 	assert_apple_id || return 1
 
 	# Update dependencies
-	brew install cocoapods fileicon robotsandpencils/made/xcodes
-	brew upgrade cocoapods fileicon robotsandpencils/made/xcodes
+	brew install cocoapods fileicon grep robotsandpencils/made/xcodes
+	brew upgrade cocoapods fileicon grep robotsandpencils/made/xcodes
 
 	# Update package
-	xcodes install --latest
-	mv -f /Applications/Xcode*.app /Applications/Xcode.app
-	sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
-	sudo xcodebuild -runFirstLaunch
-	sudo xcodebuild -license accept
+	local starter="/Applications/Xcode.app"
+	local current=$(expand_version "$starter")
+	local version=$(xcodes list | tail -5 | grep -v Beta | tail -1 | ggrep -oP "[\d.]+" | head -1)
+	autoload is-at-least
+    local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
+    if [[ "$updated" == "false" ]]; then
+		xcodes install --latest
+		rm -fr "$starter" && mv -f /Applications/Xcode*.app "$starter"
+		sudo xcode-select --switch "$starter/Contents/Developer"
+		sudo xcodebuild -runFirstLaunch
+		sudo xcodebuild -license accept
+	fi
 
 	# Change icons
 	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/xcode.icns"
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -LA "mozilla/5.0" "$address" -o "$picture"
-	fileicon set "/Applications/Xcode.app" "$picture" || sudo !!
+	fileicon set "$starter" "$picture" || sudo !!
 
 }
 
@@ -1673,7 +1681,7 @@ main() {
 	update_homebrew || return 1
 
 	# Verify apple id
-	# assert_apple_id || return 1
+	assert_apple_id || return 1
 
 	# Change timezone
 	sudo systemsetup -settimezone "Europe/Brussels" &>/dev/null
@@ -1687,19 +1695,19 @@ main() {
 		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		# "update_pycharm"
 		# "update_visual_studio"
-		# "update_vscode"
-		# "update_xcode"
+		"update_vscode"
+		"update_xcode"
 		# "update_appcleaner"
 		# "update_dbeaver"
-		"update_docker"
+		# "update_docker"
 		# "update_dotnet"
-		# "update_figma"
+		"update_figma"
 		# "update_flutter"
-		# "update_iina"
+		"update_iina"
 		# "update_jdownloader"
 		# "update_joal"
 		# "update_keepassxc"
-		# "update_mambaforge"
+		"update_mambaforge"
 		# "update_nightlight"
 		# "update_nodejs"
 		# "update_pgadmin"
@@ -1711,7 +1719,7 @@ main() {
 		# "update_the_unarchiver"
 		# "update_transmission"
 		# "update_utm"
-		# "update_yt_dlp"
+		"update_yt_dlp"
 		# "update_appearance"
 	)
 
@@ -1726,7 +1734,8 @@ main() {
 	for element in "${members[@]}"; do
 		local written=$(basename "$(echo "$element" | cut -d "'" -f 1)" | tr "[:lower:]" "[:upper:]")
 		local started=$(date +"%s") && printf "$loading" "$written" "$minimum" "$maximum" "--:--:--"
-		eval "$element" >/dev/null 2>&1 && local current="$success" || local current="$failure"
+		# eval "$element" >/dev/null 2>&1 && local current="$success" || local current="$failure"
+		eval "$element" && local current="$success" || local current="$failure"
 		local extinct=$(date +"%s") && elapsed=$((extinct - started))
 		local elapsed=$(printf "%02d:%02d:%02d\n" $((elapsed / 3600)) $(((elapsed % 3600) / 60)) $((elapsed % 60)))
 		printf "$current" "$written" "$minimum" "$maximum" "$elapsed" && ((minimum++))
