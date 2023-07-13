@@ -496,24 +496,25 @@ update_appearance() {
 
 	# Change dock items
 	local factors=(
+		"/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
 		"/Applications/Chromium.app"
+		"/Applications/KeePassXC.app"
 		"/Applications/Transmission.app"
 		"/Applications/JDownloader 2.0/JDownloader2.app"
 		"/Applications/UTM.app"
 		"/Applications/Visual Studio Code.app"
+		"/Applications/Xcode.app"
+		"/Applications/Android Studio.app"
+		# "/Applications/Android Studio Preview.app"
 		"/Applications/PyCharm.app"
 		# "/Applications/DBeaverUltimate.app"
 		"/Applications/pgAdmin 4.app"
-		"/Applications/Xcode.app"
-		"/Applications/Android Studio.app"
-		"/Applications/Android Studio Preview.app"
-		"/Applications/Figma.app"
-		"/Applications/IINA.app"
 		"/Applications/Spotify.app"
-		"/Applications/KeePassXC.app"
+		"/Applications/IINA.app"
+		"/Applications/Figma.app"
 		"/Applications/JoalDesktop.app"
-		"System/Applications/Utilities/Terminal.app"
-		"/System/Applications/Stickies.app"
+		"/System/Applications/Utilities/Terminal.app"
+		# "/System/Applications/Stickies.app"
 	)
 	change_dock_items "${factors[@]}"
 
@@ -969,6 +970,12 @@ update_figma() {
 	jq '.showFigmaInMenuBar = false' "$configs" | sponge "$configs"
 	# osascript -e 'tell application "System Events" to delete login item "FigmaAgent"'
 
+	# Change icons
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/figma.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
+	fileicon set "/Applications/Figma.app" "$picture" || sudo !!
+
 }
 
 update_git() {
@@ -1051,11 +1058,11 @@ update_iina() {
 	expand_archive "$archive" "$deposit"
 	"$deposit/openwith" com.colliderli.iina mkv mov mp4 avi
 
-	# # Change icons
-	# local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/iina.icns"
-	# local picture="$(mktemp -d)/$(basename "$address")"
-	# curl -LA "mozilla/5.0" "$address" -o "$picture"
-	# fileicon set "/Applications/IINA.app" "$picture" || sudo !!
+	# Change icons
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/iina.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
+	fileicon set "/Applications/IINA.app" "$picture" || sudo !!
 
 }
 
@@ -1695,19 +1702,19 @@ main() {
 		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		# "update_pycharm"
 		# "update_visual_studio"
-		"update_vscode"
-		"update_xcode"
+		# "update_vscode"
+		# "update_xcode"
 		# "update_appcleaner"
 		# "update_dbeaver"
 		# "update_docker"
 		# "update_dotnet"
 		"update_figma"
 		# "update_flutter"
-		"update_iina"
+		# "update_iina"
 		# "update_jdownloader"
 		# "update_joal"
 		# "update_keepassxc"
-		"update_mambaforge"
+		# "update_mambaforge"
 		# "update_nightlight"
 		# "update_nodejs"
 		# "update_pgadmin"
@@ -1719,8 +1726,8 @@ main() {
 		# "update_the_unarchiver"
 		# "update_transmission"
 		# "update_utm"
-		"update_yt_dlp"
-		# "update_appearance"
+		# "update_yt_dlp"
+		"update_appearance"
 	)
 
 	# Output progress
