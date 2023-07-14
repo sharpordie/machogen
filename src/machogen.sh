@@ -1411,6 +1411,14 @@ update_python() {
 
 }
 
+update_rustdesk() {
+
+	# Update package
+	brew install --cask --no-quarantine rustdesk
+	brew upgrade --cask --no-quarantine rustdesk
+
+}
+
 update_scrcpy() {
 
 	# Update package
@@ -1721,7 +1729,7 @@ main() {
 		# "update_vscode"
 		# "update_xcode"
 		# "update_appcleaner"
-		"update_calibre"
+		# "update_calibre"
 		# "update_dbeaver"
 		# "update_docker"
 		# "update_dotnet"
@@ -1738,6 +1746,7 @@ main() {
 		# "update_postgresql"
 		# "update_python"
 		# "update_odoo"
+		"update_rustdesk"
 		# "update_scrcpy"
 		# "update_spotify"
 		# "update_the_unarchiver"
