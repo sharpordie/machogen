@@ -512,6 +512,7 @@ update_appearance() {
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
 		"/Applications/Figma.app"
+		"/Applications/calibre.app"
 		"/Applications/JoalDesktop.app"
 		"/System/Applications/Utilities/Terminal.app"
 		# "/System/Applications/Stickies.app"
@@ -551,6 +552,20 @@ update_appcleaner() {
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/AppCleaner.app" "$picture" || sudo !!
+
+}
+
+update_calibre() {
+
+	# Update package
+	brew install --cask --no-quarantine calibre
+	brew upgrade --cask --no-quarantine calibre
+
+	# Change icons
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/calibre.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	fileicon set "/Applications/calibre.app" "$picture" || sudo !!
 
 }
 
@@ -1705,10 +1720,11 @@ main() {
 		# "update_vscode"
 		# "update_xcode"
 		# "update_appcleaner"
+		"update_calibre"
 		# "update_dbeaver"
 		# "update_docker"
 		# "update_dotnet"
-		"update_figma"
+		# "update_figma"
 		# "update_flutter"
 		# "update_iina"
 		# "update_jdownloader"
