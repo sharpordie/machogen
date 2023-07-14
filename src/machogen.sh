@@ -566,6 +566,7 @@ update_calibre() {
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/calibre.app" "$picture" || sudo !!
+	# fileicon set "/Applications/calibre.app/Contents/Resources/calibre.icns" "$picture" || sudo !!
 
 }
 
