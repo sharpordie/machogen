@@ -566,7 +566,12 @@ update_calibre() {
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/calibre.app" "$picture" || sudo !!
-	# fileicon set "/Applications/calibre.app/Contents/Resources/calibre.icns" "$picture" || sudo !!
+	# fileicon set "/Applications/calibre.app/Contents/utils.app" "$picture" || sudo !!
+	# cp "$picture" "/Applications/calibre.app/Contents/Resources/calibre.icns"
+	# local sitting="/Applications/calibre.app/Contents/Resources/resources/images/apple-touch-icon.png"
+	# local sitting="/Applications/calibre.app/Contents/Resources/resources/images/lt.png"
+	local sitting="/Applications/calibre.app/Contents/Resources/resources/images/library.png"
+	sips -Z 256 -s format png "$picture" --out "$sitting"
 
 }
 
@@ -1729,7 +1734,7 @@ main() {
 		# "update_vscode"
 		# "update_xcode"
 		# "update_appcleaner"
-		# "update_calibre"
+		"update_calibre"
 		# "update_dbeaver"
 		# "update_docker"
 		# "update_dotnet"
@@ -1746,7 +1751,7 @@ main() {
 		# "update_postgresql"
 		# "update_python"
 		# "update_odoo"
-		"update_rustdesk"
+		# "update_rustdesk"
 		# "update_scrcpy"
 		# "update_spotify"
 		# "update_the_unarchiver"
