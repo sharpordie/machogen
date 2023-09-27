@@ -505,7 +505,7 @@ update_appearance() {
 		"/Applications/Visual Studio Code.app"
 		"/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
-		# "/Applications/Android Studio Preview.app"
+		"/Applications/Android Studio Preview.app"
 		"/Applications/PyCharm.app"
 		# "/Applications/DBeaverUltimate.app"
 		"/Applications/pgAdmin 4.app"
@@ -576,6 +576,8 @@ update_calibre() {
 }
 
 update_chromium() {
+
+	# TODO: Handle blocking password prompt
 
 	# Handle parameters
 	local deposit=${1:-$HOME/Downloads/DDL}
@@ -872,7 +874,10 @@ update_chromium() {
 	fi
 
 	# Update bypass-paywalls-chrome
-	update_chromium_extension "https://github.com/iamadamdev/bypass-paywalls-chrome/archive/master.zip"
+	# update_chromium_extension "https://github.com/iamadamdev/bypass-paywalls-chrome/archive/master.zip"
+
+	# Update bypass-paywalls-chrome-clean
+	update_chromium_extension "https://gitlab.com/magnolia1234/bypass-paywalls-chrome-clean/-/archive/master/bypass-paywalls-chrome-clean-master.zip"
 
 }
 
@@ -1499,8 +1504,8 @@ update_system() {
 	# Remove startup chime
 	sudo nvram StartupMute=%01
 
-	# Update system
-	sudo softwareupdate --download --all --force --agree-to-license --verbose
+	# Update system (takes ages)
+	# sudo softwareupdate --download --all --force --agree-to-license --verbose
 
 }
 
@@ -1727,14 +1732,14 @@ main() {
 		# "update_system"
 		# "update_android_studio"
 		# "update_android_studio_preview"
-		# "update_chromium"
+		"update_chromium"
 		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		# "update_pycharm"
 		# "update_visual_studio"
 		# "update_vscode"
-		# "update_xcode"
+		"update_xcode"
 		# "update_appcleaner"
-		"update_calibre"
+		# "update_calibre"
 		# "update_dbeaver"
 		# "update_docker"
 		# "update_dotnet"
