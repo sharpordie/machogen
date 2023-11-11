@@ -2,7 +2,7 @@
 
 # shellcheck shell=bash
 
-#region SECURITY
+#region security
 
 assert_apple_id() {
 
@@ -73,7 +73,7 @@ assert_password() {
 handle_security() {
 
 	# Verify version
-	if [[ ${"$(sw_vers -productVersion)":0:2} != "14" ]]; then
+	if [[ ${"$(sw_vers -productVersion)":0:2} != "13" ]]; then
 		printf "\r\033[91m%s\033[00m\n\n" "CURRENT MACOS VERSION (${"$(sw_vers -productVersion)":0:4}) IS NOT SUPPORTED"
 		return 1
 	fi
@@ -113,7 +113,7 @@ handle_security() {
 
 #endregion
 
-#region SERVICES
+#region services
 
 change_default_browser() {
 
@@ -344,7 +344,7 @@ update_vscode_extension() {
 
 #endregion
 
-#region SOFTWARE
+#region updaters
 
 update_android_cmdline() {
 
@@ -355,14 +355,14 @@ update_android_cmdline() {
 	brew upgrade --cask --no-quarantine temurin
 
 	# Update package
-	local sdkroot="$HOME/Library/Android/sdk"
-	local deposit="$sdkroot/cmdline-tools"
+	sdkroot="$HOME/Library/Android/sdk"
+	deposit="$sdkroot/cmdline-tools"
 	if [[ ! -d $deposit ]]; then
 		mkdir -p "$deposit"
-		local website="https://developer.android.com/studio#command-tools"
-		local version="$(curl -s "$website" | ggrep -oP "commandlinetools-mac-\K(\d+)" | head -1)"
-		local address="https://dl.google.com/android/repository/commandlinetools-mac-${version}_latest.zip"
-		local archive="$(mktemp -d)/$(basename "$address")"
+		website="https://developer.android.com/studio#command-tools"
+		version="$(curl -s "$website" | ggrep -oP "commandlinetools-mac-\K(\d+)" | head -1)"
+		address="https://dl.google.com/android/repository/commandlinetools-mac-${version}_latest.zip"
+		archive="$(mktemp -d)/$(basename "$address")"
 		curl -L "$address" -o "$archive"
 		expand_archive "$archive" "$deposit"
 		yes | "$deposit/cmdline-tools/bin/sdkmanager" --sdk_root="$sdkroot" "cmdline-tools;latest"
@@ -370,7 +370,7 @@ update_android_cmdline() {
 	fi
 
 	# Change environment
-	local configs="$HOME/.zshrc"
+	configs="$HOME/.zshrc"
 	if ! grep -q "ANDROID_HOME" "$configs" 2>/dev/null; then
 		[[ -s "$configs" ]] || touch "$configs"
 		[[ -z $(tail -1 "$configs") ]] || echo "" >>"$configs"
@@ -438,6 +438,10 @@ update_android_studio() {
 		avdmanager create avd -n "Pixel_3_API_33" -d "pixel_3" -k "system-images;android-33;google_apis;x86_64" -f
 	fi
 
+	# Update android-studio plugins
+	update_jetbrains_plugin "AndroidStudio" "11174"  # androidlocalize
+	update_jetbrains_plugin "AndroidStudio" "19034"  # jetpack-compose-ui-architecture-templates
+
 	# Change icons
 	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/android-studio.icns"
 	local picture="$(mktemp -d)/$(basename "$address")"
@@ -481,6 +485,10 @@ update_android_studio_preview() {
 			end tell
 		EOD
 	fi
+
+	# Update android-studio plugins
+	update_jetbrains_plugin "AndroidStudioPreview" "11174"  # androidlocalize
+	update_jetbrains_plugin "AndroidStudioPreview" "19034"  # jetpack-compose-ui-architecture-templates
 
 }
 
@@ -591,8 +599,7 @@ update_chromium() {
 	change_default_browser "chromium"
 
 	# Finish installation
-	# TODO: Reemove dummy condition
-	if [[ "$present" == "true" ]]; then
+	if [[ "$present" == "false" ]]; then
 
 		# Change language
 		defaults write org.chromium.Chromium AppleLanguages "(en-US)"
@@ -692,7 +699,7 @@ update_chromium() {
 				tell application "System Events"
 					keystroke "custom-ntp"
 					delay 2
-					repeat 6 times
+					repeat 5 times
 						key code 48
 					end repeat
 					delay 2
@@ -700,6 +707,7 @@ update_chromium() {
 					delay 1
 					keystroke "${tabpage}"
 					delay 2
+					key code 48
 					key code 48
 					delay 2
 					key code 49
@@ -865,6 +873,9 @@ update_chromium() {
 
 	fi
 
+	# Update bypass-paywalls-chrome
+	# update_chromium_extension "https://github.com/iamadamdev/bypass-paywalls-chrome/archive/master.zip"
+
 	# Update bypass-paywalls-chrome-clean
 	update_chromium_extension "https://gitlab.com/magnolia1234/bypass-paywalls-chrome-clean/-/archive/master/bypass-paywalls-chrome-clean-master.zip"
 
@@ -907,6 +918,24 @@ update_docker() {
 
 }
 
+update_dotnet() {
+
+	# Update package
+	brew install --cask --no-quarantine dotnet-sdk
+	brew upgrade --cask --no-quarantine dotnet-sdk
+
+	# Change environment
+	if ! grep -q "DOTNET_CLI_TELEMETRY_OPTOUT" "$HOME/.zshrc" 2>/dev/null; then
+		[[ -s "$HOME/.zshrc" ]] || echo '#!/bin/zsh' >"$HOME/.zshrc"
+		[[ -z $(tail -1 "$HOME/.zshrc") ]] || echo "" >>"$HOME/.zshrc"
+		echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >>"$HOME/.zshrc"
+		echo 'export DOTNET_NOLOGO=1' >>"$HOME/.zshrc"
+		echo 'export PATH="$PATH:/Users/$USER/.dotnet/tools"' >>"$HOME/.zshrc"
+		source "$HOME/.zshrc"
+	fi
+
+}
+
 update_flutter() {
 
 	# Update dependencies
@@ -916,6 +945,39 @@ update_flutter() {
 	# Update package
 	brew install --cask --no-quarantine flutter
 	brew upgrade --cask --no-quarantine flutter
+
+	# Change environment
+	local altered="$(grep -q "CHROME_EXECUTABLE" "$HOME/.zshrc" >/dev/null 2>&1 && echo "true" || echo "false")"
+	local present="$([[ -d "/Applications/Chromium.app" ]] && echo "true" || echo "false")"
+	if [[ "$altered" == "false" && "$present" == "true" ]]; then
+		[[ -s "$HOME/.zshrc" ]] || echo '#!/bin/zsh' >"$HOME/.zshrc"
+		[[ -z $(tail -1 "$HOME/.zshrc") ]] || echo "" >>"$HOME/.zshrc"
+		echo 'export CHROME_EXECUTABLE="/Applications/Chromium.app/Contents/MacOS/Chromium"' >>"$HOME/.zshrc"
+		source "$HOME/.zshrc"
+	fi
+
+	# Finish installation
+	flutter precache && flutter upgrade
+	dart --disable-analytics
+	flutter config --no-analytics
+	yes | flutter doctor --android-licenses
+
+	# Update android-studio plugins
+	update_jetbrains_plugin "AndroidStudio" "6351"   # dart
+	update_jetbrains_plugin "AndroidStudio" "9212"   # flutter
+	update_jetbrains_plugin "AndroidStudio" "13666"  # flutter-intl
+	update_jetbrains_plugin "AndroidStudio" "14641"  # flutter-riverpod-snippets
+
+	# Update vscode extensions
+	update_vscode_extension "alexisvt.flutter-snippets"
+	update_vscode_extension "dart-code.flutter"
+	update_vscode_extension "pflannery.vscode-versionlens"
+	update_vscode_extension "RichardCoutts.mvvm-plus"
+	update_vscode_extension "robert-brunhage.flutter-riverpod-snippets"
+	update_vscode_extension "usernamehw.errorlens"
+
+	# TODO: Add `readlink -f $(which flutter)` to android-studio
+	# /usr/local/Caskroom/flutter/*/flutter
 
 }
 
@@ -1159,8 +1221,20 @@ update_mpv() {
 	brew upgrade curl grep
 
 	# Update package
-	brew install --cask --no-quarantine mpv
-	brew upgrade --cask --no-quarantine mpv
+	brew install --cask --no-quarantine pycharm
+	brew upgrade --cask --no-quarantine pycharm
+	# local address="https://laboratory.stolendata.net/~djinn/mpv_osx/"
+	# local pattern="mpv-\K([\d.]+)(?=.tar.gz\")"
+	# local version=$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)
+	# local current=$(expand_version "/*pplications/*pv.app")
+	# autoload is-at-least
+    # local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
+	# if [[ "$updated" == "false" ]]; then
+	# 	local address="https://laboratory.stolendata.net/~djinn/mpv_osx/mpv-latest.tar.gz"
+	# 	local archive=$(mktemp -d)/$(basename "$address") && curl -LA "mozilla/5.0" "$address" -o "$archive"
+	# 	expand_archive "$archive" "/Applications" && rm -rf "/Applications/documentation"
+	# 	ln -s "/Applications/mpv.app/Contents/MacOS/mpv" "/usr/local/bin/mpv"
+	# fi
 
 	# Create configuration
 	local configs="$HOME/.config/mpv/mpv.conf"
@@ -1230,6 +1304,34 @@ update_nodejs() {
 
 }
 
+update_odoo() {
+
+	# Update dependencies
+	update_python
+	xcode-select --install
+
+	# Update postgresql
+	update_postgresql
+	createdb $USER 2>/dev/null
+
+	# Update nodejs
+	update_nodejs
+	npm install -g rtlcss
+
+	# Update wkhtmltopdf
+	brew install --cask --no-quarantine wkhtmltopdf
+	brew upgrade --cask --no-quarantine wkhtmltopdf
+
+	# Update pycharm plugins
+	update_jetbrains_plugin "PyCharm" "10037" # csv-editor
+	update_jetbrains_plugin "PyCharm" "12478" # xpathview-xslt
+	update_jetbrains_plugin "PyCharm" "13499" # odoo
+
+	# Update vscode extensions
+	update_vscode_extension "jigar-patel.odoosnippets"
+
+}
+
 update_pgadmin() {
 
 	# Update package
@@ -1241,7 +1343,7 @@ update_pgadmin() {
 update_postgresql() {
 
 	# Update package
-	# INFO: Default credentials are $USER without password
+	# Default user is $USER without password
 	brew install postgresql@14
 	brew upgrade postgresql@14
 	brew services restart postgresql@14
@@ -1290,6 +1392,32 @@ update_pycharm() {
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/PyCharm.app" "$picture" || sudo !!
+
+}
+
+update_python() {
+
+	# Handle parameters
+	local version=${1:-3.10}
+
+	# Update package
+	brew install python@"$version" poetry
+	brew upgrade python@"$version" poetry
+	brew link --force python@"$version"
+
+	# Change environment
+	if ! grep -q "PYTHONDONTWRITEBYTECODE" "$HOME/.zshrc" 2>/dev/null; then
+		[[ -s "$HOME/.zshrc" ]] || echo '#!/bin/zsh' >"$HOME/.zshrc"
+		[[ -z $(tail -1 "$HOME/.zshrc") ]] || echo "" >>"$HOME/.zshrc"
+		echo "export PYTHONDONTWRITEBYTECODE=1" >>"$HOME/.zshrc"
+		source "$HOME/.zshrc"
+	fi
+
+	# Update vscode extensions
+	update_vscode_extension "ms-python.python"
+
+	# Change settings
+	poetry config virtualenvs.in-project true
 
 }
 
@@ -1459,6 +1587,27 @@ update_utm() {
 
 }
 
+update_visual_studio() {
+
+	# Update dependencies
+    brew install curl jq
+    brew upgrade curl jq
+
+	# Update package
+	local starter="/Applications/Install Visual Studio for Mac.app"
+	local present=$([[ -d "$starter" ]] && echo true || echo false)
+	if [[ $present = false ]]; then
+		local address="https://aka.ms/vs/mac/download"
+		local package="$(mktemp -d)/visualstudioformacinstaller.dmg"
+		curl -LA "mozilla/5.0" "$address" -o "$package"
+		hdiutil attach "$package" -noautoopen -nobrowse
+		cp -fr /Volumes/Visual*/Install*.app /Applications
+		hdiutil detach /Volumes/Visual*
+		sudo xattr -rd com.apple.quarantine "$starter"
+	fi
+
+}
+
 update_vscode() {
 
 	# Update dependencies
@@ -1533,109 +1682,6 @@ update_yt_dlp() {
 
 #endregion
 
-#region DEVTOOLS
-
-update_devtools_android() {
-
-	# Update dependencies
-	update_android_cmdline
-	update_android_studio
-	update_android_studio_preview
-
-	# TODO: Change settings
-
-	# Update plugins
-	update_jetbrains_plugin "AndroidStudio" "11174"  # androidlocalize
-	update_jetbrains_plugin "AndroidStudio" "19034"  # jetpack-compose-ui-architecture-templates
-	update_jetbrains_plugin "AndroidStudioPreview" "11174"  # androidlocalize
-	update_jetbrains_plugin "AndroidStudioPreview" "19034"  # jetpack-compose-ui-architecture-templates
-
-}
-
-update_devtools_flutter() {
-
-	# Update dependencies
-	update_android_cmdline
-	update_android_studio
-	update_chromium
-	update_flutter
-	update_vscode
-
-	# Finish installation
-	flutter precache && flutter upgrade
-	dart --disable-analytics
-	flutter config --no-analytics
-	yes | flutter doctor --android-licenses
-
-	# Change environment
-	local altered="$(grep -q "CHROME_EXECUTABLE" "$HOME/.zshrc" >/dev/null 2>&1 && echo "true" || echo "false")"
-	local present="$([[ -d "/Applications/Chromium.app" ]] && echo "true" || echo "false")"
-	if [[ "$altered" == "false" && "$present" == "true" ]]; then
-		[[ -s "$HOME/.zshrc" ]] || echo '#!/bin/zsh' >"$HOME/.zshrc"
-		[[ -z $(tail -1 "$HOME/.zshrc") ]] || echo "" >>"$HOME/.zshrc"
-		echo 'export CHROME_EXECUTABLE="/Applications/Chromium.app/Contents/MacOS/Chromium"' >>"$HOME/.zshrc"
-		source "$HOME/.zshrc"
-	fi
-
-	# Update android-studio plugins
-	update_jetbrains_plugin "AndroidStudio" "6351"   # dart
-	update_jetbrains_plugin "AndroidStudio" "9212"   # flutter
-	update_jetbrains_plugin "AndroidStudio" "13666"  # flutter-intl
-	update_jetbrains_plugin "AndroidStudio" "14641"  # flutter-riverpod-snippets
-
-	# Update vscode extensions
-	update_vscode_extension "alexisvt.flutter-snippets"
-	update_vscode_extension "dart-code.flutter"
-	update_vscode_extension "pflannery.vscode-versionlens"
-	update_vscode_extension "RichardCoutts.mvvm-plus"
-	update_vscode_extension "robert-brunhage.flutter-riverpod-snippets"
-	update_vscode_extension "usernamehw.errorlens"
-
-	# TODO: Add `readlink -f $(which flutter)` to android-studio
-	# /usr/local/Caskroom/flutter/*/flutter
-
-}
-
-update_devtools_ios() {
-
-	# Update dependencies
-	update_xcode
-
-	# TODO: Change settings
-	# TODO: Change plugins
-
-}
-
-update_devtools_odoo() {
-
-	# Update dependencies
-	brew install --cask --no-quarantine wkhtmltopdf
-	brew upgrade --cask --no-quarantine wkhtmltopdf
-	update_mambaforge
-	update_nodejs
-	update_postgresql
-	update_pycharm
-	update_vscode
-	xcode-select --install
-
-	# Create postgresql database
-	createdb $USER 2>/dev/null
-
-	# Update nodejs modules
-	npm install -g rtlcss
-	
-	# Update pycharm plugins
-	update_jetbrains_plugin "PyCharm" "10037" # csv-editor
-	update_jetbrains_plugin "PyCharm" "12478" # xpathview-xslt
-	update_jetbrains_plugin "PyCharm" "13499" # odoo
-
-	# Update vscode extensions
-	update_vscode_extension "jigar-patel.odoosnippets"
-
-}
-
-#endregion
-
 main() {
 
 	# Verify executor
@@ -1653,7 +1699,7 @@ main() {
 	|                                                               |
 	|  > MACHOGEN                                                   |
 	|                                                               |
-	|  > CONFIGURATION SCRIPT FOR MACOS SONOMA                      |
+	|  > CONFIGURATION SCRIPT FOR VENTURA                           |
 	|                                                               |
 	+---------------------------------------------------------------+
 	EOD
@@ -1667,7 +1713,7 @@ main() {
 	(caffeinate -i -w $$ &) &>/dev/null
 
 	# Verify password
-	assert_password || return 1
+	# assert_password || return 1
 
 	# Handle security
 	handle_security || return 1
@@ -1687,38 +1733,36 @@ main() {
 		# "update_android_studio"
 		# "update_android_studio_preview"
 		"update_chromium"
-		# "update_flutter"
 		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		# "update_pycharm"
+		# "update_visual_studio"
 		# "update_vscode"
-		# "update_xcode"
-
-		# "update_devtools_android"
-		# "update_devtools_ios"
-		# "update_devtools_flutter"
-		# "update_devtools_odoo"
-
-		"update_appcleaner"
-		"update_calibre"
-		"update_dbeaver"
-		"update_docker"
-		"update_figma"
-		"update_iina"
-		"update_jdownloader"
-		"update_joal"
-		"update_keepassxc"
-		"update_mambaforge"
-		"update_nightlight"
-		"update_nodejs"
-		"update_pgadmin"
-		"update_postgresql"
-		"update_rustdesk"
-		"update_scrcpy"
-		"update_spotify"
-		"update_the_unarchiver"
-		"update_transmission"
-		"update_utm"
-		"update_yt_dlp"
+		"update_xcode"
+		# "update_appcleaner"
+		# "update_calibre"
+		# "update_dbeaver"
+		# "update_docker"
+		# "update_dotnet"
+		# "update_figma"
+		# "update_flutter"
+		# "update_iina"
+		# "update_jdownloader"
+		# "update_joal"
+		# "update_keepassxc"
+		# "update_mambaforge"
+		# "update_nightlight"
+		# "update_nodejs"
+		# "update_pgadmin"
+		# "update_postgresql"
+		# "update_python"
+		# "update_odoo"
+		# "update_rustdesk"
+		# "update_scrcpy"
+		# "update_spotify"
+		# "update_the_unarchiver"
+		# "update_transmission"
+		# "update_utm"
+		# "update_yt_dlp"
 		"update_appearance"
 	)
 
