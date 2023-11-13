@@ -10,7 +10,7 @@ assert_apple_id() {
 	local apppass=$(security find-generic-password -a $USER -s apppass -w 2>/dev/null)
 
 	printf "\r\033[93m%s\033[00m" "CHECKING APPLE CREDENTIALS, PLEASE BE PATIENT"
-	brew install robotsandpencils/made/xcodes &>/dev/null
+	brew install xcodesorg/made/xcodes &>/dev/null
 
 	correct() {
 		export XCODES_USERNAME="$appmail"
@@ -583,7 +583,7 @@ update_chromium() {
 	# Update package
 	local starter="/Applications/Chromium.app"
 	local present=$([[ -d "$starter" ]] && echo "true" || echo "false")
-	brew install --cask --no-quarantine eloston-chromium
+	# brew install --cask --no-quarantine eloston-chromium
 	brew upgrade --cask --no-quarantine eloston-chromium
 	killall Chromium || true
 
@@ -591,8 +591,7 @@ update_chromium() {
 	change_default_browser "chromium"
 
 	# Finish installation
-	# TODO: Reemove dummy condition
-	if [[ "$present" == "true" ]]; then
+	if [[ "$present" == "false" ]]; then
 
 		# Change language
 		defaults write org.chromium.Chromium AppleLanguages "(en-US)"
@@ -1492,8 +1491,8 @@ update_xcode() {
 	assert_apple_id || return 1
 
 	# Update dependencies
-	brew install cocoapods fileicon grep robotsandpencils/made/xcodes
-	brew upgrade cocoapods fileicon grep robotsandpencils/made/xcodes
+	brew install cocoapods fileicon grep xcodesorg/made/xcodes
+	brew upgrade cocoapods fileicon grep xcodesorg/made/xcodes
 
 	# Update package
 	local starter="/Applications/Xcode.app"
@@ -1676,7 +1675,7 @@ main() {
 	update_homebrew || return 1
 
 	# Verify apple id
-	assert_apple_id || return 1
+	# assert_apple_id || return 1
 
 	# Change timezone
 	sudo systemsetup -settimezone "Europe/Brussels" &>/dev/null
@@ -1700,8 +1699,8 @@ main() {
 
 		"update_appcleaner"
 		"update_calibre"
-		"update_dbeaver"
-		"update_docker"
+		# "update_dbeaver"
+		# "update_docker"
 		"update_figma"
 		"update_iina"
 		"update_jdownloader"
