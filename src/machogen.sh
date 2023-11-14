@@ -9,6 +9,7 @@ assert_apple_id() {
 	local appmail=$(security find-generic-password -a $USER -s appmail -w 2>/dev/null)
 	local apppass=$(security find-generic-password -a $USER -s apppass -w 2>/dev/null)
 
+	[[ -z "$appmail" || -z "$apppass" ]] && return 1
 	printf "\r\033[93m%s\033[00m" "CHECKING APPLE CREDENTIALS, PLEASE BE PATIENT"
 	brew install xcodesorg/made/xcodes &>/dev/null
 
@@ -20,6 +21,7 @@ assert_apple_id() {
 			set timeout 8
 			spawn xcodes install --latest
 			expect {
+				-re {.*(A|a)pple ID.*} { exit 1 }
 				-re {.*(E|e)rror.*} { exit 1 }
 				-re {.*(L|l)ocked.*} { exit 1 }
 				-re {.*(P|p)assword.*} { exit 1 }
@@ -344,7 +346,7 @@ update_vscode_extension() {
 
 #endregion
 
-#region SOFTWARE
+#region UPDATERS
 
 update_android_cmdline() {
 
@@ -399,7 +401,7 @@ update_android_studio() {
 	brew upgrade --cask --no-quarantine android-studio
 
 	# Launch package once
-	if [[ $present = false ]]; then
+	if [[ "$present" == "false" ]]; then
 		osascript <<-EOD
 			set checkup to "/Applications/Android Studio.app"
 			tell application checkup
@@ -422,20 +424,19 @@ update_android_studio() {
 	fi
 
 	# Finish installation
-	if [[ $present == false ]]; then
+	if [[ "$present" == "false" ]]; then
 		update_android_cmdline
-		yes | sdkmanager "build-tools;33.0.2"
+		yes | sdkmanager "build-tools;34.0.0"
 		yes | sdkmanager "emulator"
-		yes | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
+		# yes | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
 		yes | sdkmanager "patcher;v4"
 		yes | sdkmanager "platform-tools"
-		yes | sdkmanager "platforms;android-33"
-		yes | sdkmanager "platforms;android-33-ext5"
-		yes | sdkmanager "sources;android-33"
-		yes | sdkmanager "system-images;android-33;google_apis;x86_64"
+		yes | sdkmanager "platforms;android-34"
+		yes | sdkmanager "sources;android-34"
+		yes | sdkmanager "system-images;android-34;google_apis;x86_64"
 		yes | sdkmanager --licenses
 		yes | sdkmanager --update
-		avdmanager create avd -n "Pixel_3_API_33" -d "pixel_3" -k "system-images;android-33;google_apis;x86_64" -f
+		avdmanager create avd -n "Pixel_3_API_34" -d "pixel_3" -k "system-images;android-34;google_apis;x86_64" -f
 	fi
 
 	# Change icons
@@ -460,7 +461,7 @@ update_android_studio_preview() {
 	brew upgrade --cask android-studio-preview-canary
 
 	# Launch package once
-	if [[ $present = false ]]; then
+	if [[ "$present" == "false" ]]; then
 		osascript <<-EOD
 			set checkup to "/Applications/Android Studio Preview.app"
 			tell application checkup
@@ -494,20 +495,22 @@ update_appearance() {
 		"/Applications/Transmission.app"
 		"/Applications/JDownloader 2.0/JDownloader2.app"
 		"/Applications/UTM.app"
-		"/Applications/Visual Studio Code.app"
-		"/Applications/Xcode.app"
-		"/Applications/Android Studio.app"
-		"/Applications/Android Studio Preview.app"
-		"/Applications/PyCharm.app"
-		# "/Applications/DBeaverUltimate.app"
+		"/Applications/MQTTX.app"
+		"/Applications/DBeaverUltimate.app"
 		"/Applications/pgAdmin 4.app"
+		"/Applications/Visual Studio Code.app"
+		# "/Applications/Xcode.app"
+		"/Applications/Android Studio.app"
+		# "/Applications/Android Studio Preview.app"
+		# "/Applications/PyCharm.app"
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
 		"/Applications/Figma.app"
-		"/Applications/calibre.app"
+		# "/Applications/calibre.app"
 		"/Applications/JoalDesktop.app"
 		"/System/Applications/Utilities/Terminal.app"
 		# "/System/Applications/Stickies.app"
+		"/System/Applications/System Settings.app"
 	)
 	change_dock_items "${factors[@]}"
 
@@ -516,6 +519,7 @@ update_appearance() {
 	defaults write com.apple.dock autohide-delay -float 0
 	defaults write com.apple.dock autohide-time-modifier -float 0.25
 	defaults write com.apple.dock minimize-to-application -bool true
+	defaults write com.apple.dock orientation bottom
 	defaults write com.apple.dock show-recents -bool false
 	defaults write com.apple.Dock size-immutable -bool yes
 	defaults write com.apple.dock tilesize -int 48
@@ -931,7 +935,6 @@ update_figma() {
 	# Change settings
 	local configs="$HOME/Library/Application Support/Figma/settings.json"
 	jq '.showFigmaInMenuBar = false' "$configs" | sponge "$configs"
-	# osascript -e 'tell application "System Events" to delete login item "FigmaAgent"'
 
 	# Change icons
 	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/figma.icns"
@@ -976,12 +979,6 @@ update_iina() {
 	local present=$([[ -d "/Applications/IINA.app" ]] && echo "true" || echo "false")
 	brew install --cask --no-quarantine iina
 	brew upgrade --cask --no-quarantine iina
-	# local address="https://nightly.iina.io/"
-	# local pattern="href=\"\K(static/IINA-.*.app.tar.xz)(?=\")"
-	# local address="$address$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)"
-	# local archive=$(mktemp -d)/$(basename "$address") && curl -LA "mozilla/5.0" "$address" -o "$archive"
-	# expand_archive "$archive" "/Applications"
-	# mv -f /Applications/IINA-*.app /Applications/IINA.app
 
 	# Finish installation
 	if [[ "$present" == "false" ]]; then
@@ -1187,6 +1184,14 @@ update_mpv() {
 
 }
 
+update_mqttx() {
+
+	# Update package
+	brew install --cask --no-quarantine mqttx
+	brew upgrade --cask --no-quarantine mqttx
+
+}
+
 update_nightlight() {
 
 	# Handle parameters
@@ -1315,10 +1320,6 @@ update_spotify() {
 	brew install --cask --no-quarantine spotify
 	brew upgrade --cask --no-quarantine spotify
 	bash <(curl -sSL https://raw.githubusercontent.com/SpotX-CLI/SpotX-Mac/main/install.sh) -cefhou
-
-	# Change settings
-	# /usr/libexec/plistbuddy -c 'print CFBundleIdentifier' '/Applications/Spotify.app/Contents/Info.plist'
-	# defaults write com.spotify.client AutoStartSettingIsHidden -integer 0
 
 	# Change icons
 	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/spotify.icns"
@@ -1648,15 +1649,14 @@ main() {
 
 	# Output greeting
 	read -r -d "" welcome <<-EOD
-	+---------------------------------------------------------------+
-	|                                                               |
-	|  > MACHOGEN                                                   |
-	|                                                               |
-	|  > CONFIGURATION SCRIPT FOR MACOS SONOMA                      |
-	|                                                               |
-	+---------------------------------------------------------------+
+	███╗░░░███╗░█████╗░░█████╗░██╗░░██╗░█████╗░░██████╗░███████╗███╗░░██╗
+	████╗░████║██╔══██╗██╔══██╗██║░░██║██╔══██╗██╔════╝░██╔════╝████╗░██║
+	██╔████╔██║███████║██║░░╚═╝███████║██║░░██║██║░░██╗░█████╗░░██╔██╗██║
+	██║╚██╔╝██║██╔══██║██║░░██╗██╔══██║██║░░██║██║░░╚██╗██╔══╝░░██║╚████║
+	██║░╚═╝░██║██║░░██║╚█████╔╝██║░░██║╚█████╔╝╚██████╔╝███████╗██║░╚███║
+	╚═╝░░░░░╚═╝╚═╝░░╚═╝░╚════╝░╚═╝░░╚═╝░╚════╝░░╚═════╝░╚══════╝╚═╝░░╚══╝
 	EOD
-	printf "\033[00m%s\033[00m\n\n" "$welcome"
+	printf "\n\033[92m%s\033[00m\n\n" "$welcome"
 
 	# Remove timeouts
 	echo "Defaults timestamp_timeout=-1" | sudo tee /private/etc/sudoers.d/disable_timeout >/dev/null
@@ -1682,14 +1682,14 @@ main() {
 
 	# Handle elements
 	local members=(
-		# "update_system"
-		# "update_android_studio"
+		"update_system"
+		"update_android_studio"
 		# "update_android_studio_preview"
 		"update_chromium"
 		# "update_flutter"
-		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
+		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		# "update_pycharm"
-		# "update_vscode"
+		"update_vscode"
 		# "update_xcode"
 
 		# "update_devtools_android"
@@ -1698,8 +1698,8 @@ main() {
 		# "update_devtools_odoo"
 
 		"update_appcleaner"
-		"update_calibre"
-		# "update_dbeaver"
+		# "update_calibre"
+		"update_dbeaver"
 		# "update_docker"
 		"update_figma"
 		"update_iina"
@@ -1707,6 +1707,7 @@ main() {
 		"update_joal"
 		"update_keepassxc"
 		"update_mambaforge"
+		"update_mqttx"
 		"update_nightlight"
 		"update_nodejs"
 		"update_pgadmin"
@@ -1727,7 +1728,7 @@ main() {
 	local loading="\r%-"$((bigness - 29))"s   %02d/%02d   \033[93mLOADING\033[0m   %-8s\b"
 	local failure="\r%-"$((bigness - 29))"s   %02d/%02d   \033[91mFAILURE\033[0m   %-8s\n"
 	local success="\r%-"$((bigness - 29))"s   %02d/%02d   \033[92mSUCCESS\033[0m   %-8s\n"
-	printf "$heading" "FUNCTION" "ITEMS" "SUCCESS" "DURATION"
+	printf "$heading" "FUNCTION" "ITEMS" "CONTEXT" "DURATION"
 	local minimum=1 && local maximum=${#members[@]}
 	for element in "${members[@]}"; do
 		local written=$(basename "$(echo "$element" | cut -d "'" -f 1)" | tr "[:lower:]" "[:upper:]")
