@@ -9,11 +9,11 @@ assert_apple_id() {
 	local appmail=$(security find-generic-password -a $USER -s appmail -w 2>/dev/null)
 	local apppass=$(security find-generic-password -a $USER -s apppass -w 2>/dev/null)
 
-	[[ -z "$appmail" || -z "$apppass" ]] && return 1
 	printf "\r\033[93m%s\033[00m" "CHECKING APPLE CREDENTIALS, PLEASE BE PATIENT"
 	brew install xcodesorg/made/xcodes &>/dev/null
 
 	correct() {
+		[[ -z "$appmail" || -z "$apppass" ]] && return 1
 		export XCODES_USERNAME="$appmail"
 		export XCODES_PASSWORD="$apppass"
 		expect <<-EOD
@@ -439,6 +439,10 @@ update_android_studio() {
 		avdmanager create avd -n "Pixel_3_API_34" -d "pixel_3" -k "system-images;android-34;google_apis;x86_64" -f
 	fi
 
+	# Update plugins
+	update_jetbrains_plugin "AndroidStudio" "11174"  # androidlocalize
+	update_jetbrains_plugin "AndroidStudio" "19034"  # jetpack-compose-ui-architecture-templates
+
 	# Change icons
 	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/android-studio.icns"
 	local picture="$(mktemp -d)/$(basename "$address")"
@@ -483,12 +487,22 @@ update_android_studio_preview() {
 		EOD
 	fi
 
+	# Update plugins
+	update_jetbrains_plugin "AndroidStudioPreview" "11174"  # androidlocalize
+	update_jetbrains_plugin "AndroidStudioPreview" "19034"  # jetpack-compose-ui-architecture-templates
+
+	# Change icons
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/android-studio-preview.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
+	fileicon set "/Applications/Android Studio Preview.app" "$picture" || sudo !!
+
 }
 
 update_appearance() {
 
 	# Change dock items
-	local factors=(
+	local members=(
 		"/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
 		"/Applications/Chromium.app"
 		"/Applications/KeePassXC.app"
@@ -499,10 +513,10 @@ update_appearance() {
 		"/Applications/DBeaverUltimate.app"
 		"/Applications/pgAdmin 4.app"
 		"/Applications/Visual Studio Code.app"
-		# "/Applications/Xcode.app"
+		"/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
-		# "/Applications/Android Studio Preview.app"
-		# "/Applications/PyCharm.app"
+		"/Applications/Android Studio Preview.app"
+		"/Applications/PyCharm.app"
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
 		"/Applications/Figma.app"
@@ -512,7 +526,7 @@ update_appearance() {
 		# "/System/Applications/Stickies.app"
 		"/System/Applications/System Settings.app"
 	)
-	change_dock_items "${factors[@]}"
+	change_dock_items "${members[@]}"
 
 	# Change dock settings
 	defaults write com.apple.dock autohide -bool true
@@ -905,8 +919,11 @@ update_dbeaver() {
 update_docker() {
 
 	# Update package
-	brew install --cask --no-quarantine docker
-	brew upgrade --cask --no-quarantine docker
+	brew install colima docker
+	brew upgrade colima docker
+
+	# Launch background service
+	colima start
 
 }
 
@@ -919,6 +936,39 @@ update_flutter() {
 	# Update package
 	brew install --cask --no-quarantine flutter
 	brew upgrade --cask --no-quarantine flutter
+
+	# Finish installation
+	flutter precache && flutter upgrade
+	dart --disable-analytics
+	flutter config --no-analytics
+	yes | flutter doctor --android-licenses
+
+	# Change environment
+	local altered="$(grep -q "CHROME_EXECUTABLE" "$HOME/.zshrc" >/dev/null 2>&1 && echo "true" || echo "false")"
+	local present="$([[ -d "/Applications/Chromium.app" ]] && echo "true" || echo "false")"
+	if [[ "$altered" == "false" && "$present" == "true" ]]; then
+		[[ -s "$HOME/.zshrc" ]] || echo '#!/bin/zsh' >"$HOME/.zshrc"
+		[[ -z $(tail -1 "$HOME/.zshrc") ]] || echo "" >>"$HOME/.zshrc"
+		echo 'export CHROME_EXECUTABLE="/Applications/Chromium.app/Contents/MacOS/Chromium"' >>"$HOME/.zshrc"
+		source "$HOME/.zshrc"
+	fi
+
+	# Update android-studio plugins
+	update_jetbrains_plugin "AndroidStudio" "6351"   # dart
+	update_jetbrains_plugin "AndroidStudio" "9212"   # flutter
+	update_jetbrains_plugin "AndroidStudio" "13666"  # flutter-intl
+	update_jetbrains_plugin "AndroidStudio" "14641"  # flutter-riverpod-snippets
+
+	# Update vscode extensions
+	update_vscode_extension "alexisvt.flutter-snippets"
+	update_vscode_extension "dart-code.flutter"
+	update_vscode_extension "pflannery.vscode-versionlens"
+	update_vscode_extension "RichardCoutts.mvvm-plus"
+	update_vscode_extension "robert-brunhage.flutter-riverpod-snippets"
+	update_vscode_extension "usernamehw.errorlens"
+
+	# TODO: Add `readlink -f $(which flutter)` to android-studio
+	# NOTE: /usr/local/Caskroom/flutter/*/flutter
 
 }
 
@@ -1234,6 +1284,37 @@ update_nodejs() {
 
 }
 
+update_odoo() {
+
+	# Update dependencies
+	update_mambaforge
+	update_nodejs
+	update_postgresql
+	update_pycharm
+	update_vscode
+	xcode-select --install
+	brew install --cask --no-quarantine wkhtmltopdf
+	brew upgrade --cask --no-quarantine wkhtmltopdf
+
+	# Create postgresql database
+	createdb $USER 2>/dev/null
+
+	# Update nodejs modules
+	npm install -g rtlcss
+
+	# TODO: Create mambaforge environment
+	# TODO: Install Odoo community on created environment
+	
+	# Update pycharm plugins
+	update_jetbrains_plugin "PyCharm" "10037" # csv-editor
+	update_jetbrains_plugin "PyCharm" "12478" # xpathview-xslt
+	update_jetbrains_plugin "PyCharm" "13499" # odoo
+
+	# Update vscode extensions
+	update_vscode_extension "jigar-patel.odoosnippets"
+
+}
+
 update_pgadmin() {
 
 	# Update package
@@ -1509,6 +1590,9 @@ update_xcode() {
 		sudo xcodebuild -license accept
 	fi
 
+	# TODO: Change settings
+	# TODO: Change plugins
+
 	# Change icons
 	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/xcode.icns"
 	local picture="$(mktemp -d)/$(basename "$address")"
@@ -1528,109 +1612,6 @@ update_yt_dlp() {
 	# sudo curl -L "$address" -o "$starter"
 	# sudo chmod a+rx "$starter"
 	# ln -sf "$starter" /usr/local/bin/youtube-dl
-
-}
-
-#endregion
-
-#region DEVTOOLS
-
-update_devtools_android() {
-
-	# Update dependencies
-	update_android_cmdline
-	update_android_studio
-	update_android_studio_preview
-
-	# TODO: Change settings
-
-	# Update plugins
-	update_jetbrains_plugin "AndroidStudio" "11174"  # androidlocalize
-	update_jetbrains_plugin "AndroidStudio" "19034"  # jetpack-compose-ui-architecture-templates
-	update_jetbrains_plugin "AndroidStudioPreview" "11174"  # androidlocalize
-	update_jetbrains_plugin "AndroidStudioPreview" "19034"  # jetpack-compose-ui-architecture-templates
-
-}
-
-update_devtools_flutter() {
-
-	# Update dependencies
-	update_android_cmdline
-	update_android_studio
-	update_chromium
-	update_flutter
-	update_vscode
-
-	# Finish installation
-	flutter precache && flutter upgrade
-	dart --disable-analytics
-	flutter config --no-analytics
-	yes | flutter doctor --android-licenses
-
-	# Change environment
-	local altered="$(grep -q "CHROME_EXECUTABLE" "$HOME/.zshrc" >/dev/null 2>&1 && echo "true" || echo "false")"
-	local present="$([[ -d "/Applications/Chromium.app" ]] && echo "true" || echo "false")"
-	if [[ "$altered" == "false" && "$present" == "true" ]]; then
-		[[ -s "$HOME/.zshrc" ]] || echo '#!/bin/zsh' >"$HOME/.zshrc"
-		[[ -z $(tail -1 "$HOME/.zshrc") ]] || echo "" >>"$HOME/.zshrc"
-		echo 'export CHROME_EXECUTABLE="/Applications/Chromium.app/Contents/MacOS/Chromium"' >>"$HOME/.zshrc"
-		source "$HOME/.zshrc"
-	fi
-
-	# Update android-studio plugins
-	update_jetbrains_plugin "AndroidStudio" "6351"   # dart
-	update_jetbrains_plugin "AndroidStudio" "9212"   # flutter
-	update_jetbrains_plugin "AndroidStudio" "13666"  # flutter-intl
-	update_jetbrains_plugin "AndroidStudio" "14641"  # flutter-riverpod-snippets
-
-	# Update vscode extensions
-	update_vscode_extension "alexisvt.flutter-snippets"
-	update_vscode_extension "dart-code.flutter"
-	update_vscode_extension "pflannery.vscode-versionlens"
-	update_vscode_extension "RichardCoutts.mvvm-plus"
-	update_vscode_extension "robert-brunhage.flutter-riverpod-snippets"
-	update_vscode_extension "usernamehw.errorlens"
-
-	# TODO: Add `readlink -f $(which flutter)` to android-studio
-	# /usr/local/Caskroom/flutter/*/flutter
-
-}
-
-update_devtools_ios() {
-
-	# Update dependencies
-	update_xcode
-
-	# TODO: Change settings
-	# TODO: Change plugins
-
-}
-
-update_devtools_odoo() {
-
-	# Update dependencies
-	brew install --cask --no-quarantine wkhtmltopdf
-	brew upgrade --cask --no-quarantine wkhtmltopdf
-	update_mambaforge
-	update_nodejs
-	update_postgresql
-	update_pycharm
-	update_vscode
-	xcode-select --install
-
-	# Create postgresql database
-	createdb $USER 2>/dev/null
-
-	# Update nodejs modules
-	npm install -g rtlcss
-	
-	# Update pycharm plugins
-	update_jetbrains_plugin "PyCharm" "10037" # csv-editor
-	update_jetbrains_plugin "PyCharm" "12478" # xpathview-xslt
-	update_jetbrains_plugin "PyCharm" "13499" # odoo
-
-	# Update vscode extensions
-	update_vscode_extension "jigar-patel.odoosnippets"
 
 }
 
@@ -1675,7 +1656,7 @@ main() {
 	update_homebrew || return 1
 
 	# Verify apple id
-	# assert_apple_id || return 1
+	assert_apple_id || return 1
 
 	# Change timezone
 	sudo systemsetup -settimezone "Europe/Brussels" &>/dev/null
@@ -1684,23 +1665,18 @@ main() {
 	local members=(
 		"update_system"
 		"update_android_studio"
-		# "update_android_studio_preview"
+		"update_android_studio_preview"
 		"update_chromium"
-		# "update_flutter"
+		"update_flutter"
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		# "update_pycharm"
+		"update_pycharm"
 		"update_vscode"
-		# "update_xcode"
-
-		# "update_devtools_android"
-		# "update_devtools_ios"
-		# "update_devtools_flutter"
-		# "update_devtools_odoo"
+		"update_xcode"
 
 		"update_appcleaner"
 		# "update_calibre"
 		"update_dbeaver"
-		# "update_docker"
+		"update_docker"
 		"update_figma"
 		"update_iina"
 		"update_jdownloader"
@@ -1710,6 +1686,7 @@ main() {
 		"update_mqttx"
 		"update_nightlight"
 		"update_nodejs"
+		"update_odoo"
 		"update_pgadmin"
 		"update_postgresql"
 		"update_rustdesk"
