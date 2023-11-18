@@ -443,60 +443,6 @@ update_android_studio() {
 	update_jetbrains_plugin "AndroidStudio" "11174"  # androidlocalize
 	update_jetbrains_plugin "AndroidStudio" "19034"  # jetpack-compose-ui-architecture-templates
 
-	# Change icons
-	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/android-studio.icns"
-	local picture="$(mktemp -d)/$(basename "$address")"
-	curl -LA "mozilla/5.0" "$address" -o "$picture"
-	fileicon set "/Applications/Android Studio.app" "$picture" || sudo !!
-
-}
-
-update_android_studio_preview() {
-
-	# Update dependencies
-	brew install fileicon grep xmlstarlet
-	brew upgrade fileicon grep xmlstarlet
-
-	# Update package
-	local starter="/Applications/Android Studio Preview.app"
-	local present=$([[ -d "$starter" ]] && echo true || echo false)
-	brew tap homebrew/cask-versions
-	brew install --cask android-studio-preview-canary
-	brew upgrade --cask android-studio-preview-canary
-
-	# Launch package once
-	if [[ "$present" == "false" ]]; then
-		osascript <<-EOD
-			set checkup to "/Applications/Android Studio Preview.app"
-			tell application checkup
-				activate
-				reopen
-				tell application "System Events"
-					tell process "Android Studio"
-						with timeout of 30 seconds
-							repeat until (exists window 1)
-								delay 1
-							end repeat
-						end timeout
-					end tell
-				end tell
-				delay 4
-				quit app "Android Studio"
-				delay 4
-			end tell
-		EOD
-	fi
-
-	# Update plugins
-	update_jetbrains_plugin "AndroidStudioPreview" "11174"  # androidlocalize
-	update_jetbrains_plugin "AndroidStudioPreview" "19034"  # jetpack-compose-ui-architecture-templates
-
-	# Change icons
-	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/android-studio-preview.icns"
-	local picture="$(mktemp -d)/$(basename "$address")"
-	curl -LA "mozilla/5.0" "$address" -o "$picture"
-	fileicon set "/Applications/Android Studio Preview.app" "$picture" || sudo !!
-
 }
 
 update_appearance() {
@@ -506,17 +452,16 @@ update_appearance() {
 		"/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
 		"/Applications/Chromium.app"
 		"/Applications/KeePassXC.app"
+		"/Applications/MQTTX.app"
 		"/Applications/Transmission.app"
 		"/Applications/JDownloader 2.0/JDownloader2.app"
 		"/Applications/UTM.app"
-		"/Applications/MQTTX.app"
+		"/Applications/PyCharm.app"
 		"/Applications/DBeaverUltimate.app"
 		"/Applications/pgAdmin 4.app"
 		"/Applications/Visual Studio Code.app"
-		"/Applications/Xcode.app"
 		"/Applications/Android Studio.app"
-		"/Applications/Android Studio Preview.app"
-		"/Applications/PyCharm.app"
+		"/Applications/Xcode.app"
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
 		"/Applications/Figma.app"
@@ -544,7 +489,7 @@ update_appearance() {
 	killall Dock
 
 	# Change wallpaper
-	local address="https://github.com/sharpordie/andpaper/raw/main/src/android-bottom-darker.png"
+	local address="https://github.com/sharpordie/andpaper/raw/main/src/android-bottom-darken.png"
 	local picture="$HOME/Pictures/Backgrounds/$(basename "$address")"
 	mkdir -p "$(dirname $picture)" && curl -L "$address" -o "$picture"
 	osascript -e "tell application \"System Events\" to tell every desktop to set picture to \"$picture\""
@@ -1665,14 +1610,12 @@ main() {
 	local members=(
 		"update_system"
 		"update_android_studio"
-		"update_android_studio_preview"
 		"update_chromium"
 		"update_flutter"
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		"update_pycharm"
 		"update_vscode"
 		"update_xcode"
-
 		"update_appcleaner"
 		# "update_calibre"
 		"update_dbeaver"
@@ -1701,11 +1644,11 @@ main() {
 
 	# Output progress
 	local bigness=$((${#welcome} / $(echo "$welcome" | wc -l)))
-	local heading="\r%-"$((bigness - 29))"s   %-5s   %-7s   %-8s\n\n"
-	local loading="\r%-"$((bigness - 29))"s   %02d/%02d   \033[93mLOADING\033[0m   %-8s\b"
-	local failure="\r%-"$((bigness - 29))"s   %02d/%02d   \033[91mFAILURE\033[0m   %-8s\n"
-	local success="\r%-"$((bigness - 29))"s   %02d/%02d   \033[92mSUCCESS\033[0m   %-8s\n"
-	printf "$heading" "FUNCTION" "ITEMS" "CONTEXT" "DURATION"
+	local heading="\r%-"$((bigness - 19))"s   %-5s   %-8s\n\n"
+	local loading="\033[93m\r%-"$((bigness - 19))"s   %02d/%02d   %-8s\b\033[0m"
+	local failure="\033[91m\r%-"$((bigness - 19))"s   %02d/%02d   %-8s\n\033[0m"
+	local success="\033[92m\r%-"$((bigness - 19))"s   %02d/%02d   %-8s\n\033[0m"
+	printf "$heading" "FUNCTION" "ITEMS" "DURATION"
 	local minimum=1 && local maximum=${#members[@]}
 	for element in "${members[@]}"; do
 		local written=$(basename "$(echo "$element" | cut -d "'" -f 1)" | tr "[:lower:]" "[:upper:]")
