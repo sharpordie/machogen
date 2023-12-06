@@ -465,6 +465,8 @@ update_appearance() {
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
 		"/Applications/Figma.app"
+		"/Applications/Moonlight.app"
+		"/Applications/Steam.app"
 		# "/Applications/calibre.app"
 		"/Applications/JoalDesktop.app"
 		"/System/Applications/Utilities/Terminal.app"
@@ -1143,6 +1145,14 @@ update_mambaforge() {
 
 }
 
+update_moonlight() {
+
+	# Update package
+	brew install --cask --no-quarantine moonlight
+	brew upgrade --cask --no-quarantine moonlight
+
+}
+
 update_mpv() {
 
 	# Update dependencies
@@ -1353,6 +1363,20 @@ update_spotify() {
 	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/Spotify.app" "$picture" || sudo !!
 	
+}
+
+update_steam() {
+
+	# Update package
+	brew install --cask --no-quarantine steam
+	brew upgrade --cask --no-quarantine steam
+
+	# Change icons
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/steam.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
+	fileicon set "/Applications/Steam.app" "$picture" || sudo !!
+
 }
 
 update_system() {
@@ -1608,37 +1632,39 @@ main() {
 
 	# Handle elements
 	local members=(
-		"update_system"
-		"update_android_studio"
-		"update_chromium"
-		"update_flutter"
-		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		"update_pycharm"
-		"update_vscode"
-		"update_xcode"
-		"update_appcleaner"
-		# "update_calibre"
-		"update_dbeaver"
-		"update_docker"
-		"update_figma"
-		"update_iina"
-		"update_jdownloader"
-		"update_joal"
-		"update_keepassxc"
-		"update_mambaforge"
-		"update_mqttx"
-		"update_nightlight"
-		"update_nodejs"
-		"update_odoo"
-		"update_pgadmin"
-		"update_postgresql"
-		"update_rustdesk"
-		"update_scrcpy"
-		"update_spotify"
-		"update_the_unarchiver"
-		"update_transmission"
-		"update_utm"
-		"update_yt_dlp"
+		# "update_system"
+		# "update_android_studio"
+		# "update_chromium"
+		# "update_flutter"
+		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
+		# "update_pycharm"
+		# "update_vscode"
+		# "update_xcode"
+		# "update_appcleaner"
+		# # "update_calibre"
+		# "update_dbeaver"
+		# "update_docker"
+		# "update_figma"
+		# "update_iina"
+		# "update_jdownloader"
+		# "update_joal"
+		# "update_keepassxc"
+		# "update_mambaforge"
+		"update_moonlight"
+		# "update_mqttx"
+		# "update_nightlight"
+		# "update_nodejs"
+		# "update_odoo"
+		# "update_pgadmin"
+		# "update_postgresql"
+		# "update_rustdesk"
+		# "update_scrcpy"
+		"update_steam"
+		# "update_spotify"
+		# "update_the_unarchiver"
+		# "update_transmission"
+		# "update_utm"
+		# "update_yt_dlp"
 		"update_appearance"
 	)
 
