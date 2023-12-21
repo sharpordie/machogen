@@ -465,8 +465,6 @@ update_appearance() {
 		"/Applications/Spotify.app"
 		"/Applications/IINA.app"
 		"/Applications/Figma.app"
-		# "/Applications/Steam.app"
-		# "/Applications/Moonlight.app"
 		# "/Applications/calibre.app"
 		"/Applications/JoalDesktop.app"
 		"/System/Applications/Utilities/Terminal.app"
@@ -1131,6 +1129,14 @@ update_keepassxc() {
 
 }
 
+update_keepingyouawake() {
+
+	# Update package
+	brew install --cask --no-quarantine keepingyouawake
+	brew upgrade --cask --no-quarantine keepingyouawake
+
+}
+
 update_mambaforge() {
 
 	# Update package
@@ -1142,14 +1148,6 @@ update_mambaforge() {
 
 	# Change settings
 	conda config --set auto_activate_base false
-
-}
-
-update_moonlight() {
-
-	# Update package
-	brew install --cask --no-quarantine moonlight
-	brew upgrade --cask --no-quarantine moonlight
 
 }
 
@@ -1363,20 +1361,6 @@ update_spotify() {
 	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/Spotify.app" "$picture" || sudo !!
 	
-}
-
-update_steam() {
-
-	# Update package
-	brew install --cask --no-quarantine steam
-	brew upgrade --cask --no-quarantine steam
-
-	# Change icons
-	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/steam.icns"
-	local picture="$(mktemp -d)/$(basename "$address")"
-	curl -LA "mozilla/5.0" "$address" -o "$picture"
-	fileicon set "/Applications/Steam.app" "$picture" || sudo !!
-
 }
 
 update_system() {
@@ -1649,8 +1633,8 @@ main() {
 		"update_jdownloader"
 		"update_joal"
 		"update_keepassxc"
+		"update_keepingyouawake"
 		"update_mambaforge"
-		# "update_moonlight"
 		"update_mqttx"
 		"update_nightlight"
 		"update_nodejs"
@@ -1659,7 +1643,6 @@ main() {
 		"update_postgresql"
 		"update_rustdesk"
 		"update_scrcpy"
-		# "update_steam"
 		"update_spotify"
 		"update_the_unarchiver"
 		"update_transmission"
