@@ -1279,7 +1279,7 @@ update_pgadmin() {
 update_postgresql() {
 
 	# Update package
-	# INFO: Default credentials are $USER without password
+	# INFO: Default credentials are $USER with empty password
 	brew install postgresql@14
 	brew upgrade postgresql@14
 	brew services restart postgresql@14
@@ -1616,39 +1616,39 @@ main() {
 
 	# Handle elements
 	local members=(
-		"update_system"
-		"update_android_studio"
-		"update_chromium"
-		"update_flutter"
-		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		"update_pycharm"
-		"update_vscode"
-		"update_xcode"
-		"update_appcleaner"
-		# "update_calibre"
-		"update_dbeaver"
-		"update_docker"
-		"update_figma"
-		"update_iina"
-		"update_jdownloader"
-		"update_joal"
-		"update_keepassxc"
-		"update_keepingyouawake"
-		"update_mambaforge"
-		"update_mqttx"
-		"update_nightlight"
-		"update_nodejs"
-		"update_odoo"
-		"update_pgadmin"
-		"update_postgresql"
-		"update_rustdesk"
-		"update_scrcpy"
-		"update_spotify"
-		"update_the_unarchiver"
-		"update_transmission"
-		"update_utm"
-		"update_yt_dlp"
-		"update_appearance"
+		# "update_system"
+		# "update_android_studio"
+		# "update_chromium"
+		# "update_flutter"
+		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
+		# "update_pycharm"
+		# "update_vscode"
+		# "update_xcode"
+		# "update_appcleaner"
+		"update_calibre"
+		# "update_dbeaver"
+		# "update_docker"
+		# "update_figma"
+		# "update_iina"
+		# "update_jdownloader"
+		# "update_joal"
+		# "update_keepassxc"
+		# "update_keepingyouawake"
+		# "update_mambaforge"
+		# "update_mqttx"
+		# "update_nightlight"
+		# "update_nodejs"
+		# "update_odoo"
+		# "update_pgadmin"
+		# "update_postgresql"
+		# "update_rustdesk"
+		# "update_scrcpy"
+		# "update_spotify"
+		# "update_the_unarchiver"
+		# "update_transmission"
+		# "update_utm"
+		# "update_yt_dlp"
+		# "update_appearance"
 	)
 
 	# Output progress
