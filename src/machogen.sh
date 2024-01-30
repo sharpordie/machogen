@@ -451,10 +451,11 @@ update_appearance() {
 	local members=(
 		"/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
 		"/Applications/Chromium.app"
-		"/Applications/KeePassXC.app"
-		"/Applications/MQTTX.app"
-		"/Applications/Transmission.app"
+		"/Applications/NetNewsWire.app"
+		# "/Applications/MQTTX.app"
 		"/Applications/JDownloader 2.0/JDownloader2.app"
+		"/Applications/Transmission.app"
+		"/Applications/Discord.app"
 		"/Applications/UTM.app"
 		"/Applications/PyCharm.app"
 		"/Applications/DBeaverUltimate.app"
@@ -462,11 +463,14 @@ update_appearance() {
 		"/Applications/Visual Studio Code.app"
 		"/Applications/Android Studio.app"
 		"/Applications/Xcode.app"
-		"/Applications/Spotify.app"
-		"/Applications/IINA.app"
+		"/Applications/GitHub Desktop.app"
 		"/Applications/Figma.app"
+		"/Applications/IINA.app"
+		"/Applications/Cog.app"
+		# "/Applications/Kid3.app"
 		# "/Applications/calibre.app"
 		"/Applications/JoalDesktop.app"
+		"/Applications/KeePassXC.app"
 		"/System/Applications/Utilities/Terminal.app"
 		# "/System/Applications/Stickies.app"
 		"/System/Applications/System Settings.app"
@@ -832,6 +836,14 @@ update_chromium() {
 
 }
 
+update_cog() {
+
+	# Update package
+	brew install --cask --no-quarantine cog
+	brew upgrade --cask --no-quarantine cog
+
+}
+
 update_dbeaver() {
 
 	# Update dependencies
@@ -858,6 +870,14 @@ update_dbeaver() {
 		hdiutil detach /Volumes/DB*
 		sudo xattr -rd com.apple.quarantine /*ppl*/*eav*lti*
     fi
+
+}
+
+update_discord() {
+
+	# Update package
+	brew install --cask --no-quarantine discord
+	brew upgrade --cask --no-quarantine discord
 
 }
 
@@ -947,8 +967,8 @@ update_git() {
 	local gitmail=${3}
 
 	# Update package
-	brew install gh git
-	brew upgrade gh git
+	brew install git
+	brew upgrade git
 
 	# Change settings
 	git config --global credential.helper "store"
@@ -956,6 +976,22 @@ update_git() {
 	git config --global init.defaultBranch "$default"
 	[[ -n "$gitmail" ]] && git config --global user.email "$gitmail" || true
 	[[ -n "$gituser" ]] && git config --global user.name "$gituser" || true
+
+}
+
+update_github_cli() {
+
+	# Update package
+	brew install gh
+	brew upgrade gh
+
+}
+
+update_github_desktop() {
+
+	# Update package
+	brew install github
+	brew upgrade github
 
 }
 
@@ -1091,7 +1127,7 @@ update_jdownloader() {
 
 }
 
-update_joal() {
+update_joal_desktop() {
 
 	# Update dependencies
 	brew install curl grep jq
@@ -1112,6 +1148,17 @@ update_joal() {
 		hdiutil detach /Volumes/Joal*
 		sudo xattr -rd com.apple.quarantine /Applications/Joal*.app
 	fi
+
+	# Change settings
+	local configs="$HOME/Library/Application Support/JoalDesktop/joal-core/config.json"
+	mkdir -p "$(dirname $configs)"
+	[[ -s "$configs" ]] || echo "{}" >"$configs"
+	jq '."minUploadRate" = 300' "$configs" | sponge "$configs"
+	jq '."maxUploadRate" = 450' "$configs" | sponge "$configs"
+	jq '."simultaneousSeed" = 200' "$configs" | sponge "$configs"
+	jq '."client" = "transmission-3.00.client"' "$configs" | sponge "$configs"
+	jq '."keepTorrentWithZeroLeechers" = true' "$configs" | sponge "$configs" 
+	jq '."uploadRatioTarget" = -1' "$configs" | sponge "$configs"
 
 	# Change icons
 	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/joal-desktop.icns"
@@ -1134,6 +1181,14 @@ update_keepingyouawake() {
 	# Update package
 	brew install --cask --no-quarantine keepingyouawake
 	brew upgrade --cask --no-quarantine keepingyouawake
+
+}
+
+update_kid3() {
+
+	# Update package
+	brew install --cask --no-quarantine kid3
+	brew upgrade --cask --no-quarantine kid3
 
 }
 
@@ -1192,6 +1247,22 @@ update_mqttx() {
 	# Update package
 	brew install --cask --no-quarantine mqttx
 	brew upgrade --cask --no-quarantine mqttx
+
+}
+
+update_musicbrainz_picard() {
+
+	# Update package
+	brew install --cask --no-quarantine musicbrainz-picard
+	brew upgrade --cask --no-quarantine musicbrainz-picard
+
+}
+
+update_netnewswire() {
+
+	# Update package
+	brew install --cask --no-quarantine netnewswire
+	brew upgrade --cask --no-quarantine netnewswire
 
 }
 
@@ -1347,22 +1418,6 @@ update_scrcpy() {
 
 }
 
-update_spotify() {
-
-	# Update package
-	killall Spotify || true
-	brew install --cask --no-quarantine spotify
-	brew upgrade --cask --no-quarantine spotify
-	bash <(curl -sSL https://raw.githubusercontent.com/SpotX-CLI/SpotX-Mac/main/install.sh) -cefhou
-
-	# Change icons
-	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/spotify.icns"
-	local picture="$(mktemp -d)/$(basename "$address")"
-	curl -LA "mozilla/5.0" "$address" -o "$picture"
-	fileicon set "/Applications/Spotify.app" "$picture" || sudo !!
-	
-}
-
 update_system() {
 
 	# Handle parameters
@@ -1468,6 +1523,7 @@ update_transmission() {
 	brew upgrade --cask --no-quarantine transmission
 
 	# Change settings
+	# INFO: Use `osascript -e 'id of app "Transmission"'` to get bundle id
 	mkdir -p "$deposit/Incompleted"
 	defaults write org.m0k.transmission DownloadFolder -string "$deposit"
 	defaults write org.m0k.transmission IncompleteDownloadFolder -string "$deposit/Incompleted"
@@ -1560,11 +1616,6 @@ update_yt_dlp() {
 	brew install yt-dlp
 	brew upgrade yt-dlp
 	ln -sf /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
-	# local address="https://github.com/ytdl-patched/ytdl-patched/releases/latest/download/ytdl-patched"
-	# local starter="/usr/local/bin/ytdl-patched"
-	# sudo curl -L "$address" -o "$starter"
-	# sudo chmod a+rx "$starter"
-	# ln -sf "$starter" /usr/local/bin/youtube-dl
 
 }
 
@@ -1623,27 +1674,33 @@ main() {
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		"update_pycharm"
 		"update_vscode"
-		"update_xcode"
+		# "update_xcode"
 		"update_appcleaner"
 		# "update_calibre"
+		"update_cog"
 		"update_dbeaver"
+		"update_discord"
 		"update_docker"
 		"update_figma"
+		"update_github_cli"
+		"update_github_desktop"
 		"update_iina"
 		"update_jdownloader"
-		"update_joal"
+		"update_joal_desktop"
 		"update_keepassxc"
 		"update_keepingyouawake"
+		"update_kid3"
 		"update_mambaforge"
 		"update_mqttx"
+		"update_musicbrainz_picard"
+		"update_netnewswire"
 		"update_nightlight"
 		"update_nodejs"
-		"update_odoo"
+		# "update_odoo"
 		"update_pgadmin"
 		"update_postgresql"
 		"update_rustdesk"
 		"update_scrcpy"
-		"update_spotify"
 		"update_the_unarchiver"
 		"update_transmission"
 		"update_utm"
