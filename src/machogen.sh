@@ -454,11 +454,10 @@ update_appearance() {
 		"/Applications/NetNewsWire.app"
 		# "/Applications/MQTTX.app"
 		"/Applications/JDownloader 2.0/JDownloader2.app"
-		"/Applications/Transmission.app"
+		# "/Applications/Transmission.app"
 		"/Applications/Discord.app"
 		"/Applications/UTM.app"
-		"/Applications/PyCharm.app"
-		"/Applications/DBeaverUltimate.app"
+		# "/Applications/PyCharm.app"
 		"/Applications/pgAdmin 4.app"
 		"/Applications/Visual Studio Code.app"
 		"/Applications/Android Studio.app"
@@ -466,9 +465,6 @@ update_appearance() {
 		"/Applications/GitHub Desktop.app"
 		"/Applications/Figma.app"
 		"/Applications/IINA.app"
-		"/Applications/Cog.app"
-		# "/Applications/Kid3.app"
-		# "/Applications/calibre.app"
 		"/Applications/JoalDesktop.app"
 		"/Applications/KeePassXC.app"
 		"/System/Applications/Utilities/Terminal.app"
@@ -514,23 +510,11 @@ update_appcleaner() {
 
 }
 
-update_calibre() {
+update_arc() {
 
 	# Update package
-	brew install --cask --no-quarantine calibre
-	brew upgrade --cask --no-quarantine calibre
-
-	# Change icons
-	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/calibre.icns"
-	local picture="$(mktemp -d)/$(basename "$address")"
-	curl -L "$address" -A "mozilla/5.0" -o "$picture"
-	fileicon set "/Applications/calibre.app" "$picture" || sudo !!
-	# fileicon set "/Applications/calibre.app/Contents/utils.app" "$picture" || sudo !!
-	# cp "$picture" "/Applications/calibre.app/Contents/Resources/calibre.icns"
-	# local sitting="/Applications/calibre.app/Contents/Resources/resources/images/apple-touch-icon.png"
-	# local sitting="/Applications/calibre.app/Contents/Resources/resources/images/lt.png"
-	local sitting="/Applications/calibre.app/Contents/Resources/resources/images/library.png"
-	sips -Z 256 -s format png "$picture" --out "$sitting"
+	brew install --cask --no-quarantine arc
+	brew upgrade --cask --no-quarantine arc
 
 }
 
@@ -831,45 +815,19 @@ update_chromium() {
 
 	fi
 
+	# TODO: Handle blocking password prompt
+	return 0
+
 	# Update bypass-paywalls-chrome-clean
 	update_chromium_extension "https://gitlab.com/magnolia1234/bypass-paywalls-chrome-clean/-/archive/master/bypass-paywalls-chrome-clean-master.zip"
 
 }
 
-update_cog() {
+update_dbgate() {
 
 	# Update package
-	brew install --cask --no-quarantine cog
-	brew upgrade --cask --no-quarantine cog
-
-}
-
-update_dbeaver() {
-
-	# Update dependencies
-    brew install curl jq
-    brew upgrade curl jq
-
-	# Update package
-    local address="https://dbeaver.com/download/ultimate/"
-    local pattern="DBeaver Ultimate Edition \K([\d.]+)"
-    local version=$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)
-    local current=$(expand_version "/*ppl*/*eav*lti*")
-    autoload is-at-least
-    local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
-    if [[ "$updated" == "false" ]]; then
-	    local cpuname=$(sysctl -n machdep.cpu.brand_string)
-	    local silicon=$([[ $cpuname =~ "pple" ]] && echo "true" || echo "false")
-	    local adjunct=$([[ $silicon == "true" ]] && echo "aarch64" || echo "x86_64")
-        local address="https://download.dbeaver.com/ultimate/$version.0/dbeaver-ue-$version.0-macos-$adjunct.dmg"
-	    local fetched="$(mktemp -d)/$(basename "$address")"
-		curl -LA "mozilla/5.0" "$address" -o "$fetched"
-        hdiutil convert "$fetched" -format UDTO -o "$fetched.cdr"
-		hdiutil attach "$fetched.cdr" -noautoopen -nobrowse
-		cp -fr /Volumes/DB*/DB*.app /Applications
-		hdiutil detach /Volumes/DB*
-		sudo xattr -rd com.apple.quarantine /*ppl*/*eav*lti*
-    fi
+	brew install --cask --no-quarantine dbgate
+	brew upgrade --cask --no-quarantine dbgate
 
 }
 
@@ -1184,14 +1142,6 @@ update_keepingyouawake() {
 
 }
 
-update_kid3() {
-
-	# Update package
-	brew install --cask --no-quarantine kid3
-	brew upgrade --cask --no-quarantine kid3
-
-}
-
 update_mambaforge() {
 
 	# Update package
@@ -1247,14 +1197,6 @@ update_mqttx() {
 	# Update package
 	brew install --cask --no-quarantine mqttx
 	brew upgrade --cask --no-quarantine mqttx
-
-}
-
-update_musicbrainz_picard() {
-
-	# Update package
-	brew install --cask --no-quarantine musicbrainz-picard
-	brew upgrade --cask --no-quarantine musicbrainz-picard
 
 }
 
@@ -1339,6 +1281,14 @@ update_odoo() {
 
 }
 
+update_pearcleaner() {
+
+	# Update package
+	brew install --cask --no-quarantine alienator88/homebrew-cask/pearcleaner
+	brew upgrade --cask --no-quarantine alienator88/homebrew-cask/pearcleaner
+
+}
+
 update_pgadmin() {
 
 	# Update package
@@ -1393,12 +1343,6 @@ update_pycharm() {
 			end tell
 		EOD
 	fi
-
-	# Change icons
-	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/pycharm.icns"
-	local picture="$(mktemp -d)/$(basename "$address")"
-	curl -LA "mozilla/5.0" "$address" -o "$picture"
-	fileicon set "/Applications/PyCharm.app" "$picture" || sudo !!
 
 }
 
@@ -1668,7 +1612,7 @@ main() {
 	# Handle elements
 	local members=(
 		"update_system"
-		"update_android_studio"
+		# "update_android_studio"
 		"update_chromium"
 		"update_flutter"
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
@@ -1676,9 +1620,8 @@ main() {
 		"update_vscode"
 		# "update_xcode"
 		"update_appcleaner"
-		# "update_calibre"
-		"update_cog"
-		"update_dbeaver"
+		"update_arc"
+		"update_dbgate"
 		"update_discord"
 		"update_docker"
 		"update_figma"
@@ -1689,14 +1632,13 @@ main() {
 		"update_joal_desktop"
 		"update_keepassxc"
 		"update_keepingyouawake"
-		"update_kid3"
 		"update_mambaforge"
-		"update_mqttx"
-		"update_musicbrainz_picard"
+		# "update_mqttx"
 		"update_netnewswire"
 		"update_nightlight"
 		"update_nodejs"
 		# "update_odoo"
+		"update_pearcleaner"
 		"update_pgadmin"
 		"update_postgresql"
 		"update_rustdesk"
