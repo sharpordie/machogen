@@ -469,6 +469,7 @@ update_appearance() {
 		"/Applications/KeePassXC.app"
 		"/System/Applications/Utilities/Terminal.app"
 		# "/System/Applications/Stickies.app"
+		"/Applications/Pearcleaner.app"
 		"/System/Applications/System Settings.app"
 	)
 	change_dock_items "${members[@]}"
@@ -507,14 +508,6 @@ update_appcleaner() {
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/AppCleaner.app" "$picture" || sudo !!
-
-}
-
-update_arc() {
-
-	# Update package
-	brew install --cask --no-quarantine arc
-	brew upgrade --cask --no-quarantine arc
 
 }
 
@@ -820,14 +813,6 @@ update_chromium() {
 
 	# Update bypass-paywalls-chrome-clean
 	update_chromium_extension "https://gitlab.com/magnolia1234/bypass-paywalls-chrome-clean/-/archive/master/bypass-paywalls-chrome-clean-master.zip"
-
-}
-
-update_dbgate() {
-
-	# Update package
-	brew install --cask --no-quarantine dbgate
-	brew upgrade --cask --no-quarantine dbgate
 
 }
 
@@ -1287,6 +1272,12 @@ update_pearcleaner() {
 	brew install --cask --no-quarantine alienator88/homebrew-cask/pearcleaner
 	brew upgrade --cask --no-quarantine alienator88/homebrew-cask/pearcleaner
 
+	# Change icons
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/pearcleaner.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
+	fileicon set "/Applications/Pearcleaner.app" "$picture" || sudo !!
+
 }
 
 update_pgadmin() {
@@ -1491,6 +1482,12 @@ update_utm() {
 	brew install --cask --no-quarantine utm
 	brew upgrade --cask --no-quarantine utm
 
+	# Change icons
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/utm.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
+	fileicon set "/Applications/UTM.app" "$picture" || sudo !!
+
 }
 
 update_vscode() {
@@ -1619,9 +1616,7 @@ main() {
 		"update_pycharm"
 		"update_vscode"
 		# "update_xcode"
-		"update_appcleaner"
-		"update_arc"
-		"update_dbgate"
+		# "update_appcleaner"
 		"update_discord"
 		"update_docker"
 		"update_figma"
