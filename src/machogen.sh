@@ -523,8 +523,9 @@ update_calibre() {
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/calibre.app" "$picture" || sudo !!
-	local sitting="/Applications/calibre.app/Contents/Resources/resources/images/library.png"
-	sips -Z 256 -s format png "$picture" --out "$sitting"
+	# TODO: Find a way to stop corrupting calibre with this.
+	# local sitting="/Applications/calibre.app/Contents/Resources/resources/images/library.png"
+	# sudo sips -Z 256 -s format png "$picture" --out "$sitting"
 
 }
 
@@ -1660,7 +1661,7 @@ main() {
 		# "update_transmission"
 		# "update_utm"
 		# "update_yt_dlp"
-		# "update_appearance"
+		"update_appearance"
 	)
 
 	# Output progress
