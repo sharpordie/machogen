@@ -467,6 +467,7 @@ update_appearance() {
 		"/Applications/IINA.app"
 		"/Applications/JoalDesktop.app"
 		"/Applications/KeePassXC.app"
+		"/Applications/calibre.app"
 		"/System/Applications/Utilities/Terminal.app"
 		# "/System/Applications/Stickies.app"
 		"/Applications/Pearcleaner.app"
@@ -508,6 +509,22 @@ update_appcleaner() {
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/AppCleaner.app" "$picture" || sudo !!
+
+}
+
+update_calibre() {
+
+	# Update package
+	brew install --cask --no-quarantine calibre
+	brew upgrade --cask --no-quarantine calibre
+
+	# Change icons
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/calibre.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -L "$address" -A "mozilla/5.0" -o "$picture"
+	fileicon set "/Applications/calibre.app" "$picture" || sudo !!
+	local sitting="/Applications/calibre.app/Contents/Resources/resources/images/library.png"
+	sips -Z 256 -s format png "$picture" --out "$sitting"
 
 }
 
@@ -1608,41 +1625,42 @@ main() {
 
 	# Handle elements
 	local members=(
-		"update_system"
+		# "update_system"
 		# "update_android_studio"
-		"update_chromium"
-		"update_flutter"
-		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		"update_pycharm"
-		"update_vscode"
+		# "update_chromium"
+		# "update_flutter"
+		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
+		# "update_pycharm"
+		# "update_vscode"
 		# "update_xcode"
 		# "update_appcleaner"
-		"update_discord"
-		"update_docker"
-		"update_figma"
-		"update_github_cli"
-		"update_github_desktop"
-		"update_iina"
-		"update_jdownloader"
-		"update_joal_desktop"
-		"update_keepassxc"
-		"update_keepingyouawake"
-		"update_mambaforge"
+		"update_calibre"
+		# "update_discord"
+		# "update_docker"
+		# "update_figma"
+		# "update_github_cli"
+		# "update_github_desktop"
+		# "update_iina"
+		# "update_jdownloader"
+		# "update_joal_desktop"
+		# "update_keepassxc"
+		# "update_keepingyouawake"
+		# "update_mambaforge"
 		# "update_mqttx"
-		"update_netnewswire"
-		"update_nightlight"
-		"update_nodejs"
+		# "update_netnewswire"
+		# "update_nightlight"
+		# "update_nodejs"
 		# "update_odoo"
-		"update_pearcleaner"
-		"update_pgadmin"
-		"update_postgresql"
-		"update_rustdesk"
-		"update_scrcpy"
-		"update_the_unarchiver"
-		"update_transmission"
-		"update_utm"
-		"update_yt_dlp"
-		"update_appearance"
+		# "update_pearcleaner"
+		# "update_pgadmin"
+		# "update_postgresql"
+		# "update_rustdesk"
+		# "update_scrcpy"
+		# "update_the_unarchiver"
+		# "update_transmission"
+		# "update_utm"
+		# "update_yt_dlp"
+		# "update_appearance"
 	)
 
 	# Output progress
