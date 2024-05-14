@@ -498,20 +498,6 @@ update_appearance() {
 
 }
 
-update_appcleaner() {
-
-	# Update package
-	brew install --cask --no-quarantine appcleaner
-	brew upgrade --cask --no-quarantine appcleaner
-
-	# Change icons
-	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/appcleaner.icns"
-	local picture="$(mktemp -d)/$(basename "$address")"
-	curl -L "$address" -A "mozilla/5.0" -o "$picture"
-	fileicon set "/Applications/AppCleaner.app" "$picture" || sudo !!
-
-}
-
 update_calibre() {
 
 	# Update package
@@ -523,7 +509,7 @@ update_calibre() {
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -L "$address" -A "mozilla/5.0" -o "$picture"
 	fileicon set "/Applications/calibre.app" "$picture" || sudo !!
-	# TODO: Find a way to stop corrupting calibre with this.
+	# TODO: Find a way to stop corrupting calibre with this hack.
 	# local sitting="/Applications/calibre.app/Contents/Resources/resources/images/library.png"
 	# sudo sips -Z 256 -s format png "$picture" --out "$sitting"
 
@@ -826,8 +812,8 @@ update_chromium() {
 
 	fi
 
-	# TODO: Handle blocking password prompt
-	return 0
+	# TODO: Handle blocking password prompt properly.
+	if [[ "$present" == "true" ]]; then return 0; fi
 
 	# Update bypass-paywalls-chrome-clean
 	update_chromium_extension "https://gitlab.com/magnolia1234/bypass-paywalls-chrome-clean/-/archive/master/bypass-paywalls-chrome-clean-master.zip"
@@ -1626,41 +1612,40 @@ main() {
 
 	# Handle elements
 	local members=(
-		# "update_system"
-		# "update_android_studio"
-		# "update_chromium"
+		"update_system"
+		"update_android_studio"
+		"update_chromium"
 		# "update_flutter"
-		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
+		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		# "update_pycharm"
-		# "update_vscode"
+		"update_vscode"
 		# "update_xcode"
-		# "update_appcleaner"
 		"update_calibre"
-		# "update_discord"
-		# "update_docker"
-		# "update_figma"
-		# "update_github_cli"
-		# "update_github_desktop"
-		# "update_iina"
-		# "update_jdownloader"
-		# "update_joal_desktop"
-		# "update_keepassxc"
-		# "update_keepingyouawake"
-		# "update_mambaforge"
-		# "update_mqttx"
-		# "update_netnewswire"
-		# "update_nightlight"
-		# "update_nodejs"
+		"update_discord"
+		"update_docker"
+		"update_figma"
+		"update_github_cli"
+		"update_github_desktop"
+		"update_iina"
+		"update_jdownloader"
+		"update_joal_desktop"
+		"update_keepassxc"
+		"update_keepingyouawake"
+		"update_mambaforge"
+		"update_mqttx"
+		"update_netnewswire"
+		"update_nightlight"
+		"update_nodejs"
 		# "update_odoo"
-		# "update_pearcleaner"
-		# "update_pgadmin"
-		# "update_postgresql"
-		# "update_rustdesk"
-		# "update_scrcpy"
-		# "update_the_unarchiver"
-		# "update_transmission"
-		# "update_utm"
-		# "update_yt_dlp"
+		"update_pearcleaner"
+		"update_pgadmin"
+		"update_postgresql"
+		"update_rustdesk"
+		"update_scrcpy"
+		"update_the_unarchiver"
+		"update_transmission"
+		"update_utm"
+		"update_yt_dlp"
 		"update_appearance"
 	)
 
