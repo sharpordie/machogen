@@ -453,7 +453,7 @@ update_appearance() {
 		"/Applications/Chromium.app"
 		"/Applications/NetNewsWire.app"
 		# "/Applications/MQTTX.app"
-		"/Applications/JDownloader 2.0/JDownloader2.app"
+		"/Applications/JDownloader 2/JDownloader2.app"
 		# "/Applications/Transmission.app"
 		"/Applications/Discord.app"
 		"/Applications/UTM.app"
@@ -1012,11 +1012,11 @@ update_jdownloader() {
 	# Update dependencies
 	brew install coreutils fileicon jq
 	brew upgrade coreutils fileicon jq
-	brew install --cask --no-quarantine homebrew/cask-versions/temurin8
-	brew upgrade --cask --no-quarantine homebrew/cask-versions/temurin8
+	# brew install --cask --no-quarantine homebrew/cask-versions/temurin8
+	# brew upgrade --cask --no-quarantine homebrew/cask-versions/temurin8
 
 	# Update package
-	local present=$([[ -d "/Applications/JDownloader 2.0/JDownloader2.app" ]] && echo "true" || echo "false")
+	local present=$([[ -d "/Applications/JDownloader 2/JDownloader2.app" ]] && echo "true" || echo "false")
 	brew install --cask --no-quarantine jdownloader
 
 	# Finish installation
@@ -1066,10 +1066,10 @@ update_jdownloader() {
 	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/jdownloader.icns"
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -LA "mozilla/5.0" "$address" -o "$picture"
-	fileicon set "/Applications/JDownloader 2.0/JDownloader2.app" "$picture" || sudo !!
-	fileicon set "/Applications/JDownloader 2.0/JDownloader Uninstaller.app" "$picture" || sudo !!
-	cp "$picture" "/Applications/JDownloader 2.0/JDownloader2.app/Contents/Resources/app.icns"
-	local sitting="/Applications/JDownloader 2.0/themes/standard/org/jdownloader/images/logo/jd_logo_128_128.png"
+	fileicon set "/Applications/JDownloader 2/JDownloader2.app" "$picture" || sudo !!
+	fileicon set "/Applications/JDownloader 2/JDownloader Uninstaller.app" "$picture" || sudo !!
+	cp "$picture" "/Applications/JDownloader 2/JDownloader2.app/Contents/Resources/app.icns"
+	local sitting="/Applications/JDownloader 2/themes/standard/org/jdownloader/images/logo/jd_logo_128_128.png"
 	sips -Z 128 -s format png "$picture" --out "$sitting"
 
 }
@@ -1612,40 +1612,40 @@ main() {
 
 	# Handle elements
 	local members=(
-		"update_system"
-		"update_android_studio"
-		"update_chromium"
+		# "update_system"
+		# "update_android_studio"
+		# "update_chromium"
 		# "update_flutter"
-		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
+		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
 		# "update_pycharm"
-		"update_vscode"
+		# "update_vscode"
 		# "update_xcode"
-		"update_calibre"
-		"update_discord"
-		"update_docker"
-		"update_figma"
-		"update_github_cli"
-		"update_github_desktop"
-		"update_iina"
+		# "update_calibre"
+		# "update_discord"
+		# "update_docker"
+		# "update_figma"
+		# "update_github_cli"
+		# "update_github_desktop"
+		# "update_iina"
 		"update_jdownloader"
-		"update_joal_desktop"
-		"update_keepassxc"
-		"update_keepingyouawake"
-		"update_mambaforge"
-		"update_mqttx"
-		"update_netnewswire"
-		"update_nightlight"
-		"update_nodejs"
+		# "update_joal_desktop"
+		# "update_keepassxc"
+		# "update_keepingyouawake"
+		# "update_mambaforge"
+		# "update_mqttx"
+		# "update_netnewswire"
+		# "update_nightlight"
+		# "update_nodejs"
 		# "update_odoo"
-		"update_pearcleaner"
-		"update_pgadmin"
-		"update_postgresql"
-		"update_rustdesk"
-		"update_scrcpy"
-		"update_the_unarchiver"
-		"update_transmission"
-		"update_utm"
-		"update_yt_dlp"
+		# "update_pearcleaner"
+		# "update_pgadmin"
+		# "update_postgresql"
+		# "update_rustdesk"
+		# "update_scrcpy"
+		# "update_the_unarchiver"
+		# "update_transmission"
+		# "update_utm"
+		# "update_yt_dlp"
 		"update_appearance"
 	)
 
