@@ -191,17 +191,17 @@ expand_pattern() {
 
 expand_version() {
 
-    local payload=${1}
-    local default=${2:-0.0.0.0}
+	local payload=${1}
+	local default=${2:-0.0.0.0}
 
 	# Update dependencies
-    brew install grep
-    brew upgrade grep
+	brew install grep
+	brew upgrade grep
 
 	# Expand version
-    local starter=$(expand_pattern "$payload/*ontents/*nfo.plist")
-    local version=$(defaults read "$starter" CFBundleShortVersionString 2>/dev/null)
-    echo "$version" | ggrep -oP "[\d.]+" || echo "$default"
+	local starter=$(expand_pattern "$payload/*ontents/*nfo.plist")
+	local version=$(defaults read "$starter" CFBundleShortVersionString 2>/dev/null)
+	echo "$version" | ggrep -oP "[\d.]+" || echo "$default"
 
 }
 
@@ -1085,8 +1085,8 @@ update_joal_desktop() {
 	local version=$(curl -LA "mozilla/5.0" "$address" | jq -r ".tag_name" | tr -d "v")
 	local current=$(expand_version "/*ppl*/*oal*esk*")
 	autoload is-at-least
-    local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
-    if [[ "$updated" == "false" ]]; then
+	local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
+	if [[ "$updated" == "false" ]]; then
 		local address="https://github.com/anthonyraymond/joal-desktop/releases"
 		local address="$address/download/v$version/JoalDesktop-$version-mac-x64.dmg"
 		local package=$(mktemp -d)/$(basename "$address") && curl -LA "mozilla/5.0" "$address" -o "$package"
@@ -1535,8 +1535,8 @@ update_xcode() {
 	local current=$(expand_version "$starter")
 	local version=$(xcodes list | tail -5 | grep -v Beta | tail -1 | ggrep -oP "[\d.]+" | head -1)
 	autoload is-at-least
-    local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
-    if [[ "$updated" == "false" ]]; then
+	local updated=$(is-at-least "$version" "$current" && echo "true" || echo "false")
+	if [[ "$updated" == "false" ]]; then
 		xcodes install --latest
 		rm -fr "$starter" && mv -f /Applications/Xcode*.app "$starter"
 		sudo xcode-select --switch "$starter/Contents/Developer"
