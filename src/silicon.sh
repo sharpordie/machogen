@@ -428,15 +428,13 @@ update_android_studio() {
 		update_android_cmdline
 		yes | sdkmanager "build-tools;34.0.0"
 		yes | sdkmanager "emulator"
-		# yes | sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
-		yes | sdkmanager "patcher;v4"
 		yes | sdkmanager "platform-tools"
 		yes | sdkmanager "platforms;android-34"
 		yes | sdkmanager "sources;android-34"
-		yes | sdkmanager "system-images;android-34;google_apis;x86_64"
+		yes | sdkmanager "system-images;android-34;google_apis;arm64-v8a"
 		yes | sdkmanager --licenses
 		yes | sdkmanager --update
-		avdmanager create avd -n "Pixel_3_API_34" -d "pixel_3" -k "system-images;android-34;google_apis;x86_64" -f
+		avdmanager create avd -n "Pixel_3a_API_34" -d "pixel_3a" -k "system-images;android-34;google_apis;arm64-v8a" -f
 	fi
 
 	# Update plugins
@@ -450,7 +448,7 @@ update_appearance() {
 	local members=(
 		"/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
 		"/Applications/Chromium.app"
-		#"/Applications/NetNewsWire.app"
+		"/Applications/NetNewsWire.app"
 		# "/Applications/MQTTX.app"
 		"/Applications/JDownloader 2/JDownloader2.app"
 		"/Applications/Transmission.app"
@@ -459,7 +457,7 @@ update_appearance() {
 		# "/Applications/PyCharm.app"
 		#"/Applications/pgAdmin 4.app"
 		"/Applications/Visual Studio Code.app"
-		#"/Applications/Android Studio.app"
+		"/Applications/Android Studio.app"
 		#"/Applications/Xcode.app"
 		#"/Applications/GitHub Desktop.app"
 		"/Applications/Figma.app"
@@ -1561,6 +1559,8 @@ update_yt_dlp() {
 	# Update package
 	brew install yt-dlp
 	brew upgrade yt-dlp
+
+	# Create symlink
 	ln -sf /usr/local/bin/yt-dlp /usr/local/bin/youtube-dl
 
 }
@@ -1623,7 +1623,7 @@ main() {
 		# "update_xcode"
 		# "update_calibre"
 		# "update_discord"
-		# "update_docker"
+		"update_docker"
 		"update_figma"
 		"update_github_cli"
 		# "update_github_desktop"
@@ -1634,8 +1634,8 @@ main() {
 		"update_keepingyouawake"
 		# "update_mambaforge"
 		# "update_mqttx"
-		# "update_netnewswire"
-		# "update_nightlight"
+		"update_netnewswire"
+		"update_nightlight"
 		"update_nodejs"
 		# "update_odoo"
 		"update_pearcleaner"
