@@ -441,7 +441,6 @@ update_android_studio() {
 
 	# Update plugins
 	update_jetbrains_plugin "AndroidStudio" "11174"  # androidlocalize
-	update_jetbrains_plugin "AndroidStudio" "19034"  # jetpack-compose-ui-architecture-templates
 
 }
 
@@ -948,6 +947,15 @@ update_homebrew() {
 	local command=$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
 	CI=1 /bin/bash -c "$command" &>/dev/null
 
+    # Change environment
+    local configs="$HOME/.zprofile"
+    if ! grep -q "/opt/homebrew/bin/brew shellenv" "$configs" 2>/dev/null; then
+        [[ -s "$configs" ]] || touch "$configs"
+		[[ -z $(tail -1 "$configs") ]] || echo "" >>"$configs"
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>"$configs"
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+
 }
 
 update_iina() {
@@ -1011,8 +1019,6 @@ update_jdownloader() {
 	# Update dependencies
 	brew install coreutils fileicon jq
 	brew upgrade coreutils fileicon jq
-	# brew install --cask --no-quarantine homebrew/cask-versions/temurin8
-	# brew upgrade --cask --no-quarantine homebrew/cask-versions/temurin8
 
 	# Update package
 	local present=$([[ -d "/Applications/JDownloader 2/JDownloader2.app" ]] && echo "true" || echo "false")
@@ -1020,13 +1026,13 @@ update_jdownloader() {
 
 	# Finish installation
 	if [[ "$present" == "false" ]]; then
-		local appdata="/Applications/JDownloader 2.0/cfg"
+		local appdata="/Applications/JDownloader 2/cfg"
 		local config1="$appdata/org.jdownloader.settings.GraphicalUserInterfaceSettings.json"
 		local config2="$appdata/org.jdownloader.settings.GeneralSettings.json"
 		local config3="$appdata/org.jdownloader.gui.jdtrayicon.TrayExtension.json"
 		local config4="$appdata/org.jdownloader.extensions.extraction.ExtractionExtension.json"
 		osascript <<-EOD
-			set checkup to "/Applications/JDownloader 2.0/JDownloader2.app"
+			set checkup to "/Applications/JDownloader 2/JDownloader2.app"
 			tell application checkup
 				activate
 				reopen
@@ -1066,7 +1072,7 @@ update_jdownloader() {
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -LA "mozilla/5.0" "$address" -o "$picture"
 	fileicon set "/Applications/JDownloader 2/JDownloader2.app" "$picture" || sudo !!
-	fileicon set "/Applications/JDownloader 2/JDownloader Uninstaller.app" "$picture" || sudo !!
+	fileicon set "/Applications/JDownloader 2/Uninstall JDownloader.app" "$picture" || sudo !!
 	cp "$picture" "/Applications/JDownloader 2/JDownloader2.app/Contents/Resources/app.icns"
 	local sitting="/Applications/JDownloader 2/themes/standard/org/jdownloader/images/logo/jd_logo_128_128.png"
 	sips -Z 128 -s format png "$picture" --out "$sitting"
@@ -1385,23 +1391,19 @@ update_system() {
 	defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 	defaults write com.apple.LaunchServices "LSQuarantine" -bool false
 
-	# Enable screen sharing
-	sudo systemsetup -setremotelogin on
-	local program="/System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart"
-	sudo "$program" -activate -configure -users localadmin -access -on -privs -all
-
-	# Enable subpixel rendering
-	defaults write NSGlobalDomain AppleFontSmoothing -int 2
-
 	# Enable tap-to-click
-	defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-	defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+    defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+    /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
 
 	# Remove remnants
 	find ~ -name ".DS_Store" -delete
 
 	# Remove startup chime
 	sudo nvram StartupMute=%01
+
+    # Update rosetta
+    /usr/sbin/softwareupdate --install-rosetta --agree-to-license &>/dev/null
 
 	# Update system (takes ages)
 	# sudo softwareupdate --download --all --force --agree-to-license --verbose
@@ -1612,7 +1614,7 @@ main() {
 	# Handle elements
 	local members=(
 		"update_system"
-		# "update_android_studio"
+		"update_android_studio"
 		"update_chromium"
 		# "update_flutter"
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
