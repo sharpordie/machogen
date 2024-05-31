@@ -421,6 +421,7 @@ update_android_studio() {
 				delay 4
 			end tell
 		EOD
+		pkill -9 -f 'Android Studio'
 	fi
 
 	# Finish installation
