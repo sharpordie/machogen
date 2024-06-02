@@ -1566,6 +1566,25 @@ update_yt_dlp() {
 
 }
 
+#region DEVTOOLS
+
+update_react_devtools {
+
+	# Update dependencies
+	update_chromium
+	update_nodejs
+	update_vscode
+
+	# Update vscode extensions
+	update_vscode_extension "dbaeumer.vscode-eslint"
+	update_vscode_extension "bradlc.vscode-tailwindcss"
+	update_vscode_extension "esbenp.prettier-vscode"
+	update_vscode_extension "Prisma.prisma"
+
+}
+
+#endregion
+
 #endregion
 
 main() {
@@ -1648,6 +1667,7 @@ main() {
 		"update_transmission"
 		"update_utm"
 		# "update_yt_dlp"
+		"update_react_devtools"
 		"update_appearance"
 	)
 
