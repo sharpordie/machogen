@@ -1575,9 +1575,13 @@ update_react_devtools() {
 	update_nodejs
 	update_vscode
 
+	# Update chromium extensions
+	update_chromium_extension "fmkadmapgofadopljbjfkapdkoienihi" # react-developer-tools
+	update_chromium_extension "lmhkpmbekcpmknklioeibfkpmmfibljd" # redux-devtools
+
 	# Update vscode extensions
-	update_vscode_extension "dbaeumer.vscode-eslint"
 	update_vscode_extension "bradlc.vscode-tailwindcss"
+	update_vscode_extension "dbaeumer.vscode-eslint"
 	update_vscode_extension "esbenp.prettier-vscode"
 	update_vscode_extension "Prisma.prisma"
 
