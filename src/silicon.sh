@@ -1568,7 +1568,7 @@ update_yt_dlp() {
 
 #region DEVTOOLS
 
-update_react_devtools {
+update_react_devtools() {
 
 	# Update dependencies
 	update_chromium
@@ -1582,8 +1582,6 @@ update_react_devtools {
 	update_vscode_extension "Prisma.prisma"
 
 }
-
-#endregion
 
 #endregion
 
