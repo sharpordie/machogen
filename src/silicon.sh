@@ -1220,24 +1220,24 @@ update_nightlight() {
 update_nodejs() {
 
 	# Update dependencies
-	brew install grep
-	brew upgrade grep
+	brew install grep jq
+	brew upgrade grep jq
 
 	# Update package
-	local address="https://nodejs.org/en/download/"
-	local pattern="https://nodejs.org/dist/v\K([\d]+)"
-	local version=$(curl -LA "mozilla/5.0" "$address" | ggrep -oP "$pattern" | head -1)
+	local address="https://raw.githubusercontent.com/scoopinstaller/main/master/bucket/nodejs-lts.json"
+	local version=$(curl -LA "mozilla/5.0" "$address" | jq '.version' | ggrep -oP "[\d]+" | head -1)
 	brew install node@"$version"
 	brew upgrade node@"$version"
+	# brew link node@"$version" --force
 
 	# Change environment
-	if ! grep -q "/usr/local/opt/node" "$HOME/.zshrc" 2>/dev/null; then
+	if ! grep -q "/opt/homebrew/opt/node" "$HOME/.zshrc" 2>/dev/null; then
 		[[ -s "$HOME/.zshrc" ]] || echo '#!/bin/zsh' >"$HOME/.zshrc"
 		[[ -z $(tail -1 "$HOME/.zshrc") ]] || echo "" >>"$HOME/.zshrc"
-		echo "export PATH=\"\$PATH:/usr/local/opt/node@$version/bin\"" >>"$HOME/.zshrc"
+		echo "export PATH=\"\$PATH:/opt/homebrew/opt/node@$version/bin\"" >>"$HOME/.zshrc"
 		source "$HOME/.zshrc"
 	else
-		sed -i "" -e "s#/usr/local/opt/node.*/bin#/usr/local/opt/node@$version/bin#" "$HOME/.zshrc"
+		sed -i "" -e "s#/opt/homebrew/opt/node.*/bin#/opt/homebrew/opt/node@$version/bin#" "$HOME/.zshrc"
 		source "$HOME/.zshrc"
 	fi
 
@@ -1635,42 +1635,42 @@ main() {
 
 	# Handle elements
 	local members=(
-		"update_system"
-		"update_android_studio"
-		"update_chromium"
-		"update_flutter"
-		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		"update_pycharm"
-		"update_vscode"
+		# "update_system"
+		# "update_android_studio"
+		# "update_chromium"
+		# "update_flutter"
+		# "update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
+		# "update_pycharm"
+		# "update_vscode"
 		# "update_xcode"
-		"update_calibre"
+		# "update_calibre"
 		# "update_discord"
-		"update_docker"
-		"update_figma"
-		"update_github_cli"
+		# "update_docker"
+		# "update_figma"
+		# "update_github_cli"
 		# "update_github_desktop"
-		"update_iina"
-		"update_jdownloader"
+		# "update_iina"
+		# "update_jdownloader"
 		# "update_joal_desktop"
-		"update_keepassxc"
-		"update_keepingyouawake"
-		"update_mambaforge"
+		# "update_keepassxc"
+		# "update_keepingyouawake"
+		# "update_mambaforge"
 		# "update_mqttx"
-		"update_netnewswire"
-		"update_nightlight"
+		# "update_netnewswire"
+		# "update_nightlight"
 		"update_nodejs"
-		"update_pearcleaner"
+		# "update_pearcleaner"
 		# "update_pgadmin"
 		# "update_postgresql"
-		"update_rustdesk"
-		"update_scrcpy"
-		"update_the_unarchiver"
-		"update_transmission"
-		"update_utm"
-		"update_yt_dlp"
+		# "update_rustdesk"
+		# "update_scrcpy"
+		# "update_the_unarchiver"
+		# "update_transmission"
+		# "update_utm"
+		# "update_yt_dlp"
 		# "update_odoo_devtools"
-		"update_react_devtools"
-		"update_appearance"
+		# "update_react_devtools"
+		# "update_appearance"
 	)
 
 	# Output progress
