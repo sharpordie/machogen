@@ -1585,6 +1585,12 @@ update_react_devtools() {
 	update_vscode_extension "esbenp.prettier-vscode"
 	update_vscode_extension "Prisma.prisma"
 
+	# Change vscode settings
+	local configs="$HOME/Library/Application Support/Code/User/settings.json"
+	[[ -s "$configs" ]] || echo "{}" >"$configs"
+	jq '."editor.formatOnSave" = true' "$configs" | sponge "$configs"
+	jq '."[javascriptreact]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
+
 }
 
 #endregion
@@ -1658,7 +1664,7 @@ main() {
 		# "update_mqttx"
 		# "update_netnewswire"
 		# "update_nightlight"
-		"update_nodejs"
+		# "update_nodejs"
 		# "update_pearcleaner"
 		# "update_pgadmin"
 		# "update_postgresql"
@@ -1669,7 +1675,7 @@ main() {
 		# "update_utm"
 		# "update_yt_dlp"
 		# "update_odoo_devtools"
-		# "update_react_devtools"
+		"update_react_devtools"
 		# "update_appearance"
 	)
 
