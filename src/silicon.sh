@@ -152,9 +152,11 @@ change_dock_items() {
 
 	# Append items
 	for element in "${factors[@]}"; do
-		local content="<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>$element"
-		local content="$content</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"
-		defaults write com.apple.dock persistent-apps -array-add "$content"
+		if [[ -d "$element" ]]; then
+			local content="<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>$element"
+			local content="$content</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"
+			defaults write com.apple.dock persistent-apps -array-add "$content"
+		fi
 	done
 
 }
@@ -450,26 +452,26 @@ update_appearance() {
 		"/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
 		"/Applications/Chromium.app"
 		"/Applications/NetNewsWire.app"
-		# "/Applications/MQTTX.app"
+		"/Applications/MQTTX.app"
 		"/Applications/JDownloader 2/JDownloader2.app"
 		"/Applications/Transmission.app"
-		#"/Applications/Discord.app"
+		"/Applications/Discord.app"
 		"/Applications/UTM.app"
-		# "/Applications/PyCharm.app"
-		#"/Applications/pgAdmin 4.app"
+		"/Applications/PyCharm.app"
+		"/Applications/pgAdmin 4.app"
 		"/Applications/Visual Studio Code.app"
 		"/Applications/Android Studio.app"
-		#"/Applications/Xcode.app"
-		#"/Applications/GitHub Desktop.app"
+		"/Applications/Xcode.app"
+		"/Applications/GitHub Desktop.app"
 		"/Applications/Figma.app"
 		"/Applications/IINA.app"
-		#"/Applications/JoalDesktop.app"
+		"/Applications/JoalDesktop.app"
 		"/Applications/KeePassXC.app"
-		#"/Applications/calibre.app"
+		"/Applications/calibre.app"
 		"/System/Applications/Utilities/Terminal.app"
-		# "/System/Applications/Stickies.app"
 		"/Applications/Pearcleaner.app"
 		"/System/Applications/System Settings.app"
+		# "/System/Applications/Stickies.app"
 	)
 	change_dock_items "${members[@]}"
 
@@ -514,8 +516,6 @@ update_calibre() {
 }
 
 update_chromium() {
-
-	# TODO: Handle blocking password prompt
 
 	# Handle parameters
 	local deposit=${1:-$HOME/Downloads/DDL}
@@ -813,7 +813,7 @@ update_chromium() {
 	if [[ "$present" == "true" ]]; then return 0; fi
 
 	# Update bypass-paywalls-chrome-clean
-	update_chromium_extension "https://gitlab.com/magnolia1234/bypass-paywalls-chrome-clean/-/archive/master/bypass-paywalls-chrome-clean-master.zip"
+	update_chromium_extension "https://github.com/bpc-clone/bpc_updates/releases/download/latest/bypass-paywalls-chrome-clean-master.zip"
 
 }
 
@@ -1243,37 +1243,6 @@ update_nodejs() {
 
 }
 
-update_odoo() {
-
-	# Update dependencies
-	update_mambaforge
-	update_nodejs
-	update_postgresql
-	update_pycharm
-	update_vscode
-	xcode-select --install
-	brew install --cask --no-quarantine wkhtmltopdf
-	brew upgrade --cask --no-quarantine wkhtmltopdf
-
-	# Create postgresql database
-	createdb $USER 2>/dev/null
-
-	# Update nodejs modules
-	npm install -g rtlcss
-
-	# TODO: Create mambaforge environment
-	# TODO: Install Odoo community on created environment
-	
-	# Update pycharm plugins
-	update_jetbrains_plugin "PyCharm" "10037" # csv-editor
-	update_jetbrains_plugin "PyCharm" "12478" # xpathview-xslt
-	update_jetbrains_plugin "PyCharm" "13499" # odoo
-
-	# Update vscode extensions
-	update_vscode_extension "jigar-patel.odoosnippets"
-
-}
-
 update_pearcleaner() {
 
 	# Update package
@@ -1568,6 +1537,37 @@ update_yt_dlp() {
 
 #region DEVTOOLS
 
+update_odoo_devtools() {
+
+	# Update dependencies
+	update_mambaforge
+	update_nodejs
+	update_postgresql
+	update_pycharm
+	update_vscode
+	xcode-select --install
+	brew install --cask --no-quarantine wkhtmltopdf
+	brew upgrade --cask --no-quarantine wkhtmltopdf
+
+	# Create postgresql database
+	createdb $USER 2>/dev/null
+
+	# Update nodejs modules
+	npm install -g rtlcss
+
+	# TODO: Create mambaforge environment
+	# TODO: Install odoo community on created environment
+	
+	# Update pycharm plugins
+	update_jetbrains_plugin "PyCharm" "10037" # csv-editor
+	update_jetbrains_plugin "PyCharm" "12478" # xpathview-xslt
+	update_jetbrains_plugin "PyCharm" "13499" # odoo
+
+	# Update vscode extensions
+	update_vscode_extension "jigar-patel.odoosnippets"
+
+}
+
 update_react_devtools() {
 
 	# Update dependencies
@@ -1638,12 +1638,12 @@ main() {
 		"update_system"
 		"update_android_studio"
 		"update_chromium"
-		# "update_flutter"
+		"update_flutter"
 		"update_git 'main' 'sharpordie' '72373746+sharpordie@users.noreply.github.com'"
-		# "update_pycharm"
+		"update_pycharm"
 		"update_vscode"
 		# "update_xcode"
-		# "update_calibre"
+		"update_calibre"
 		# "update_discord"
 		"update_docker"
 		"update_figma"
@@ -1654,21 +1654,21 @@ main() {
 		# "update_joal_desktop"
 		"update_keepassxc"
 		"update_keepingyouawake"
-		# "update_mambaforge"
+		"update_mambaforge"
 		# "update_mqttx"
 		"update_netnewswire"
 		"update_nightlight"
 		"update_nodejs"
-		# "update_odoo"
 		"update_pearcleaner"
 		# "update_pgadmin"
 		# "update_postgresql"
-		# "update_rustdesk"
-		# "update_scrcpy"
+		"update_rustdesk"
+		"update_scrcpy"
 		"update_the_unarchiver"
 		"update_transmission"
 		"update_utm"
-		# "update_yt_dlp"
+		"update_yt_dlp"
+		# "update_odoo_devtools"
 		"update_react_devtools"
 		"update_appearance"
 	)
