@@ -1582,6 +1582,7 @@ update_react_devtools() {
 	# Update vscode extensions
 	update_vscode_extension "bradlc.vscode-tailwindcss"
 	update_vscode_extension "dbaeumer.vscode-eslint"
+	update_vscode_extension "dsznajder.es7-react-js-snippets"
 	update_vscode_extension "esbenp.prettier-vscode"
 	update_vscode_extension "joao-mbn.react-extract"
 	update_vscode_extension "Prisma.prisma"
