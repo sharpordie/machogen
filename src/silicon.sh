@@ -1476,6 +1476,7 @@ update_vscode() {
 	# Update extensions
 	update_vscode_extension "foxundermoon.shell-format"
 	update_vscode_extension "github.github-vscode-theme"
+	update_vscode_extension "joao-mbn.react-extract"
 
 	# Change settings
 	local configs="$HOME/Library/Application Support/Code/User/settings.json"
