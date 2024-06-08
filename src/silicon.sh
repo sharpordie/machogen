@@ -1476,7 +1476,6 @@ update_vscode() {
 	# Update extensions
 	update_vscode_extension "foxundermoon.shell-format"
 	update_vscode_extension "github.github-vscode-theme"
-	update_vscode_extension "joao-mbn.react-extract"
 
 	# Change settings
 	local configs="$HOME/Library/Application Support/Code/User/settings.json"
@@ -1584,6 +1583,7 @@ update_react_devtools() {
 	update_vscode_extension "bradlc.vscode-tailwindcss"
 	update_vscode_extension "dbaeumer.vscode-eslint"
 	update_vscode_extension "esbenp.prettier-vscode"
+	update_vscode_extension "joao-mbn.react-extract"
 	update_vscode_extension "Prisma.prisma"
 
 	# Change vscode settings
