@@ -1243,6 +1243,14 @@ update_nodejs() {
 
 }
 
+update_ollama() {
+
+	# Update package
+	brew install ollama
+	brew upgrade ollama
+
+}
+
 update_pearcleaner() {
 
 	# Update package
@@ -1590,8 +1598,10 @@ update_react_devtools() {
 	# Change vscode settings
 	local configs="$HOME/Library/Application Support/Code/User/settings.json"
 	[[ -s "$configs" ]] || echo "{}" >"$configs"
-	jq '."editor.formatOnSave" = true' "$configs" | sponge "$configs"
+	jq '."[javascript]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
+	jq '."[javascript]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
 	jq '."[javascriptreact]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
+	jq '."[javascriptreact]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
 
 }
 
@@ -1667,6 +1677,7 @@ main() {
 		# "update_netnewswire"
 		# "update_nightlight"
 		# "update_nodejs"
+		"update_ollama"
 		# "update_pearcleaner"
 		# "update_pgadmin"
 		# "update_postgresql"
@@ -1677,7 +1688,7 @@ main() {
 		# "update_utm"
 		# "update_yt_dlp"
 		# "update_odoo_devtools"
-		"update_react_devtools"
+		# "update_react_devtools"
 		# "update_appearance"
 	)
 
