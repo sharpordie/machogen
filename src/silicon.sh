@@ -1489,13 +1489,14 @@ update_vscode() {
 	local configs="$HOME/Library/Application Support/Code/User/settings.json"
 	[[ -s "$configs" ]] || echo "{}" >"$configs"
 	jq '."editor.fontSize" = 12' "$configs" | sponge "$configs"
+	jq '."editor.guides.bracketPairs" = "active"' "$configs" | sponge "$configs"
 	jq '."editor.lineHeight" = 28' "$configs" | sponge "$configs"
 	jq '."security.workspace.trust.enabled" = false' "$configs" | sponge "$configs"
 	jq '."telemetry.telemetryLevel" = "crash"' "$configs" | sponge "$configs"
 	jq '."update.mode" = "none"' "$configs" | sponge "$configs"
 	jq '."workbench.colorTheme" = "GitHub Dark Default"' "$configs" | sponge "$configs"
 	jq '."workbench.startupEditor" = "none"' "$configs" | sponge "$configs"
-	
+
 }
 
 update_xcode() {
