@@ -1602,6 +1602,8 @@ update_react_devtools() {
 	jq '."[javascript]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
 	jq '."[javascriptreact]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
 	jq '."[javascriptreact]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
+	jq '."[typescriptreact]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
+	jq '."[typescriptreact]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
 
 }
 
