@@ -1598,10 +1598,13 @@ update_react_devtools() {
 	# Change vscode settings
 	local configs="$HOME/Library/Application Support/Code/User/settings.json"
 	[[ -s "$configs" ]] || echo "{}" >"$configs"
+	jq '."[javascript]"."editor.codeActionsOnSave"."source.fixAll" = "explicit"' "$configs" | sponge "$configs"
 	jq '."[javascript]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
 	jq '."[javascript]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
+	jq '."[javascriptreact]"."editor.codeActionsOnSave"."source.fixAll" = "explicit"' "$configs" | sponge "$configs"
 	jq '."[javascriptreact]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
 	jq '."[javascriptreact]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
+	jq '."[typescriptreact]"."editor.codeActionsOnSave"."source.fixAll" = "explicit"' "$configs" | sponge "$configs"
 	jq '."[typescriptreact]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
 	jq '."[typescriptreact]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
 
