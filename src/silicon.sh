@@ -1592,8 +1592,7 @@ update_react_devtools() {
 	update_vscode_extension "dbaeumer.vscode-eslint"
 	update_vscode_extension "dsznajder.es7-react-js-snippets"
 	update_vscode_extension "esbenp.prettier-vscode"
-	update_vscode_extension "joao-mbn.react-extract"
-	update_vscode_extension "Prisma.prisma"
+	update_vscode_extension "usernamehw.errorlens"
 
 	# Change vscode settings
 	local configs="$HOME/Library/Application Support/Code/User/settings.json"
