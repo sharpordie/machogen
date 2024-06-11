@@ -1488,9 +1488,9 @@ update_vscode() {
 	# Change settings
 	local configs="$HOME/Library/Application Support/Code/User/settings.json"
 	[[ -s "$configs" ]] || echo "{}" >"$configs"
-	jq '."editor.fontSize" = 12' "$configs" | sponge "$configs"
+	jq '."editor.fontSize" = 13' "$configs" | sponge "$configs"
 	jq '."editor.guides.bracketPairs" = "active"' "$configs" | sponge "$configs"
-	jq '."editor.lineHeight" = 28' "$configs" | sponge "$configs"
+	jq '."editor.lineHeight" = 36' "$configs" | sponge "$configs"
 	jq '."security.workspace.trust.enabled" = false' "$configs" | sponge "$configs"
 	jq '."telemetry.telemetryLevel" = "crash"' "$configs" | sponge "$configs"
 	jq '."update.mode" = "none"' "$configs" | sponge "$configs"
@@ -1598,15 +1598,9 @@ update_react_devtools() {
 	# Change vscode settings
 	local configs="$HOME/Library/Application Support/Code/User/settings.json"
 	[[ -s "$configs" ]] || echo "{}" >"$configs"
-	jq '."[javascript]"."editor.codeActionsOnSave"."source.fixAll" = "explicit"' "$configs" | sponge "$configs"
-	jq '."[javascript]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
-	jq '."[javascript]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
-	jq '."[javascriptreact]"."editor.codeActionsOnSave"."source.fixAll" = "explicit"' "$configs" | sponge "$configs"
-	jq '."[javascriptreact]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
-	jq '."[javascriptreact]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
-	jq '."[typescriptreact]"."editor.codeActionsOnSave"."source.fixAll" = "explicit"' "$configs" | sponge "$configs"
-	jq '."[typescriptreact]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
-	jq '."[typescriptreact]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
+	jq '."[javascript][javascriptreact][typescript][typescriptreact]"."editor.codeActionsOnSave"."source.fixAll" = "explicit"' "$configs" | sponge "$configs"
+	jq '."[javascript][javascriptreact][typescript][typescriptreact]"."editor.defaultFormatter" = "esbenp.prettier-vscode"' "$configs" | sponge "$configs"
+	jq '."[javascript][javascriptreact][typescript][typescriptreact]"."editor.formatOnSave" = true' "$configs" | sponge "$configs"
 
 }
 
