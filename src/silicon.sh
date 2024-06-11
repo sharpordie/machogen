@@ -1593,6 +1593,7 @@ update_react_devtools() {
 	update_vscode_extension "dbaeumer.vscode-eslint"
 	update_vscode_extension "dsznajder.es7-react-js-snippets"
 	update_vscode_extension "esbenp.prettier-vscode"
+	update_vscode_extension "PolymerMallard.css-alphabetize"
 	update_vscode_extension "streetsidesoftware.code-spell-checker"
 	update_vscode_extension "usernamehw.errorlens"
 
