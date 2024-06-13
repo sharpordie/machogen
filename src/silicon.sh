@@ -449,6 +449,7 @@ update_appearance() {
 
 	# Change dock items
 	local members=(
+		# Internet
 		"/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
 		"/Applications/Chromium.app"
 		"/Applications/NetNewsWire.app"
@@ -456,22 +457,26 @@ update_appearance() {
 		"/Applications/JDownloader 2/JDownloader2.app"
 		"/Applications/Transmission.app"
 		"/Applications/Discord.app"
-		"/Applications/UTM.app"
-		"/Applications/PyCharm.app"
-		"/Applications/pgAdmin 4.app"
+		"/Applications/JoalDesktop.app"
+		# Development
+		"/System/Applications/Utilities/Terminal.app"
 		"/Applications/Visual Studio Code.app"
 		"/Applications/Android Studio.app"
 		"/Applications/Xcode.app"
+		"/Applications/PyCharm.app"
+		"/Applications/pgAdmin 4.app"
 		"/Applications/GitHub Desktop.app"
+		# Design
 		"/Applications/Figma.app"
+		# Multimedia
 		"/Applications/IINA.app"
-		"/Applications/JoalDesktop.app"
+		# Utilities
 		"/Applications/KeePassXC.app"
+		"/Applications/Notion.app"
 		"/Applications/calibre.app"
-		"/System/Applications/Utilities/Terminal.app"
+		"/Applications/UTM.app"
 		"/Applications/Pearcleaner.app"
 		"/System/Applications/System Settings.app"
-		# "/System/Applications/Stickies.app"
 	)
 	change_dock_items "${members[@]}"
 
