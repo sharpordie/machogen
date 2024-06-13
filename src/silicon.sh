@@ -1243,6 +1243,20 @@ update_nodejs() {
 
 }
 
+update_notion() {
+
+	# Update package
+	brew install --cask --no-quarantine notion
+	brew upgrade --cask --no-quarantine notion
+
+	# Change icons
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/notion.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
+	fileicon set "/Applications/Notion.app" "$picture" || sudo !!
+
+}
+
 update_ollama() {
 
 	# Update package
@@ -1679,7 +1693,8 @@ main() {
 		# "update_netnewswire"
 		# "update_nightlight"
 		# "update_nodejs"
-		"update_ollama"
+		"update_notion"
+		# "update_ollama"
 		# "update_pearcleaner"
 		# "update_pgadmin"
 		# "update_postgresql"
