@@ -470,6 +470,8 @@ update_appearance() {
 		"/Applications/Figma.app"
 		# Multimedia
 		"/Applications/IINA.app"
+		"/Applications/CapCut.app"
+		"/Applications/OBS.app"
 		# Utilities
 		"/Applications/KeePassXC.app"
 		"/Applications/Notion.app"
@@ -517,6 +519,14 @@ update_calibre() {
 	# TODO: Find a way to stop corrupting calibre with this hack.
 	# local sitting="/Applications/calibre.app/Contents/Resources/resources/images/library.png"
 	# sudo sips -Z 256 -s format png "$picture" --out "$sitting"
+
+}
+
+update_capcut() {
+
+	# Update package
+	brew install --cask --no-quarantine capcut
+	brew upgrade --cask --no-quarantine capcut
 
 }
 
@@ -1262,6 +1272,20 @@ update_notion() {
 
 }
 
+update_obs() {
+
+	# Update package
+	brew install --cask --no-quarantine obs
+	brew upgrade --cask --no-quarantine obs
+
+	# Change icons
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/notion.icns"
+	local picture="$(mktemp -d)/$(basename "$address")"
+	curl -LA "mozilla/5.0" "$address" -o "$picture"
+	fileicon set "/Applications/Notion.app" "$picture" || sudo !!
+
+}
+
 update_ollama() {
 
 	# Update package
@@ -1615,6 +1639,7 @@ update_react_devtools() {
 	update_vscode_extension "PolymerMallard.css-alphabetize"
 	update_vscode_extension "streetsidesoftware.code-spell-checker"
 	update_vscode_extension "usernamehw.errorlens"
+	update_vscode_extension "yoavbls.pretty-ts-errors"
 
 	# Change vscode settings
 	local configs="$HOME/Library/Application Support/Code/User/settings.json"
@@ -1683,6 +1708,7 @@ main() {
 		# "update_vscode"
 		# "update_xcode"
 		# "update_calibre"
+		"update_capcut"
 		# "update_discord"
 		# "update_docker"
 		# "update_figma"
@@ -1698,7 +1724,8 @@ main() {
 		# "update_netnewswire"
 		# "update_nightlight"
 		# "update_nodejs"
-		"update_notion"
+		# "update_notion"
+		"update_obs"
 		# "update_ollama"
 		# "update_pearcleaner"
 		# "update_pgadmin"
@@ -1711,7 +1738,7 @@ main() {
 		# "update_yt_dlp"
 		# "update_odoo_devtools"
 		# "update_react_devtools"
-		# "update_appearance"
+		"update_appearance"
 	)
 
 	# Output progress
