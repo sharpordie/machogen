@@ -152,6 +152,7 @@ change_dock_items() {
 
 	# Append items
 	for element in "${factors[@]}"; do
+		[[ "$element" == "Spacer" ]] && defaults write com.apple.dock persistent-apps -array-add '{"tile-type"="small-spacer-tile";}'
 		if [[ -d "$element" ]]; then
 			local content="<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>$element"
 			local content="$content</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"
@@ -449,7 +450,11 @@ update_appearance() {
 
 	# Change dock items
 	local members=(
+		# System
+		"/System/Applications/System Settings.app"
+		"/System/Applications/Utilities/Terminal.app"
 		# Internet
+		"Spacer"
 		"/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app"
 		"/Applications/Chromium.app"
 		"/Applications/NetNewsWire.app"
@@ -459,26 +464,28 @@ update_appearance() {
 		"/Applications/Discord.app"
 		"/Applications/JoalDesktop.app"
 		# Development
-		"/System/Applications/Utilities/Terminal.app"
+		"Spacer"
 		"/Applications/Visual Studio Code.app"
 		"/Applications/Android Studio.app"
 		"/Applications/Xcode.app"
 		"/Applications/PyCharm.app"
 		"/Applications/pgAdmin 4.app"
 		"/Applications/GitHub Desktop.app"
+		"/Applications/UTM.app"
 		# Design
+		"Spacer"
 		"/Applications/Figma.app"
 		# Multimedia
+		"Spacer"
 		"/Applications/IINA.app"
 		"/Applications/CapCut.app"
 		"/Applications/OBS.app"
 		# Utilities
+		"Spacer"
 		"/Applications/KeePassXC.app"
 		"/Applications/Notion.app"
 		"/Applications/calibre.app"
-		"/Applications/UTM.app"
 		"/Applications/Pearcleaner.app"
-		"/System/Applications/System Settings.app"
 	)
 	change_dock_items "${members[@]}"
 
@@ -490,7 +497,7 @@ update_appearance() {
 	defaults write com.apple.dock orientation bottom
 	defaults write com.apple.dock show-recents -bool false
 	defaults write com.apple.Dock size-immutable -bool yes
-	defaults write com.apple.dock tilesize -int 48
+	defaults write com.apple.dock tilesize -int 42
 	defaults write com.apple.dock wvous-bl-corner -int 0
 	defaults write com.apple.dock wvous-br-corner -int 0
 	defaults write com.apple.dock wvous-tl-corner -int 0
@@ -1279,10 +1286,10 @@ update_obs() {
 	brew upgrade --cask --no-quarantine obs
 
 	# Change icons
-	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/notion.icns"
+	local address="https://github.com/sharpordie/machogen/raw/HEAD/src/assets/obs.icns"
 	local picture="$(mktemp -d)/$(basename "$address")"
 	curl -LA "mozilla/5.0" "$address" -o "$picture"
-	fileicon set "/Applications/Notion.app" "$picture" || sudo !!
+	fileicon set "/Applications/OBS.app" "$picture" || sudo !!
 
 }
 
@@ -1525,6 +1532,7 @@ update_vscode() {
 	brew upgrade --cask --no-quarantine visual-studio-code
 	
 	# Update extensions
+	update_vscode_extension "Codeium.codeium"
 	update_vscode_extension "foxundermoon.shell-format"
 	update_vscode_extension "github.github-vscode-theme"
 
@@ -1626,6 +1634,7 @@ update_react_devtools() {
 	update_chromium
 	update_nodejs
 	update_vscode
+	brew install pnpm
 
 	# Update chromium extensions
 	update_chromium_extension "fmkadmapgofadopljbjfkapdkoienihi" # react-developer-tools
@@ -1634,9 +1643,7 @@ update_react_devtools() {
 	# Update vscode extensions
 	update_vscode_extension "bradlc.vscode-tailwindcss"
 	update_vscode_extension "dbaeumer.vscode-eslint"
-	update_vscode_extension "dsznajder.es7-react-js-snippets"
 	update_vscode_extension "esbenp.prettier-vscode"
-	update_vscode_extension "PolymerMallard.css-alphabetize"
 	update_vscode_extension "streetsidesoftware.code-spell-checker"
 	update_vscode_extension "usernamehw.errorlens"
 	update_vscode_extension "yoavbls.pretty-ts-errors"
@@ -1708,7 +1715,7 @@ main() {
 		# "update_vscode"
 		# "update_xcode"
 		# "update_calibre"
-		"update_capcut"
+		# "update_capcut"
 		# "update_discord"
 		# "update_docker"
 		# "update_figma"
